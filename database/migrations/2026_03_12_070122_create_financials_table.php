@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('financials', function (Blueprint $table) {
            $table->id();
             $table->foreignId('student_id')->constrained()->onDelete('cascade');
-            $table->string('major');
             $table->decimal('total_fees', 10, 2);
             $table->decimal('amount_paid', 10, 2)->default(0.00);
             $table->decimal('balance_remaining', 10, 2)->nullable();

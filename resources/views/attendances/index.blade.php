@@ -1,40 +1,50 @@
 <x-layouts.master title="Attendance">
-
+    <x-slot name="search">
+        <x-search 
+            action="{{ route('attendances.index') }}"
+            placeholder="Search attendance records..."
+        />
+    </x-slot>
     {{-- Page Title + Actions --}}
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
             <h1 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Student Attendance</h1>
             <p class="text-slate-500 dark:text-slate-400 mt-1">Monitor and manage student attendance records.</p>
         </div>
+        <div class="flex items-center gap-3 ml-auto">
+            <a href="{{route('attendances.create')}}"><button class="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">
+                <span class="material-symbols-outlined text-lg">add</span>
+                <span>Add Attendance</span>
+            </button></a>
+        </div>
     </div>
 
     {{-- Filters --}}
     <div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 flex flex-wrap gap-3 mb-6">
+        <form action="/attendances" method="get" class="flex flex-wrap gap-3">
+            <label class="flex items-center gap-2 px-4 py-2 border border-slate-200 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer">
+                <select name="major" class="bg-transparent border-none outline-none focus:ring-0 focus:outline-none text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer">
+                    <option value="">All Majors</option>
+                    @foreach($majors as $major)
+                        <option value="{{ $major }}" {{ request('major') == $major ? 'selected' : '' }}>
+                            {{ $major }}
+                        </option>
+                    @endforeach
+                </select>
+            </label>
 
-        <button class="flex items-center gap-2 px-4 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800">
-            <span>Major: All Majors</span>
-            <span class="material-symbols-outlined text-lg">expand_more</span>
-        </button>
-
-        <button class="flex items-center gap-2 px-4 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800">
-            <span>Status: All</span>
-            <span class="material-symbols-outlined text-lg">expand_more</span>
-        </button>
-
-        <button class="flex items-center gap-2 px-4 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800">
-            <span>Year: 2025-2026</span>
-            <span class="material-symbols-outlined text-lg">calendar_month</span>
-        </button>
-
-        <div class="ml-auto flex items-center gap-2">
-            <button class="p-2 text-slate-500 hover:text-primary">
-                <span class="material-symbols-outlined">filter_list</span>
-            </button>
-            <button class="p-2 text-slate-500 hover:text-primary">
-                <span class="material-symbols-outlined">download</span>
-            </button>
-        </div>
-
+            <label class="flex items-center gap-2 px-4 py-2 border border-slate-200 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer">
+                <select name="status" class="bg-transparent border-none outline-none focus:ring-0 focus:outline-none text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer">
+                    <option value="">All Status</option>
+                    @foreach($statuses as $status)
+                        <option value="{{ $status }}" {{ request('status') == $status ? 'selected' : '' }}>
+                            {{ $status }}
+                        </option>
+                    @endforeach
+                </select>
+            </label>
+        </form> 
+        
     </div>
 
     {{-- Table --}}
@@ -144,5 +154,11 @@
         </div>
 
     </div>
-
+    <script>
+        document.querySelectorAll('select').forEach(select => {
+            select.addEventListener('change', () => {
+                select.closest('form').submit();
+            });
+        });
+    </script>
 </x-layouts.master>

@@ -30,6 +30,23 @@
         {{-- Form --}}
         <form action="{{ route('handleRegister') }}" method="POST" class="flex flex-col gap-5">
             @csrf
+
+            {{-- Name --}}
+            <div class="flex flex-col gap-2">
+                <label class="text-slate-900 dark:text-slate-100 text-sm font-medium leading-normal flex items-center gap-2 font-semibold">
+                    <span class="material-symbols-outlined text-lg">person</span>
+                    Name
+                </label>
+                <input
+                    type="text"
+                    name = "name"
+                    value = "{{ old('name') }}"
+                    placeholder="Enter your name"
+                    required=""
+                    class="w-full px-4 py-3.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none placeholder:text-slate-400"
+                />
+            </div>
+            
             {{-- Email --}}
             <div class="flex flex-col gap-2">
                 <label class="text-slate-900 dark:text-slate-100 text-sm font-medium leading-normal flex items-center gap-2 font-semibold">

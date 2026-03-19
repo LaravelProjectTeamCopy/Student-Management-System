@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('attendances', function (Blueprint $table) {
             $table->id();
             $table->foreignId('student_id')->constrained('students')->onDelete('cascade');
-            $table->string('major');
             $table->integer('total_days')->unsigned();
             $table->integer('present_days')->unsigned();
             $table->integer('absent_days')->unsigned();
+            $table->string('status')->default('Critical');
         });
     }
 

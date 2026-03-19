@@ -75,6 +75,7 @@
                 <div class="flex items-center gap-2">
                     <input
                         type="checkbox"
+                        name="remember"
                         id="remember"
                         class="rounded border-slate-300 text-primary focus:ring-primary cursor-pointer"
                     />

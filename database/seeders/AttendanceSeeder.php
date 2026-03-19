@@ -15,7 +15,6 @@ class AttendanceSeeder extends Seeder
         foreach ($students as $student) {
             Attendance::factory()->create([
                 'student_id' => $student->id,
-                'major' => $student->major
             ]);
         }
     }

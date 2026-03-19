@@ -15,6 +15,23 @@ class StudentController extends Controller
         return view('students.index');
     }
 
+    public function showcreate()
+    {
+        return view('students.create');
+    }
+    public function studentcreate(Request $request)
+    {
+        $validated = $request->validate([
+            'name'  => 'required|string|max:255',
+            'email' => 'required|email|unique:students,email',
+            'major' => 'required|string|max:255',
+        ]);
+
+        Student::create($validated);
+
+        return redirect('/welcome')->with('success', 'Student created successfully!');
+    }
+
     public function showimport()
     {
         return view('students.import');

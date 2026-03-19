@@ -16,7 +16,6 @@ class FinancialSeeder extends Seeder
         foreach ($students as $student) {
             Financial::factory()->create([  // 👈 Financial not FinancialSeeder
                 'student_id' => $student->id,
-                'major'      => $student->major,
             ]);
         }
     }

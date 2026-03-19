@@ -10,7 +10,7 @@ use Maatwebsite\Excel\Concerns\WithValidation;
 
 class StudentsImport implements ToModel, WithHeadingRow, WithValidation
 {
-        public function model(array $row)
+    public function model(array $row)
     {
         return new Student([
             'name'  => $row['name'],

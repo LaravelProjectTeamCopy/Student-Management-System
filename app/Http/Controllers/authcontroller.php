@@ -52,9 +52,17 @@ class authcontroller extends Controller
     {
         return view('emails.email');
     }
+    public function messagelogin()
+    {
+        if (auth()->check()) {
+        return redirect('/welcome')->with('success', 'Welcome back, ' . auth()->user()->name . '!');
+        }
+        return redirect('/login');
+    }
     public function register(Request $request)
     {     
         $validated = $request->validate([
+            'name' => 'required|string|unique:users,name|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed'
         ]);
@@ -80,9 +88,8 @@ class authcontroller extends Controller
         'password' => 'required|string',
     ]);
 
-    if (Auth::attempt($credentials)) {
+    if (Auth::attempt($credentials, $request->boolean('remember'))) {
         $request->session()->regenerate();
-
         return redirect()->intended('/welcome')->with('success', 'Login Successful.');
     }
 
