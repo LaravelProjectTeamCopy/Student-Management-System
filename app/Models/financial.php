@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class financial extends Model
+class Financial extends Model
 {
     /** @use HasFactory<\Database\Factories\FinancialFactory> */
     use HasFactory;
@@ -14,7 +14,7 @@ class financial extends Model
         'student_id',
         'total_fees',
         'amount_paid',
-        'balance_remaining',
+        'balance_remaining',    
         'payment_status',
         'payment_date'
     ];

@@ -116,62 +116,28 @@
                 </div>
 
                 <div class="flex flex-col gap-6">
-
-                    <div class="relative flex gap-4 pb-2">
-                        <div class="absolute left-4 top-8 h-full w-px bg-slate-200 dark:bg-slate-800"></div>
-                        <div class="relative z-10 flex size-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
-                            <span class="material-symbols-outlined text-sm">check_circle</span>
+                    @forelse($logs as $log)
+                        <div class="relative flex gap-4 pb-2">
+                            <div class="absolute left-4 top-8 h-full w-px bg-slate-200 dark:bg-slate-800"></div>
+                            <div class="relative z-10 flex size-12 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+                                <span class="material-symbols-outlined text-2xl">calendar_month</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <p class="text-sm font-semibold">Attendance Updated</p>
+                                <p class="text-xs text-slate-500">Present: {{ $log->present_days }} / {{ $log->total_days }} days</p>
+                                <p class="text-xs text-slate-500">Absent: {{ $log->absent_days }} days</p>
+                                <p class="text-xs text-slate-500">Status: {{ $log->status }}</p>
+                                <p class="mt-1 text-xs text-slate-400">{{ $log->log_date ? $log->log_date->format('M d, Y') : '—' }}</p>
+                            </div>
                         </div>
-                        <div class="flex flex-col">
-                            <p class="text-sm font-semibold">Present</p>
-                            <p class="text-xs text-slate-500">Attended class</p>
-                            <p class="mt-1 text-xs text-slate-400">Mar 12, 2026</p>
-                        </div>
-                    </div>
-
-                    <div class="relative flex gap-4 pb-2">
-                        <div class="absolute left-4 top-8 h-full w-px bg-slate-200 dark:bg-slate-800"></div>
-                        <div class="relative z-10 flex size-8 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-600">
-                            <span class="material-symbols-outlined text-sm">cancel</span>
-                        </div>
-                        <div class="flex flex-col">
-                            <p class="text-sm font-semibold">Absent</p>
-                            <p class="text-xs text-slate-500">No attendance recorded</p>
-                            <p class="mt-1 text-xs text-slate-400">Mar 11, 2026</p>
-                        </div>
-                    </div>
-
-                    <div class="relative flex gap-4 pb-2">
-                        <div class="absolute left-4 top-8 h-full w-px bg-slate-200 dark:bg-slate-800"></div>
-                        <div class="relative z-10 flex size-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
-                            <span class="material-symbols-outlined text-sm">check_circle</span>
-                        </div>
-                        <div class="flex flex-col">
-                            <p class="text-sm font-semibold">Present</p>
-                            <p class="text-xs text-slate-500">Attended class</p>
-                            <p class="mt-1 text-xs text-slate-400">Mar 10, 2026</p>
-                        </div>
-                    </div>
-
-                    <div class="relative flex gap-4">
-                        <div class="relative z-10 flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/20 text-primary">
-                            <span class="material-symbols-outlined text-sm">event</span>
-                        </div>
-                        <div class="flex flex-col">
-                            <p class="text-sm font-semibold">Enrolled</p>
-                            <p class="text-xs text-slate-500">AY 2025-2026 started</p>
-                            <p class="mt-1 text-xs text-slate-400">Sep 01, 2025</p>
-                        </div>
-                    </div>
-
+                    @empty
+                        <p class="text-sm text-slate-400">No attendance history yet.</p>
+                    @endforelse
                 </div>
 
-                <button class="mt-8 w-full rounded-lg border border-slate-200 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 dark:border-slate-800 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors">
-                    View Full Log
-                </button>
             </section>
         </div>
 
     </div>
-
+    
 </x-layouts.master>

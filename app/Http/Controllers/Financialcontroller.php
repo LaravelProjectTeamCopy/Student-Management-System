@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Financial;
 use App\Models\Student;
+use App\Models\PaymentLog;
 use App\Imports\FinancialImport;
 use App\Exports\FinancialExport;
 use Maatwebsite\Excel\Facades\Excel;
@@ -60,7 +61,8 @@ class FinancialController extends Controller
     {
         $student  = Student::findOrFail($id);
         $financial = Financial::where('student_id', $id)->firstOrFail();
-        return view('financials.show', compact('student', 'financial'));
+        $logs = PaymentLog::where('student_id', $id)->orderBy('payment_date', 'desc')->get();
+        return view('financials.show', compact('student', 'financial', 'logs'));
     }
 
     public function financialedit($id)
@@ -85,6 +87,15 @@ class FinancialController extends Controller
 
         $financial->update($validated);
 
+        PaymentLog::create([
+        'student_id' => $financial->student_id,
+        'amount'     => $request->amount_paid,
+        'type'       => 'Payment',
+        'method'     => $request->method ?? 'N/A',
+        'note'       => $request->note ?? null,
+        'payment_status' => $validated['payment_status'],
+        'payment_date'   => $request->payment_date,
+        ]);
         return redirect('/financials')->with('success', 'Financial record updated successfully!');
     }
     public function financialsearch(Request $request)

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Attendance;
 use App\Models\Student;
+use App\Models\AttendanceLog;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\AttendanceExport;
@@ -67,7 +68,8 @@ class AttendanceController extends Controller
     {
         $student = Student::findOrFail($id);
         $attendance = Attendance::where('student_id', $id)->firstOrFail();
-        return view('attendances.show', compact('attendance', 'student'));
+        $logs = AttendanceLog::where('student_id', $id)->orderBy('log_date', 'desc')->get();
+        return view('attendances.show', compact('attendance', 'student', 'logs'));
     }
 
     public function attendanceedit($id)
@@ -87,7 +89,16 @@ class AttendanceController extends Controller
         ]);
 
         $validated['absent_days'] = $validated['total_days'] - $validated['present_days'];
+        $validated['status']      = $this->calculateStatus($validated['present_days'], $validated['total_days']);
 
+        AttendanceLog::create([
+            'student_id'   => $attendance->student_id,
+            'total_days'   => $validated['total_days'],
+            'present_days' => $validated['present_days'],
+            'absent_days'  => $validated['absent_days'],
+            'status'       => $validated['status'],
+            'log_date'     => now(),
+        ]);
         $attendance->update($validated);
 
         return redirect('/attendances')->with('success', 'Attendance record updated successfully!');

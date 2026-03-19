@@ -60,6 +60,15 @@
                             <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">Payment Date</label>
                             <input class="w-full rounded-lg border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:border-primary focus:ring-primary" type="date" name="payment_date" value="{{$financial->payment_date}}" />
                         </div>
+                        
+                        <div class="space-y-2">
+                            <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">Payment Method</label>
+                            <select name="method" class="w-full rounded-lg border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:border-primary focus:ring-primary">
+                                <option value="Cash">Cash</option>
+                                <option value="Bank Transfer">Bank Transfer</option>
+                                <option value="Online">Online</option>
+                            </select>
+                        </div>
 
                     </div>
                 </section>

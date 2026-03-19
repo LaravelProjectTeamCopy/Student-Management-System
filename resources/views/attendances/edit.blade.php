@@ -46,7 +46,7 @@
 
                     <div class="space-y-2">
                         <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">Absent Days</label>
-                        <input class="w-full rounded-lg border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-400 cursor-not-allowed" type="number" value="{{$attendance->absent_days}}" readonly />
+                        <input class="w-full rounded-lg border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-400 cursor-not-allowed" type="number" id="absent_days"  value="{{$attendance->absent_days}}" readonly />
                         <p class="text-xs text-slate-400">Auto-calculated: Total Days − Present Days</p>
                     </div>
 
@@ -65,6 +65,28 @@
 
         </form>
     </div>
+    <script>
+        const totalDays   = document.querySelector('[name="total_days"]');
+        const presentDays = document.querySelector('[name="present_days"]');
+        const absentDays  = document.getElementById('absent_days');
+        const statusField = document.getElementById('attendance_status');
+
+        function calculate() {
+            const total   = parseInt(totalDays.value) || 0;
+            const present = parseInt(presentDays.value) || 0;
+            const absent  = total - present;
+            const pct     = total > 0 ? Math.round((present / total) * 100) : 0;
+
+            absentDays.value = absent;
+
+            if (pct >= 75) statusField.value = 'Good';
+            else if (pct >= 50) statusField.value = 'At Risk';
+            else statusField.value = 'Critical';
+        }
+
+        totalDays.addEventListener('input', calculate);
+        presentDays.addEventListener('input', calculate);
+    </script>
 
     @if($errors->any())
         <div class="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-red-100 border border-red-400 text-red-700 px-6 py-3 rounded-lg shadow-lg">

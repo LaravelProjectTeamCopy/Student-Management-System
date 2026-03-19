@@ -111,63 +111,23 @@
                 </div>
 
                 <div class="flex flex-col gap-6">
-
-                    {{-- Entry 1 --}}
-                    <div class="relative flex gap-4 pb-2">
-                        <div class="absolute left-4 top-8 h-full w-px bg-slate-200 dark:bg-slate-800"></div>
-                        <div class="relative z-10 flex size-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
-                            <span class="material-symbols-outlined text-sm">payments</span>
+                    @forelse($logs as $log)
+                        <div class="relative flex gap-4 pb-2">
+                            <div class="absolute left-4 top-8 h-full w-px bg-slate-200 dark:bg-slate-800"></div>
+                            <div class="relative z-10 flex size-12 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+                                <span class="material-symbols-outlined text-2xl">payments</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <p class="text-sm font-semibold">{{ $log->type }}</p>
+                                <p class="text-xs text-slate-500">${{ number_format($log->amount, 2) }} via {{ $log->method }}</p>
+                                <p class="text-xs text-slate-500">Status: {{ $log->payment_status }}</p>
+                                <p class="mt-1 text-xs text-slate-400">{{ $log->payment_date ? $log->payment_date->format('M d, Y') : '—' }}</p>
+                            </div>
                         </div>
-                        <div class="flex flex-col">
-                            <p class="text-sm font-semibold">Payment Received</p>
-                            <p class="text-xs text-slate-500">$1,500.00 via Bank Transfer</p>
-                            <p class="mt-1 text-xs text-slate-400">Feb 15, 2026</p>
-                        </div>
-                    </div>
-
-                    {{-- Entry 2 --}}
-                    <div class="relative flex gap-4 pb-2">
-                        <div class="absolute left-4 top-8 h-full w-px bg-slate-200 dark:bg-slate-800"></div>
-                        <div class="relative z-10 flex size-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
-                            <span class="material-symbols-outlined text-sm">payments</span>
-                        </div>
-                        <div class="flex flex-col">
-                            <p class="text-sm font-semibold">Payment Received</p>
-                            <p class="text-xs text-slate-500">$1,500.00 via Cash</p>
-                            <p class="mt-1 text-xs text-slate-400">Jan 10, 2026</p>
-                        </div>
-                    </div>
-
-                    {{-- Entry 3 --}}
-                    <div class="relative flex gap-4 pb-2">
-                        <div class="absolute left-4 top-8 h-full w-px bg-slate-200 dark:bg-slate-800"></div>
-                        <div class="relative z-10 flex size-8 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600">
-                            <span class="material-symbols-outlined text-sm">notification_important</span>
-                        </div>
-                        <div class="flex flex-col">
-                            <p class="text-sm font-semibold">Reminder Sent</p>
-                            <p class="text-xs text-slate-500">Balance due notice emailed</p>
-                            <p class="mt-1 text-xs text-slate-400">Dec 20, 2025</p>
-                        </div>
-                    </div>
-
-                    {{-- Entry 4 --}}
-                    <div class="relative flex gap-4">
-                        <div class="relative z-10 flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/20 text-primary">
-                            <span class="material-symbols-outlined text-sm">receipt</span>
-                        </div>
-                        <div class="flex flex-col">
-                            <p class="text-sm font-semibold">Invoice Generated</p>
-                            <p class="text-xs text-slate-500">AY 2025-2026 fees issued</p>
-                            <p class="mt-1 text-xs text-slate-400">Sep 01, 2025</p>
-                        </div>
-                    </div>
-
+                    @empty
+                        <p class="text-sm text-slate-400">No payment history yet.</p>
+                    @endforelse
                 </div>
-
-                <button class="mt-8 w-full rounded-lg border border-slate-200 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 dark:border-slate-800 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors">
-                    View All History
-                </button>
             </section>
         </div>
 
