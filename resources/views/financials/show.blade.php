@@ -1,0 +1,165 @@
+<x-layouts.master title="Student Financials">
+
+    {{-- Page Header --}}
+    <div class="mb-8 flex flex-col items-start justify-between gap-6 rounded-xl bg-white p-6 shadow-sm dark:bg-slate-900 lg:flex-row lg:items-center">
+        <div class="flex items-center gap-6">
+            <div class="h-24 w-24 rounded-full ring-4 ring-slate-50 dark:ring-slate-800 bg-primary/10 flex items-center justify-center text-primary text-2xl font-bold uppercase">
+                {{ strtoupper(substr($student->name, 0, 1)) }}{{ strtoupper(substr(strrchr($student->name, ' '), 1, 1)) }}
+            </div>
+            <div>
+                <h2 class="text-2xl font-bold">{{$student->name}}</h2>
+                <div class="mt-1 flex flex-wrap gap-x-4 gap-y-1">
+                    <span class="text-sm text-slate-500">{{$student->id}}</span>
+                    <span class="flex items-center gap-1 text-sm font-medium text-emerald-600">
+                        <span class="size-2 rounded-full bg-emerald-600"></span>
+                        Active
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="flex w-full gap-3 lg:w-auto">
+            <button class="flex flex-1 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 lg:flex-none transition-colors">
+                <span class="material-symbols-outlined text-sm">print</span>
+                Print Statement
+            </button>
+            <a href="{{route('financials.edit', $financial->student_id)}}"><button class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-slate-100 px-4 py-2 text-sm font-bold text-slate-900 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-100 lg:flex-none transition-colors">
+                <span class="material-symbols-outlined text-sm">edit</span>
+                Edit Record
+            </button></a>
+            <button class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white hover:bg-primary/90 lg:flex-none transition-colors">
+                <span class="material-symbols-outlined text-sm">payments</span>
+                Record Payment
+            </button>
+        </div>
+    </div>
+
+    {{-- Main Grid --}}
+    <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
+
+        {{-- Left / Middle --}}
+        <div class="lg:col-span-2 flex flex-col gap-8">
+
+            {{-- Financial Summary Cards --}}
+            <section class="rounded-xl bg-white p-6 shadow-sm dark:bg-slate-900">
+                <div class="mb-6 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">account_balance_wallet</span>
+                    <h3 class="text-lg font-bold">Financial Overview</h3>
+                </div>
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    <div class="rounded-lg bg-slate-50 p-4 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Total Fees Due</p>
+                        <p class="mt-1 text-2xl font-bold text-slate-900 dark:text-white">{{$financial->total_fees}}</p>
+                    </div>
+                    <div class="rounded-lg bg-slate-50 p-4 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Amount Paid</p>
+                        <p class="mt-1 text-2xl font-bold text-emerald-600">{{$financial->amount_paid}}</p>
+                    </div>
+                    <div class="rounded-lg bg-slate-50 p-4 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Balance Remaining</p>
+                        <p class="mt-1 text-2xl font-bold text-red-500">{{$financial->balance_remaining}}</p>
+                    </div>
+                </div>
+
+            </section>
+
+            {{-- Payment Details --}}
+            <section class="rounded-xl bg-white p-6 shadow-sm dark:bg-slate-900">
+                <div class="mb-6 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">receipt_long</span>
+                    <h3 class="text-lg font-bold">Payment Details</h3>
+                </div>
+                <div class="grid grid-cols-1 gap-y-6 sm:grid-cols-2">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Payment Status</p>
+                        <span class="mt-1 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
+                            <span class="size-1.5 rounded-full bg-amber-500"></span>
+                            {{ $financial->payment_status }}
+                        </span>
+                    </div>
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Last Payment Date</p>
+                        <p class="mt-1 font-medium text-slate-900 dark:text-slate-100">{{ $financial->payment_date ? $financial->payment_date->format('M d, Y') : '—' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Major</p>
+                        <p class="mt-1 font-medium text-slate-900 dark:text-slate-100">{{ $student->major }}</p>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+        {{-- Right Side - Payment History --}}
+        <div class="lg:col-span-1">
+            <section class="h-full rounded-xl bg-white p-6 shadow-sm dark:bg-slate-900">
+                <div class="mb-6 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">history</span>
+                        <h3 class="text-lg font-bold">Payment History</h3>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-6">
+
+                    {{-- Entry 1 --}}
+                    <div class="relative flex gap-4 pb-2">
+                        <div class="absolute left-4 top-8 h-full w-px bg-slate-200 dark:bg-slate-800"></div>
+                        <div class="relative z-10 flex size-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+                            <span class="material-symbols-outlined text-sm">payments</span>
+                        </div>
+                        <div class="flex flex-col">
+                            <p class="text-sm font-semibold">Payment Received</p>
+                            <p class="text-xs text-slate-500">$1,500.00 via Bank Transfer</p>
+                            <p class="mt-1 text-xs text-slate-400">Feb 15, 2026</p>
+                        </div>
+                    </div>
+
+                    {{-- Entry 2 --}}
+                    <div class="relative flex gap-4 pb-2">
+                        <div class="absolute left-4 top-8 h-full w-px bg-slate-200 dark:bg-slate-800"></div>
+                        <div class="relative z-10 flex size-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+                            <span class="material-symbols-outlined text-sm">payments</span>
+                        </div>
+                        <div class="flex flex-col">
+                            <p class="text-sm font-semibold">Payment Received</p>
+                            <p class="text-xs text-slate-500">$1,500.00 via Cash</p>
+                            <p class="mt-1 text-xs text-slate-400">Jan 10, 2026</p>
+                        </div>
+                    </div>
+
+                    {{-- Entry 3 --}}
+                    <div class="relative flex gap-4 pb-2">
+                        <div class="absolute left-4 top-8 h-full w-px bg-slate-200 dark:bg-slate-800"></div>
+                        <div class="relative z-10 flex size-8 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+                            <span class="material-symbols-outlined text-sm">notification_important</span>
+                        </div>
+                        <div class="flex flex-col">
+                            <p class="text-sm font-semibold">Reminder Sent</p>
+                            <p class="text-xs text-slate-500">Balance due notice emailed</p>
+                            <p class="mt-1 text-xs text-slate-400">Dec 20, 2025</p>
+                        </div>
+                    </div>
+
+                    {{-- Entry 4 --}}
+                    <div class="relative flex gap-4">
+                        <div class="relative z-10 flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/20 text-primary">
+                            <span class="material-symbols-outlined text-sm">receipt</span>
+                        </div>
+                        <div class="flex flex-col">
+                            <p class="text-sm font-semibold">Invoice Generated</p>
+                            <p class="text-xs text-slate-500">AY 2025-2026 fees issued</p>
+                            <p class="mt-1 text-xs text-slate-400">Sep 01, 2025</p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <button class="mt-8 w-full rounded-lg border border-slate-200 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 dark:border-slate-800 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors">
+                    View All History
+                </button>
+            </section>
+        </div>
+
+    </div>
+
+</x-layouts.master>
