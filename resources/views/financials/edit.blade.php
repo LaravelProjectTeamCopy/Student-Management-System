@@ -52,12 +52,8 @@
 
                         <div class="space-y-2">
                             <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">Payment Status</label>
-                            <select name="payment_status" class="w-full rounded-lg border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:border-primary focus:ring-primary">
-                                <option value="Paid"    {{ $financial->payment_status === 'Paid'    ? 'selected' : '' }}>Paid</option>
-                                <option value="Partial" {{ $financial->payment_status === 'Partial' ? 'selected' : '' }}>Partial</option>
-                                <option value="Unpaid"  {{ $financial->payment_status === 'Unpaid'  ? 'selected' : '' }}>Unpaid</option>
-                                <option value="Overdue" {{ $financial->payment_status === 'Overdue' ? 'selected' : '' }}>Overdue</option>
-                            </select>
+                            <input class="w-full rounded-lg border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-400 cursor-not-allowed" type="text" name="payment_status" id="payment_status" value="{{$financial->payment_status}}" readonly />
+                            <p class="text-xs text-slate-400">Auto-calculated: Paid in Full if Amount Paid ≥ Total Fees, otherwise Payment Due</p>
                         </div>
 
                         <div class="space-y-2">
@@ -87,4 +83,25 @@
                 </div>
             </ul>
         @endif
+        <script>
+            const totalFees   = document.querySelector('[name="total_fees"]');
+            const amountPaid  = document.querySelector('[name="amount_paid"]');
+            const balance     = document.querySelector('[name="remaining_balance"]');
+            const status      = document.getElementById('payment_status');
+
+            function calculate() {
+                const total  = parseFloat(totalFees.value) || 0;
+                const paid   = parseFloat(amountPaid.value) || 0;
+                const rem    = total - paid;
+
+                balance.value = rem.toFixed(2);
+
+                if (paid <= 0) status.value = 'Unpaid';
+                else if (paid >= total) status.value = 'Paid';
+                else status.value = 'Partial';
+            }
+
+            totalFees.addEventListener('input', calculate);
+            amountPaid.addEventListener('input', calculate);
+        </script>
     </x-layouts.master>

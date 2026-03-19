@@ -59,7 +59,17 @@
                         <p class="mt-1 text-2xl font-bold text-red-500">{{$financial->balance_remaining}}</p>
                     </div>
                 </div>
-
+                {{-- Progress Bar --}}
+                @php $pct = $financial->total_fees > 0 ? round(($financial->amount_paid / $financial->total_fees) * 100) : 0; @endphp
+                <div class="mt-6">
+                    <div class="flex justify-between text-xs font-medium text-slate-500 mb-1.5">
+                        <span>Payment Progress</span>
+                        <span>{{ $pct }}% Paid</span>
+                    </div>
+                    <div class="w-full h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                        <div class="h-full rounded-full {{ $pct >= 100 ? 'bg-emerald-500' : ($pct >= 50 ? 'bg-amber-500' : 'bg-red-500') }}" style="width: {{ $pct }}%"></div>
+                    </div>
+                </div>
             </section>
 
             {{-- Payment Details --}}
@@ -88,6 +98,7 @@
             </section>
 
         </div>
+        
 
         {{-- Right Side - Payment History --}}
         <div class="lg:col-span-1">
