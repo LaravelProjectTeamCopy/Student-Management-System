@@ -1,4 +1,9 @@
 <x-layouts.master title="Attendance">
+    
+    <x-slot name="breadcrumb">
+        <x-breadcrumb :links="['Dashboard' => '/welcome']" current="Attendances" />
+    </x-slot>
+    
     <x-slot name="search">
         <x-search 
             action="{{ route('attendances.index') }}"
@@ -80,7 +85,7 @@
                                 </div>
                                 <div class="flex flex-col">
                                     <span class="text-sm font-semibold text-slate-900 dark:text-white">{{ $attendance->student->name }}</span>
-                                    <span class="text-xs text-slate-500 dark:text-slate-400">#{{ $attendance->student->id }}</span>
+                                    <span class="text-xs text-slate-500 dark:text-slate-400">{{ $attendance->student->email }}</span>
                                 </div>
                             </div>
                         </td>
@@ -135,7 +140,7 @@
 
                         {{-- Actions --}}
                         <td class="px-6 py-4">
-                            <a href="{{ route('attendance.show', $attendance->student_id) }}" class="text-primary font-semibold text-sm hover:underline flex items-center gap-1">
+                            <a href="{{ route('attendances.show', $attendance->student_id) }}" class="text-primary font-semibold text-sm hover:underline flex items-center gap-1">
                                 View Details
                                 <span class="material-symbols-outlined text-sm">arrow_forward</span>
                             </a>

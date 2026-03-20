@@ -101,9 +101,7 @@
 
             {{-- Breadcrumb --}}
             <div class="flex items-center gap-2 text-sm font-medium text-slate-500">
-                <a href="#" class="hover:text-primary transition-colors">Dashboard</a>
-                <span class="text-slate-300">/</span>
-                <span class="text-slate-900 dark:text-white">{{ $title }}</span>
+                {{$breadcrumb ?? '' }}
             </div>
 
             {{-- Search + Notifications --}}

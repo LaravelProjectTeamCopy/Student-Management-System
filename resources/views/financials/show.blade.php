@@ -1,4 +1,8 @@
 <x-layouts.master title="Student Financials">
+    
+    <x-slot name="breadcrumb">
+        <x-breadcrumb :links="['Dashboard' => '/welcome', 'Financials' => route('financials.index')]" current="{{ $student->name }}" />
+    </x-slot>
 
     {{-- Page Header --}}
     <div class="mb-8 flex flex-col items-start justify-between gap-6 rounded-xl bg-white p-6 shadow-sm dark:bg-slate-900 lg:flex-row lg:items-center">
@@ -128,6 +132,10 @@
                         <p class="text-sm text-slate-400">No payment history yet.</p>
                     @endforelse
                 </div>
+
+                <a href="{{route('financials.history', $student->id)}}"><button class="mt-8 w-full rounded-lg border border-slate-200 dark:border-slate-800 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                    See History
+                </a></button>
             </section>
         </div>
 

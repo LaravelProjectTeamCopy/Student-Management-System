@@ -68,8 +68,15 @@ class AttendanceController extends Controller
     {
         $student = Student::findOrFail($id);
         $attendance = Attendance::where('student_id', $id)->firstOrFail();
-        $logs = AttendanceLog::where('student_id', $id)->orderBy('log_date', 'desc')->get();
+        $logs = AttendanceLog::where('student_id', $id)->orderBy('log_date', 'desc')->take(3)->get();
         return view('attendances.show', compact('attendance', 'student', 'logs'));
+    }
+
+    public function attendancehistory($id)
+    {
+        $student = Student::findOrFail($id);
+        $logs    = AttendanceLog::where('student_id', $id)->orderBy('log_date', 'desc')->paginate(10);
+        return view('attendances.history', compact('student', 'logs'));
     }
 
     public function attendanceedit($id)

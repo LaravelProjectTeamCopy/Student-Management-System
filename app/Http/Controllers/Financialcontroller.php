@@ -61,8 +61,15 @@ class FinancialController extends Controller
     {
         $student  = Student::findOrFail($id);
         $financial = Financial::where('student_id', $id)->firstOrFail();
-        $logs = PaymentLog::where('student_id', $id)->orderBy('payment_date', 'desc')->get();
+        $logs = PaymentLog::where('student_id', $id)->orderBy('payment_date', 'desc')->take(3)->get();
         return view('financials.show', compact('student', 'financial', 'logs'));
+    }
+
+    public function finacialhistory($id)
+    {
+        $student = Student::findOrFail($id);
+        $logs    = PaymentLog::where('student_id', $id)->orderBy('payment_date', 'desc')->paginate(10);
+        return view('financials.history', compact('student', 'logs'));
     }
 
     public function financialedit($id)

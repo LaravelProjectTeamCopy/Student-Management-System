@@ -1,5 +1,9 @@
 <x-layouts.master title="Insert Attendance Record">
-
+    
+    <x-slot name="breadcrumb">
+        <x-breadcrumb :links="['Dashboard' => '/welcome', 'Attendances' => route('attendances.index')]" current="Insert Attendance Record" />
+    </x-slot>
+    
     <div class="max-w-4xl mx-auto">
 
         {{-- Form Card --}}

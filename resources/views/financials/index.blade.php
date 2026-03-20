@@ -1,4 +1,9 @@
 <x-layouts.master title="Financials">
+    
+    <x-slot name="breadcrumb">
+        <x-breadcrumb :links="['Dashboard' => '/welcome']" current="Financials" />
+    </x-slot>
+    
     <x-slot name="search">
         <x-search 
             action="{{ route('financials.index') }}"
@@ -80,7 +85,7 @@
                                 </div>
                                 <div class="flex flex-col">
                                     <span class="text-sm font-semibold text-slate-900 dark:text-white">{{ $financial->student->name }}</span>
-                                    <span class="text-xs text-slate-500 dark:text-slate-400">#{{ $financial->student->id }}</span>
+                                    <span class="text-xs text-slate-500 dark:text-slate-400">{{ $financial->student->email }}</span>
                                 </div>
                             </div>
                         </td>

@@ -41,6 +41,7 @@ Route::middleware('auth')->group(function(){
     Route::get('/financials/{id}/show', [FinancialController::class, 'financialshow'])->name('financials.show');
     Route::get('/financials/{id}/edit', [FinancialController::class, 'financialedit'])->name('financials.edit');
     Route::put('/financials/{id}/edit', [FinancialController::class, 'financialupdate'])->name('financials.edit');
+    Route::get('/financials/{id}/history', [FinancialController::class, 'finacialhistory'])->name('financials.history');
     Route::get('/financials/import',    [FinancialController::class, 'showfinancialimport']);
     Route::get('/financials/export',    [FinancialController::class, 'showfinancialexport']);
     Route::post('/financials/import',   [FinancialController::class, 'financialimport'])->name('financials.import');
@@ -50,10 +51,11 @@ Route::middleware('auth')->group(function(){
     Route::get('/attendances',           [AttendanceController::class, 'attendanceindex'])->name('attendances.index');
     Route::get('/attendances/create',    [AttendanceController::class, 'attendancecreate'])->name('attendances.create');
     Route::post('/attendances/create',   [AttendanceController::class, 'attendancestore'])->name('attendances.store');
-    Route::get('/attendances/{id}/show', [AttendanceController::class, 'attendanceshow'])->name('attendance.show');
-    Route::get('/attendances/{id}/edit', [AttendanceController::class, 'attendanceedit'])->name('attendance.edit');
-    Route::put('/attendances/{id}/edit', [AttendanceController::class, 'attendanceupdate'])->name('attendance.update');
-    Route::get('/attendances/import',    [AttendanceController::class, 'showattendanceimport']);
+    Route::get('/attendances/{id}/show', [AttendanceController::class, 'attendanceshow'])->name('attendances.show');
+    Route::get('/attendances/{id}/edit', [AttendanceController::class, 'attendanceedit'])->name('attendances.edit');
+    Route::put('/attendances/{id}/edit', [AttendanceController::class, 'attendanceupdate'])->name('attendances.update');
+    Route::get('/attendances/{id}/history', [AttendanceController::class, 'attendancehistory'])->name('attendances.history');
+    Route::get('/attendances/import',    [AttendanceController::class, 'showattendanceimport'])->name('attendances.import');
     Route::get('/attendances/export',    [AttendanceController::class, 'showattendanceexport']);
     Route::post('/attendances/import',   [AttendanceController::class, 'attendanceimport'])->name('attendances.import');
     Route::get('/attendances/exportcsv',   [AttendanceController::class, 'attendanceexport'])->name('attendances.export');

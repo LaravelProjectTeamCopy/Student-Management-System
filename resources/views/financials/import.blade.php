@@ -1,5 +1,9 @@
 <x-layouts.master title="Import Financials">
 
+    <x-slot name="breadcrumb">
+        <x-breadcrumb :links="['Dashboard' => '/welcome', 'Financials' => route('financials.index')]" current="Import" />
+    </x-slot>
+
     <div class="max-w-4xl mx-auto">
 
         {{-- Page Header --}}

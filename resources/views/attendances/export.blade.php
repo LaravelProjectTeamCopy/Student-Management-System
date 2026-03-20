@@ -1,5 +1,9 @@
 <x-layouts.master title="Export Attendance">
-
+    
+    <x-slot name="breadcrumb">
+        <x-breadcrumb :links="['Dashboard' => '/welcome', 'Attendances' => route('attendances.index')]" current="Export" />
+    </x-slot>
+    
     <div class="flex flex-1 flex-col items-center justify-center">
 
         {{-- Export Card --}}

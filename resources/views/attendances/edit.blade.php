@@ -1,5 +1,9 @@
 <x-layouts.master title="Edit Attendance Record">
-
+    
+    <x-slot name="breadcrumb">
+        <x-breadcrumb :links="['Dashboard' => '/welcome', 'Attendances' => route('attendances.index') ,'Edit' => route('attendances.edit', $attendance->student_id)]" current="{{ $student->name }}" />
+    </x-slot>
+    
     {{-- Page Title --}}
     <div class="mb-8">
         <h2 class="text-3xl font-bold tracking-tight">Edit Attendance Record</h2>
@@ -23,7 +27,7 @@
         </div>
 
         {{-- Form --}}
-        <form class="p-8 space-y-10" action="{{ route('attendance.edit', $attendance->student_id) }}" method="POST">
+        <form class="p-8 space-y-10" action="{{ route('attendances.edit', $attendance->student_id) }}" method="POST">
         @csrf
         @method('PUT')
 

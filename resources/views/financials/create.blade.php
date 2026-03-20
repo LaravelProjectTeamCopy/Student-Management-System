@@ -1,5 +1,9 @@
 <x-layouts.master title="Insert Financial Record">
 
+    <x-slot name="breadcrumb">
+        <x-breadcrumb :links="['Dashboard' => '/welcome', 'Financials' => route('financials.index')]" current="Insert Financial Record" />
+    </x-slot>
+
     <div class="max-w-4xl mx-auto">
 
         {{-- Form Card --}}

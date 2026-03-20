@@ -1,5 +1,9 @@
     <x-layouts.master title="Edit Financial Record">
 
+        <x-slot name="breadcrumb">
+            <x-breadcrumb :links="['Dashboard' => '/welcome', 'Financials' => route('financials.index') ,'Edit' => route('financials.edit', $financial->student_id)]" current="{{ $student->name }}" />
+        </x-slot>
+
         {{-- Page Title --}}
         <div class="mb-8">
             <h2 class="text-3xl font-bold tracking-tight">Edit Financial Record</h2>

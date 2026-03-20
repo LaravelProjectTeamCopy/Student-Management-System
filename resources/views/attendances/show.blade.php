@@ -1,5 +1,9 @@
 <x-layouts.master title="Student Attendance">
-
+    
+    <x-slot name="breadcrumb">
+        <x-breadcrumb :links="['Dashboard' => '/welcome', 'Attendances' => route('attendances.index')]" current="{{ $student->name }}" />
+    </x-slot>
+    
     {{-- Page Header --}}
     <div class="mb-8 flex flex-col items-start justify-between gap-6 rounded-xl bg-white p-6 shadow-sm dark:bg-slate-900 lg:flex-row lg:items-center">
         <div class="flex items-center gap-6">
@@ -22,7 +26,7 @@
                 <span class="material-symbols-outlined text-sm">print</span>
                 Print Report
             </button>
-            <a href="{{ route('attendance.edit', $attendance->student_id) }}">
+            <a href="{{ route('attendances.edit', $attendance->student_id) }}">
                 <button class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-slate-100 px-4 py-2 text-sm font-bold text-slate-900 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-100 lg:flex-none transition-colors">
                     <span class="material-symbols-outlined text-sm">edit</span>
                     Edit Record
@@ -134,7 +138,9 @@
                         <p class="text-sm text-slate-400">No attendance history yet.</p>
                     @endforelse
                 </div>
-
+                <a href="{{route('attendances.history', $student->id)}}"><button class="mt-8 w-full rounded-lg border border-slate-200 dark:border-slate-800 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                    See History
+                </a></button>
             </section>
         </div>
 
