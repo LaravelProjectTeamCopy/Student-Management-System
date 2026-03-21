@@ -139,4 +139,34 @@ class FinancialController extends Controller
 
         return redirect('/welcome')->with('success', 'Financial records imported successfully!');
     }
+    public function financialdeadline()
+    {
+        return view('financials.deadline');
+    }
+    public function financialsetdeadline(Request $request)
+    {
+        $request->validate([
+            'deadline' => 'required|date',
+            'apply_to' => 'required|string|in:all,unpaid,partial',
+        ]);
+
+        $query = Financial::where('payment_status', '!=', 'Paid');
+
+        if ($request->apply_to === 'unpaid') {
+            $query->where('payment_status', 'Unpaid');
+        } elseif ($request->apply_to === 'partial') {
+            $query->where('payment_status', 'Partial');
+        }
+
+        $query->update(['deadline' => $request->deadline]);
+
+        return redirect('/financials')->with('success', 'Payment deadline set successfully!');
+    }
+    public function finacialcleardeadline()
+    {
+        Financial::whereNotNull('deadline')
+        ->where('payment_status', 'Overdue')
+        ->update(['payment_status' => 'Unpaid', 'deadline' => null]);
+        return redirect('/financials')->with('success', 'Payment deadlines cleared successfully!');
+    }
 }

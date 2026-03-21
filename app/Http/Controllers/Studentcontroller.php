@@ -7,6 +7,9 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\StudentsExport;
 use App\Imports\StudentsImport;
 use App\Models\Student;
+use App\Models\Financial;
+use App\Models\Attendance;
+
 
 class StudentController extends Controller
 {
@@ -27,7 +30,24 @@ class StudentController extends Controller
             'major' => 'required|string|max:255',
         ]);
 
-        Student::create($validated);
+        $student = Student::create($validated); // ← $student = here
+
+        Financial::create([
+            'student_id'        => $student->id,
+            'total_fees'        => 0,
+            'amount_paid'       => 0,
+            'balance_remaining' => 0,
+            'payment_status'    => 'Unpaid',
+            'payment_date'      => now(),
+        ]);
+
+        Attendance::create([
+            'student_id'   => $student->id,
+            'total_days'   => 0,
+            'present_days' => 0,
+            'absent_days'  => 0,
+            'status'       => 'Critical',
+        ]);
 
         return redirect('/welcome')->with('success', 'Student created successfully!');
     }

@@ -16,7 +16,8 @@ class Financial extends Model
         'amount_paid',
         'balance_remaining',    
         'payment_status',
-        'payment_date'
+        'payment_date',
+        'deadline'
     ];
 
     protected $casts = [

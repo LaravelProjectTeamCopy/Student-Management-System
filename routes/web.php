@@ -46,6 +46,9 @@ Route::middleware('auth')->group(function(){
     Route::get('/financials/export',    [FinancialController::class, 'showfinancialexport']);
     Route::post('/financials/import',   [FinancialController::class, 'financialimport'])->name('financials.import');
     Route::get('/financials/exportcsv',   [FinancialController::class, 'financialexport'])->name('financials.export');
+    Route::get('/financials/deadline', [FinancialController::class, 'financialdeadline'])->name('financials.deadline');
+    Route::post('/financials/deadline', [FinancialController::class, 'financialsetdeadline'])->name('financials.overdue');
+    Route::post('/financials/cleardeadline', [FinancialController::class, 'finacialcleardeadline'])->name('financials.cleardeadline');
 
     // Attendance
     Route::get('/attendances',           [AttendanceController::class, 'attendanceindex'])->name('attendances.index');

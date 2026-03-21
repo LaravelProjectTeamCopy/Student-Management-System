@@ -19,6 +19,7 @@ return new class extends Migration
             $table->decimal('balance_remaining', 10, 2)->nullable();
             $table->string('payment_status');
             $table->date('payment_date')->nullable();
+            $table->date('deadline')->nullable();
         });
     }
 

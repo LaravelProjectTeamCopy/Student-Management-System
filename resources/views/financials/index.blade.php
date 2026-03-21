@@ -13,14 +13,29 @@
     {{-- Page Title + Actions --}}
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
-            <h1 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Student Attendance</h1>
-            <p class="text-slate-500 dark:text-slate-400 mt-1">Monitor and manage student attendance records.</p>
+            <h1 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Student Financials</h1>
+            <p class="text-slate-500 dark:text-slate-400 mt-1">Monitor and manage student financial records.</p>
         </div>
         <div class="flex items-center gap-3 ml-auto">
-            <a href="{{route('financials.create')}}"><button class="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">
-                <span class="material-symbols-outlined text-lg">add</span>
-                <span>Add Financials</span>
-            </button></a>
+            <a href="{{ route('financials.deadline') }}">
+                <button class="border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 px-5 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                    <span class="material-symbols-outlined text-lg">date_range</span>
+                    <span>Set Financial Date</span>
+                </button>
+            </a>
+            <form action="{{ route('financials.cleardeadline') }}" method="POST">
+                @csrf
+                <button class="border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 px-5 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                    <span class="material-symbols-outlined text-lg">date_range</span>
+                    <span>Cancel Financial Date</span>
+                </button>
+            </form>
+            <a href="{{ route('financials.create') }}">
+                <button class="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">
+                    <span class="material-symbols-outlined text-lg">add</span>
+                    <span>Add Financial</span>
+                </button>
+            </a>
         </div>
     </div>
 
