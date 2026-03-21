@@ -160,6 +160,12 @@ class FinancialController extends Controller
 
         $query->update(['deadline' => $request->deadline]);
 
+        // immediately check if deadline already passed
+        Financial::where('payment_status', '!=', 'Paid')
+            ->where('deadline', '<', now())
+            ->whereNotNull('deadline')
+            ->update(['payment_status' => 'Overdue']);
+
         return redirect('/financials')->with('success', 'Payment deadline set successfully!');
     }
     public function finacialcleardeadline()
