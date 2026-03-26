@@ -1,5 +1,12 @@
 <x-layouts.auth title="Register">
-
+    <style>
+        @layer utilities {
+        input[type="password"]::-ms-reveal,
+        input[type="password"]::-ms-clear {
+            display: none;
+            }
+        }
+    </style>
     <div class="layout-content-container flex flex-col max-w-[480px] w-full bg-white dark:bg-slate-900 p-8 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 shadow-xl">
 
         {{-- Header : Logo + Title --}}
@@ -69,32 +76,35 @@
                     <span class="material-symbols-outlined text-lg">lock</span>
                     Password
                 </label>
+                {{-- Password --}}
                 <div class="relative flex items-center">
                     <input
                         type="password"
                         name="password"
-                        value = "{{ old('password') }}"
                         placeholder="Enter your password"
-                        required=""
                         class="w-full px-4 py-3.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none placeholder:text-slate-400"
                     />
+                    <button type="button" class="toggle-password absolute right-4 text-slate-400 hover:text-slate-600 cursor-pointer">
+                        <span class="material-symbols-outlined">visibility</span>
+                    </button>
                 </div>
             </div>
-
-            {{-- Confirm Password --}}
             <div class="flex flex-col gap-2">
                 <label class="text-slate-900 dark:text-slate-100 text-sm font-medium leading-normal flex items-center gap-2 font-semibold">
                     <span class="material-symbols-outlined text-lg">lock_reset</span>
                     Confirm Password
                 </label>
+                {{-- Confirm Password --}}
                 <div class="relative flex items-center">
                     <input
                         type="password"
-                        name = "password_confirmation"
+                        name="password_confirmation"
                         placeholder="Repeat your password"
-                        required=""
                         class="w-full px-4 py-3.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none placeholder:text-slate-400"
                     />
+                    <button type="button" class="toggle-password absolute right-4 text-slate-400 hover:text-slate-600 cursor-pointer">
+                        <span class="material-symbols-outlined">visibility</span>
+                    </button>
                 </div>
             </div>
 
@@ -129,4 +139,19 @@
             </ul>
         </div>
     @endif
+    <script>
+        document.querySelectorAll('.toggle-password').forEach(button => {
+            button.addEventListener('click', function() {
+                const input = this.previousElementSibling;
+                const icon = this.querySelector('.material-symbols-outlined');
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.textContent = 'visibility_off';
+                } else {
+                    input.type = 'password';
+                    icon.textContent = 'visibility';
+                }
+            });
+        });
+    </script>
 </x-layouts.auth>

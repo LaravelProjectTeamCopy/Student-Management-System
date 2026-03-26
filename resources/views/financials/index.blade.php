@@ -30,12 +30,6 @@
                     <span>Cancel Financial Date</span>
                 </button>
             </form>
-            <a href="{{ route('financials.create') }}">
-                <button class="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">
-                    <span class="material-symbols-outlined text-lg">add</span>
-                    <span>Add Financial</span>
-                </button>
-            </a>
         </div>
     </div>
 

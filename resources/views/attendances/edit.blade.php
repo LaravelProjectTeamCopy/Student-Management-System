@@ -40,7 +40,8 @@
 
                     <div class="space-y-2">
                         <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">Total Days</label>
-                        <input class="w-full rounded-lg border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:border-primary focus:ring-primary" type="number" name="total_days" value="{{$attendance->total_days}}" />
+                        <input class="w-full rounded-lg border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-400 cursor-not-allowed" type="number" value="{{ $attendance->semester_duration ? $attendance->semester_duration * 5 : $attendance->total_days }}" readonly />
+                        <p class="text-xs text-slate-400">Auto-calculated from semester duration</p>
                     </div>
 
                     <div class="space-y-2">
@@ -70,25 +71,19 @@
         </form>
     </div>
     <script>
-        const totalDays   = document.querySelector('[name="total_days"]');
+        const totalDaysInput = document.querySelector('[value="{{ $attendance->semester_duration ? $attendance->semester_duration * 5 : $attendance->total_days }}"]');
         const presentDays = document.querySelector('[name="present_days"]');
         const absentDays  = document.getElementById('absent_days');
-        const statusField = document.getElementById('attendance_status');
+
+        const totalDays = {{ $attendance->semester_duration ? $attendance->semester_duration * 5 : $attendance->total_days }};
 
         function calculate() {
-            const total   = parseInt(totalDays.value) || 0;
             const present = parseInt(presentDays.value) || 0;
-            const absent  = total - present;
-            const pct     = total > 0 ? Math.round((present / total) * 100) : 0;
+            const absent  = totalDays - present;
 
             absentDays.value = absent;
-
-            if (pct >= 75) statusField.value = 'Good';
-            else if (pct >= 50) statusField.value = 'At Risk';
-            else statusField.value = 'Critical';
         }
 
-        totalDays.addEventListener('input', calculate);
         presentDays.addEventListener('input', calculate);
     </script>
 

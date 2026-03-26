@@ -17,10 +17,18 @@
             <p class="text-slate-500 dark:text-slate-400 mt-1">Monitor and manage student attendance records.</p>
         </div>
         <div class="flex items-center gap-3 ml-auto">
-            <a href="{{route('attendances.create')}}"><button class="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">
-                <span class="material-symbols-outlined text-lg">add</span>
-                <span>Add Attendance</span>
+            <a href="{{route('attendances.duration')}}"><button class="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">
+                <span class="material-symbols-outlined text-lg">date_range</span>
+                <span>Set Semester Duration</span>
             </button></a>
+
+            <form action="{{ route('attendances.cleardeadline') }}" method="POST">
+                @csrf
+                <button class="border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 px-5 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                    <span class="material-symbols-outlined text-lg">date_range</span>
+                    <span>Cancel Financial Date</span>
+                </button>
+            </form>
         </div>
     </div>
 

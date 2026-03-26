@@ -18,6 +18,17 @@ class Attendance extends Model
         'total_days',
         'present_days',
         'absent_days',
+        'status',
+        'semester_start',
+        'semester_duration',
+        'deadline',
+        'attendance_result',
+    ];
+
+    // Attendance.php model
+    protected $casts = [
+        'semester_start'    => 'date',
+        'deadline'          => 'date',
     ];
 
     public function student()

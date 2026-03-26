@@ -30,33 +30,6 @@ class FinancialController extends Controller
         return view('financials.index', compact('financials', 'majors', 'statuses'));
     }
 
-    public function financialcreate()
-    {
-        return view('financials.create');
-    }
-
-    public function financialstore(Request $request)
-    {
-        $request->validate([
-            'email'    => 'required|email|exists:students,email',
-            'total_fees'     => 'required|numeric',
-            'amount_paid'    => 'required|numeric',
-            'payment_status' => 'required|string|in:Paid,Partial,Unpaid,Overdue',
-            'payment_date'   => 'required|date',
-        ]);
-
-        $student = Student::where('email', $request->email)->first();
-        Financial::create([
-            'student_id'        => $student->id,
-            'total_fees'        => $request->total_fees,
-            'amount_paid'       => $request->amount_paid,
-            'balance_remaining' => $request->total_fees - $request->amount_paid,
-            'payment_status'    => $request->payment_status,
-            'payment_date'      => $request->payment_date,
-        ]);
-        return redirect('/financials')->with('success', 'financial record created successfully!');
-    }
-
     public function financialshow($id)
     {
         $student  = Student::findOrFail($id);

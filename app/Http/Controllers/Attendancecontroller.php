@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Attendance;
 use App\Models\Student;
 use App\Models\AttendanceLog;
+use App\Models\AttendanceHistory;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\AttendanceExport;
 use App\Imports\AttendanceImport;
+use Carbon\Carbon;
 
 class AttendanceController extends Controller
 {
@@ -31,30 +33,6 @@ class AttendanceController extends Controller
         return view('attendances.index', compact('attendances', 'majors', 'statuses'));
     }
 
-    public function attendancecreate()
-    {
-        return view('attendances.create');
-    }
-
-    public function attendancestore(Request $request)
-    {
-        $request->validate([
-            'email'    => 'required|email|exists:students,email',
-            'total_days'   => 'required|numeric',
-            'present_days' => 'required|numeric',
-        ]);
-
-        $student = Student::where('email', $request->email)->first();
-        Attendance::create([
-            'student_id'        => $student->id,
-            'total_days'        => $request->total_days,
-            'present_days'      => $request->present_days,
-            'absent_days'       => $request->total_days - $request->present_days,
-            'status'            => $this->calculateStatus($request->present_days, $request->total_days),
-        ]);
-        return redirect('/attendances')->with('success', 'Attendace record created successfully!');
-    }
-
     private function calculateStatus($present, $total)
     {
         $pct = $total > 0 ? round(($present / $total) * 100) : 0;
@@ -66,10 +44,18 @@ class AttendanceController extends Controller
 
     public function attendanceshow($id)
     {
-        $student = Student::findOrFail($id);
+        \Carbon\Carbon::setTestNow('2026-06-15');
+        $student    = Student::findOrFail($id);
         $attendance = Attendance::where('student_id', $id)->firstOrFail();
-        $logs = AttendanceLog::where('student_id', $id)->orderBy('log_date', 'desc')->take(3)->get();
-        return view('attendances.show', compact('attendance', 'student', 'logs'));
+        $logs       = AttendanceLog::where('student_id', $id)->orderBy('log_date', 'desc')->take(3)->get();
+
+        $absentDays = $attendance->absent_days ?? 0;
+        $result     = $absentDays >= 3 ? 'Fail' : 'Pass';
+        $message    = $absentDays >= 3
+            ? "Student has failed attendance — absent {$absentDays} days (limit: 3 days) retake exam."
+            : "Student has passed attendance — absent only {$absentDays} days.";
+
+        return view('attendances.show', compact('student', 'attendance', 'logs', 'result', 'message'));
     }
 
     public function attendancehistory($id)
@@ -91,21 +77,31 @@ class AttendanceController extends Controller
         $attendance = Attendance::where('student_id', $id)->firstOrFail();
 
         $validated = $request->validate([
-            'total_days'   => 'required|numeric|gte:present_days',
             'present_days' => 'required|numeric',
         ]);
 
-        $validated['absent_days'] = $validated['total_days'] - $validated['present_days'];
-        $validated['status']      = $this->calculateStatus($validated['present_days'], $validated['total_days']);
+        // auto calculate total_days from semester_duration
+        $totalDays = $attendance->semester_duration 
+            ? (int) $attendance->semester_duration * 5 
+            : $attendance->total_days;
+
+        if ($validated['present_days'] > $totalDays) {
+            return back()->withErrors(['present_days' => 'Present days cannot exceed total days.'])->withInput();
+        }
+
+        $validated['total_days']  = $totalDays;
+        $validated['absent_days'] = $totalDays - $validated['present_days'];
+        $validated['status']      = $this->calculateStatus($validated['present_days'], $totalDays);
 
         AttendanceLog::create([
             'student_id'   => $attendance->student_id,
-            'total_days'   => $validated['total_days'],
+            'total_days'   => $totalDays,
             'present_days' => $validated['present_days'],
             'absent_days'  => $validated['absent_days'],
             'status'       => $validated['status'],
             'log_date'     => now(),
         ]);
+
         $attendance->update($validated);
 
         return redirect('/attendances')->with('success', 'Attendance record updated successfully!');
@@ -141,5 +137,85 @@ class AttendanceController extends Controller
 
         Excel::import(new AttendanceImport, $request->file('file'));
         return redirect('/welcome')->with('success', 'Attendance record imported successfully!');
+    }
+    public function attendanceduration()
+    {
+        return view('attendances.duration');
+    }
+    public function attendancesetduration(Request $request)
+    {
+        $request->validate([
+            'semester_start'    => 'required|date',
+            'semester_duration' => 'required|string|in:15,17,18',
+        ]);
+
+        $semesterStart = new \DateTime($request->semester_start);
+        $weeks         = (int) $request->semester_duration;
+        $semesterStart->modify("+{$weeks} weeks");
+        $deadline = $semesterStart->format('Y-m-d');
+
+        $data = [
+            'semester_start'    => $request->semester_start,
+            'semester_duration' => $request->semester_duration,
+            'deadline'          => $deadline,
+        ];
+
+        if ($request->reset_attendance == 1) {
+            $data['present_days'] = 0;
+            $data['absent_days']  = 0;
+            $data['total_days']   = 0;
+        }
+
+        $newStart    = \Carbon\Carbon::parse($deadline)->addDay();
+        $newDeadline = $newStart->copy()->addWeeks((int) $semesterDuration);
+
+        Attendance::query()->update($data);
+
+        return redirect('/attendances')->with('success', 'Semester duration set successfully!');
+    }
+
+    public function attendancecleardeadline()
+    {
+        // clear ALL attendances
+        Attendance::query()->update([
+            'semester_start'    => null,
+            'semester_duration' => null,
+            'deadline'          => null,
+        ]);
+
+        return redirect('/attendances')->with('success', 'Attendance deadlines cleared successfully!');
+    }
+    public function attendanceallhistory(Request $request)
+    {
+        $majors           = Student::distinct()->pluck('major');
+        $attendanceresult = ['Passed', 'Failed'];
+
+        // 1. Get unique semesters grouped by Year for the Accordion
+        $semesters = AttendanceHistory::select('semester_end')
+            ->distinct()
+            ->orderBy('semester_end', 'desc')
+            ->get()
+            ->groupBy(function($item) {
+                return \Carbon\Carbon::parse($item->semester_end)->format('Y');
+            });
+
+        // 2. Fetch the table data with your existing filters
+        $histories = AttendanceHistory::with('student')
+            ->when(request('major'), function($query) {
+                $query->whereHas('student', function($q) {
+                    $q->where('major', request('major'));
+                });
+            })
+            ->when(request('status'), function($query) {
+                $query->where('attendance_result', request('status'));
+            })
+            // Add this new filter to catch the semester selected from the accordion
+            ->when(request('semester'), function($query) {
+                $query->where('semester_end', request('semester'));
+            })
+            ->latest('id')
+            ->paginate(10);
+
+        return view('attendances.all-students-history', compact('majors', 'attendanceresult', 'histories', 'semesters'));
     }
 }

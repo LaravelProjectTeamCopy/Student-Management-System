@@ -106,6 +106,41 @@
                         <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Major</p>
                         <p class="mt-1 font-medium text-slate-900 dark:text-slate-100">{{ $student->major }}</p>
                     </div>
+                    <div>
+                        <div class="mt-4">
+                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Attendance Result</p>
+                        
+                        @if($attendance->deadline && now()->gt($attendance->deadline))
+                            @if($result === 'Pass')
+                                {{-- PASS STYLE --}}
+                                <div class="flex flex-col gap-2">
+                                    <span class="inline-flex w-fit items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                                        <span class="size-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                        Passed
+                                    </span>
+                                    <p class="text-sm text-slate-600 dark:text-slate-400">{{ $message }}</p>
+                                </div>
+                            @else
+                                {{-- FAIL STYLE --}}
+                                <div class="flex flex-col gap-2">
+                                    <span class="inline-flex w-fit items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-800">
+                                        <span class="size-1.5 rounded-full bg-red-500"></span>
+                                        Failed
+                                    </span>
+                                    <p class="text-sm font-medium text-red-600 dark:text-red-400 leading-tight">
+                                        {{ $message }}
+                                    </p>
+                                </div>
+                            @endif
+                        @else
+                            {{-- PENDING STYLE --}}
+                            <div class="flex items-center gap-2 text-slate-400">
+                                <span class="material-symbols-outlined text-lg leading-none">hourglass_empty</span>
+                                <span class="text-sm italic font-medium">Pending deadline ({{ \Carbon\Carbon::parse($attendance->deadline)->format('M d') }})</span>
+                            </div>
+                        @endif
+                    </div>
+                    </div>
                 </div>
             </section>
 
