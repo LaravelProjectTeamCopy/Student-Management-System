@@ -96,7 +96,7 @@
                         class="w-full px-4 py-3.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none placeholder:text-slate-400"
                     />
                 </div>
-            </div>
+            </div>  
 
             {{-- Submit --}}
             <div class="mt-4">

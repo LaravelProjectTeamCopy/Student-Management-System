@@ -15,6 +15,12 @@ class StudentController extends Controller
         return view('students.index');
     }
 
+    public function show($id)
+    {
+        $student = Student::findOrFail($id);
+        return view('students.show', compact('student'));
+    }
+
     public function showcreate()
     {
         return view('students.create');

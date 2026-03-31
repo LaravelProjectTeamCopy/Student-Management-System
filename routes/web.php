@@ -23,7 +23,7 @@ Route::post('/verify-otp', [AuthController::class, 'verifyOtp'])->name('verifyOt
 Route::post('/reset', [AuthController::class, 'resetpassword'])->name('handleResetPassword');
 
 Route::middleware('auth')->group(function(){
-    Route::get('/welcome', [AuthController::class, 'welcome']);
+    Route::get('/welcome', [AuthController::class, 'welcome'])->name('dashboard');
 
     // Student
     Route::get('/create',    [StudentController::class, 'showcreate']);
@@ -31,6 +31,7 @@ Route::middleware('auth')->group(function(){
     Route::get('/import',    [StudentController::class, 'showimport']);
     Route::post('/import',   [StudentController::class, 'import'])->name('students.import');
     Route::get('/index',     [StudentController::class, 'showindex'])->name('students.index');
+    Route::get('/students/{id}/show', [StudentController::class, 'show'])->name('students.show');
     Route::get('/export',    [StudentController::class, 'showexport']);
     Route::get('/exportcsv', [StudentController::class, 'export'])->name('students.export');
 
