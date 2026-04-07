@@ -29,4 +29,13 @@ class Student extends Model
     {
         return $this->hasOne(Attendance::class);
     }
+    
+    public function scores()
+    {
+        return $this->hasMany(Score::class);
+    }
+    public function subjects()
+    {
+        return $this->hasManyThrough(Subject::class, Score::class, 'student_id', 'id', 'id', 'subject_id');
+    }
 }

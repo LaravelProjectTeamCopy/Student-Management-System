@@ -39,30 +39,20 @@
                 <thead>
                     <tr class="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
                         <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">#</th>
-                        <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Type</th>
                         <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Amount</th>
                         <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Method</th>
                         <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
                         <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Date</th>
-                        <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Note</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                     @forelse($logs as $log)
                         <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                             <td class="px-6 py-4 text-sm text-slate-500">{{ $loop->iteration }}</td>
-                            <td class="px-6 py-4">
-                                <div class="flex items-center gap-2">
-                                    <div class="size-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
-                                        <span class="material-symbols-outlined text-sm">payments</span>
-                                    </div>
-                                    <span class="text-sm font-semibold">{{ $log->type }}</span>
-                                </div>
-                            </td>
                             <td class="px-6 py-4 text-sm font-medium text-emerald-600">
-                                ${{ number_format($log->amount, 2) }}
+                                ${{ number_format($log->amount_paid, 2) }}
                             </td>
-                            <td class="px-6 py-4 text-sm text-slate-500">{{ $log->method ?? '—' }}</td>
+                            <td class="px-6 py-4 text-sm text-slate-500">{{ $log->payment_method ?? '—' }}</td>
                             <td class="px-6 py-4">
                                 @if($log->payment_status === 'Paid')
                                     <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
@@ -85,7 +75,6 @@
                             <td class="px-6 py-4 text-sm text-slate-500">
                                 {{ $log->payment_date ? $log->payment_date->format('M d, Y') : '—' }}
                             </td>
-                            <td class="px-6 py-4 text-sm text-slate-500">{{ $log->note ?? '—' }}</td>
                         </tr>
                     @empty
                         <tr>

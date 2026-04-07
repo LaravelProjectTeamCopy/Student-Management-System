@@ -45,7 +45,7 @@
 
         {{-- Navigation --}}
         <nav class="flex-1 px-4 space-y-1 overflow-y-auto">
-
+    
             <a href="/welcome" class="flex items-center gap-3 px-3 py-2 rounded-lg {{ request()->is('welcome') ? 'bg-primary/10 text-primary' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800' }}">
                 <span class="material-symbols-outlined">dashboard</span>
                 <span class="text-sm font-medium leading-normal">Dashboard</span>
@@ -54,6 +54,11 @@
             <a href="/index" class="flex items-center gap-3 px-3 py-2 rounded-lg {{ request()->is('index') ? 'bg-primary/10 text-primary' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800' }}">
                 <span class="material-symbols-outlined">group</span>
                 <span class="text-sm font-medium leading-normal">Student Directory</span>
+            </a>
+
+            <a href="/academics" class="flex items-center gap-3 px-3 py-2 rounded-lg {{ request()->is('academics*') ? 'bg-primary/10 text-primary' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800' }}">
+                <span class="material-symbols-outlined">school</span>
+                <span class="text-sm font-medium leading-normal">Academic Record</span>
             </a>
 
             <a href="/attendances" class="flex items-center gap-3 px-3 py-2 rounded-lg {{ request()->is('attendances*') ? 'bg-primary/10 text-primary' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800' }}">

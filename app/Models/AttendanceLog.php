@@ -15,7 +15,6 @@ class AttendanceLog extends Model
         'note',
         'log_date',
     ];
-    public $timestamps = false;
     protected $casts = [
         'log_date' => 'date',
     ];

@@ -1,22 +1,22 @@
-<x-layouts.master title="Attendance History">
+<x-layouts.master title="Financial History">
     
     <x-slot name="breadcrumb">
-        <x-breadcrumb :links="['Dashboard' => '/welcome', 'Attendances' => route('attendances.index')]" current="History" />
+        <x-breadcrumb :links="['Dashboard' => '/welcome', 'Financials' => route('financials.index')]" current="History" />
     </x-slot>
 
-    {{-- Page Title + Actions --}}
+    {{-- Page Title --}}
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
-            <h1 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Attendance History</h1>
-            <p class="text-slate-500 dark:text-slate-400 mt-1">View archived attendance records from all semesters.</p>
+            <h1 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Financial History</h1>
+            <p class="text-slate-500 dark:text-slate-400 mt-1">View archived financial records from all semesters.</p>
         </div>
     </div>
 
     {{-- Filters --}}
     <div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 flex flex-wrap gap-3 mb-6 items-center">
-        
-        {{-- Main Filter Form --}}
-        <form action="{{ route('attendances.studenthistory') }}" method="GET" class="flex flex-wrap gap-3">
+
+        {{-- ✅ Fixed route name --}}
+        <form action="{{ route('financials.studenthistory') }}" method="GET" class="flex flex-wrap gap-3">
 
             {{-- Major Filter --}}
             <label class="flex items-center gap-2 px-4 py-2 border border-slate-200 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer">
@@ -30,13 +30,13 @@
                 </select>
             </label>
 
-            {{-- Status Filter --}}
+            {{-- ✅ Fixed variable name: $paymentStatuses --}}
             <label class="flex items-center gap-2 px-4 py-2 border border-slate-200 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer">
                 <select name="status" class="bg-transparent border-none outline-none focus:ring-0 focus:outline-none text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer">
-                    <option value="">All Results</option>
-                    @foreach($attendanceresult as $result)
-                        <option value="{{ $result }}" {{ request('status') == $result ? 'selected' : '' }}>
-                            {{ $result }}
+                    <option value="">All Status</option>
+                    @foreach($paymentStatuses as $status)
+                        <option value="{{ $status }}" {{ request('status') == $status ? 'selected' : '' }}>
+                            {{ $status }}
                         </option>
                     @endforeach
                 </select>
@@ -62,16 +62,17 @@
                     @endforeach
                 </select>
             </label>
+
         </form>
 
-        {{-- Delete Button (Separate Form, Only shows if a semester is selected) --}}
+        {{-- ✅ Fixed route name --}}
         @if(request('semester'))
-            <form action="{{ route('attendances.deleteallstudenthistory', ['semester_end' => request('semester')]) }}" method="POST" 
-                  onsubmit="return confirm('Are you sure you want to delete all history for this semester?')"
+            <form action="{{ route('financials.deleteallstudenthistory', ['semester_end' => request('semester')]) }}" method="POST"
+                  onsubmit="return confirm('Are you sure you want to delete all financial history for this semester?')"
                   class="ml-auto">
                 @csrf
                 @method('DELETE')
-                <button type="submit" 
+                <button type="submit"
                         class="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm font-semibold hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors border border-red-100 dark:border-red-900/30">
                     <span class="material-symbols-outlined text-sm">delete</span>
                     Delete Term
@@ -86,20 +87,19 @@
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
 
-                {{-- Table Head --}}
                 <thead>
                     <tr class="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
                         <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Student Name</th>
                         <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Major</th>
                         <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Semester Start</th>
                         <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Semester End</th>
-                        <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Present</th>
-                        <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Absent</th>
-                        <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Result</th>
+                        <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Fees</th>
+                        <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Amount Paid</th>
+                        <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Balance</th>
+                        <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Payment Status</th>
                     </tr>
                 </thead>
 
-                {{-- Table Body --}}
                 <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
 
                     @forelse($histories as $history)
@@ -120,7 +120,9 @@
 
                         {{-- Major --}}
                         <td class="px-6 py-4">
-                            <span class="px-2 py-1 rounded-md bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-xs font-medium">{{ $history->student->major }}</span>
+                            <span class="px-2 py-1 rounded-md bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-xs font-medium">
+                                {{ $history->student->major }}
+                            </span>
                         </td>
 
                         {{-- Semester Start --}}
@@ -133,25 +135,38 @@
                             {{ $history->semester_end ? \Carbon\Carbon::parse($history->semester_end)->format('M d, Y') : '—' }}
                         </td>
 
-                        {{-- Present --}}
+                        {{-- Total Fees --}}
+                        <td class="px-6 py-4 text-sm font-medium text-slate-700 dark:text-slate-300">
+                            ${{ number_format($history->total_fees, 2) }}
+                        </td>
+
+                        {{-- Amount Paid --}}
                         <td class="px-6 py-4 text-sm font-medium text-emerald-600">
-                            {{ $history->present_days }}
+                            ${{ number_format($history->amount_paid, 2) }}
                         </td>
 
-                        {{-- Absent --}}
-                        <td class="px-6 py-4 text-sm font-medium text-red-500">
-                            {{ $history->absent_days }}
+                        {{-- Balance Remaining --}}
+                        <td class="px-6 py-4 text-sm font-medium {{ $history->balance_remaining > 0 ? 'text-red-500' : 'text-emerald-600' }}">
+                            ${{ number_format($history->balance_remaining, 2) }}
                         </td>
 
-                        {{-- Result --}}
+                        {{-- Payment Status --}}
                         <td class="px-6 py-4">
-                            @if($history->attendance_result === 'Passed')
+                            @if($history->payment_status === 'Paid')
                                 <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300">
-                                    <span class="size-1.5 rounded-full bg-emerald-500"></span>Passed
+                                    <span class="size-1.5 rounded-full bg-emerald-500"></span>Paid
+                                </span>
+                            @elseif($history->payment_status === 'Partial')
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
+                                    <span class="size-1.5 rounded-full bg-amber-500"></span>Partial
+                                </span>
+                            @elseif($history->payment_status === 'Unpaid')
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400">
+                                    <span class="size-1.5 rounded-full bg-slate-400"></span>Unpaid
                                 </span>
                             @else
                                 <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
-                                    <span class="size-1.5 rounded-full bg-red-500"></span>Failed
+                                    <span class="size-1.5 rounded-full bg-red-500"></span>Overdue
                                 </span>
                             @endif
                         </td>
@@ -159,7 +174,7 @@
                     </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-6 py-12 text-center text-sm text-slate-400">No attendance history yet.</td>
+                            <td colspan="8" class="px-6 py-12 text-center text-sm text-slate-400">No financial history yet.</td>
                         </tr>
                     @endforelse
 

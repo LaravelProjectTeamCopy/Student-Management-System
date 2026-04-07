@@ -17,6 +17,10 @@ class Financial extends Model
         'balance_remaining',    
         'payment_status',
         'payment_date',
+        'overdue_since',
+        'overdue_days',
+        'semester_start',
+        'semester_duration',
         'deadline'
     ];
 

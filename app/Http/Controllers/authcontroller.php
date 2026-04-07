@@ -83,19 +83,19 @@ class authcontroller extends Controller
     
     public function login(Request $request)
     {
-    $credentials = $request->validate([
-        'email' => 'required|string|email',
-        'password' => 'required|string',
-    ]);
+        $credentials = $request->validate([
+            'email' => 'required|string|email',
+            'password' => 'required|string',
+        ]);
 
-    if (Auth::attempt($credentials, $request->boolean('remember'))) {
-        $request->session()->regenerate();
-        return redirect()->intended('/welcome')->with('success', 'Login Successful.');
-    }
+        if (Auth::attempt($credentials, $request->boolean('remember'))) {
+            $request->session()->regenerate();
+            return redirect()->intended('/welcome')->with('success', 'Login Successful.');
+        }
 
-    throw ValidationException::withMessages([
-        'email' => 'The provided credentials do not match our records.',
-    ]);
+        throw ValidationException::withMessages([
+            'email' => 'The provided credentials do not match our records.',
+        ]);
     }
 
     public function sendOtp(Request $request)

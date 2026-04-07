@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\FinancialController;
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\AcademicRecordsController;
 
 Route::get('/', [AuthController::class, 'messagelogin']);
 Route::get('/login', [AuthController::class, 'showlogin'])->name('login');
@@ -22,10 +23,11 @@ Route::post('/forgot', [AuthController::class, 'sendOtp'])->name('sendOtp');
 Route::post('/verify-otp', [AuthController::class, 'verifyOtp'])->name('verifyOtp');
 Route::post('/reset', [AuthController::class, 'resetpassword'])->name('handleResetPassword');
 
-Route::middleware('auth')->group(function(){
+Route::middleware('auth')->group(function () {
+
     Route::get('/welcome', [AuthController::class, 'welcome']);
 
-    // Student
+    // Students
     Route::get('/create',    [StudentController::class, 'showcreate']);
     Route::post('/create',   [StudentController::class, 'studentcreate'])->name('students.create');
     Route::get('/import',    [StudentController::class, 'showimport']);
@@ -34,33 +36,42 @@ Route::middleware('auth')->group(function(){
     Route::get('/export',    [StudentController::class, 'showexport']);
     Route::get('/exportcsv', [StudentController::class, 'export'])->name('students.export');
 
-    // Financial
-    Route::get('/financials',           [FinancialController::class, 'financialindex'])->name('financials.index');
-    Route::get('/financials/{id}/show', [FinancialController::class, 'financialshow'])->name('financials.show');
-    Route::get('/financials/{id}/edit', [FinancialController::class, 'financialedit'])->name('financials.edit');
-    Route::put('/financials/{id}/edit', [FinancialController::class, 'financialupdate'])->name('financials.edit');
-    Route::get('/financials/{id}/history', [FinancialController::class, 'finacialhistory'])->name('financials.history');
-    Route::get('/financials/import',    [FinancialController::class, 'showfinancialimport']);
-    Route::get('/financials/export',    [FinancialController::class, 'showfinancialexport']);
-    Route::post('/financials/import',   [FinancialController::class, 'financialimport'])->name('financials.import');
-    Route::get('/financials/exportcsv',   [FinancialController::class, 'financialexport'])->name('financials.export');
-    Route::get('/financials/deadline', [FinancialController::class, 'financialdeadline'])->name('financials.deadline');
-    Route::post('/financials/deadline', [FinancialController::class, 'financialsetdeadline'])->name('financials.overdue');
-    Route::post('/financials/cleardeadline', [FinancialController::class, 'finacialcleardeadline'])->name('financials.cleardeadline');
+    // Financials
+    Route::get('/financials',                    [FinancialController::class, 'financialindex'])->name('financials.index');
+    Route::get('/financials/studenthistory',     [FinancialController::class, 'financialallhistory'])->name('financials.studenthistory');
+    Route::get('/financials/deadline',           [FinancialController::class, 'financialdeadline'])->name('financials.deadline');
+    Route::get('/financials/import',             [FinancialController::class, 'showfinancialimport']);
+    Route::get('/financials/export',             [FinancialController::class, 'showfinancialexport']);
+    Route::get('/financials/exportcsv',          [FinancialController::class, 'financialexport'])->name('financials.export');
+    Route::get('/financials/{id}/show',          [FinancialController::class, 'financialshow'])->name('financials.show');
+    Route::get('/financials/{id}/history',       [FinancialController::class, 'financialhistory'])->name('financials.history');
+    Route::get('/financials/{id}/edit',          [FinancialController::class, 'financialedit'])->name('financials.edit');
+    Route::put('/financials/{id}/edit',          [FinancialController::class, 'financialupdate']);
+    Route::post('/financials/import',            [FinancialController::class, 'financialimport'])->name('financials.import');
+    Route::post('/financials/deadline',          [FinancialController::class, 'financialsetdeadline'])->name('financials.overdue');
+    Route::post('/financials/cleardeadline',     [FinancialController::class, 'financialcleardeadline'])->name('financials.cleardeadline');
 
-    // Attendance
-    Route::get('/attendances',           [AttendanceController::class, 'attendanceindex'])->name('attendances.index');
-    Route::get('/attendances/{id}/show', [AttendanceController::class, 'attendanceshow'])->name('attendances.show');
-    Route::get('/attendances/{id}/edit', [AttendanceController::class, 'attendanceedit'])->name('attendances.edit');
-    Route::put('/attendances/{id}/edit', [AttendanceController::class, 'attendanceupdate'])->name('attendances.update');
-    Route::get('/attendances/{id}/history', [AttendanceController::class, 'attendancehistory'])->name('attendances.history');
-    Route::get('/attendances/import',    [AttendanceController::class, 'showattendanceimport'])->name('attendances.import');
-    Route::get('/attendances/export',    [AttendanceController::class, 'showattendanceexport']);
-    Route::post('/attendances/import',   [AttendanceController::class, 'attendanceimport'])->name('attendances.import');
-    Route::get('/attendances/exportcsv',   [AttendanceController::class, 'attendanceexport'])->name('attendances.export');
-    Route::get('/attendances/duration', [AttendanceController::class, 'attendanceduration'])->name('attendances.duration');
-    Route::post('/attendances/duration', [AttendanceController::class, 'attendancesetduration'])->name('attendances.setduration');
-    Route::post('/attendances/cancelduration', [AttendanceController::class, 'attendancecleardeadline'])->name('attendances.cleardeadline');
-    Route::get('/attendances/{id}/result', [AttendanceController::class, 'attendanceresult'])->name('attendances.result');
-    Route::get('/attendances/studenthistory', [AttendanceController::class, 'attendanceallhistory'])->name('attendances.studenthistory');
+    // Attendances
+    Route::get('/attendances',                       [AttendanceController::class, 'attendanceindex'])->name('attendances.index');
+    Route::get('/attendances/import',                [AttendanceController::class, 'showattendanceimport'])->name('attendances.import');
+    Route::get('/attendances/export',                [AttendanceController::class, 'showattendanceexport']);
+    Route::get('/attendances/exportcsv',             [AttendanceController::class, 'attendanceexport'])->name('attendances.export');
+    Route::get('/attendances/duration',              [AttendanceController::class, 'attendanceduration'])->name('attendances.duration');
+    Route::get('/attendances/studenthistory',        [AttendanceController::class, 'attendanceallhistory'])->name('attendances.studenthistory');
+    Route::get('/attendances/{id}/show',             [AttendanceController::class, 'attendanceshow'])->name('attendances.show');
+    Route::get('/attendances/{id}/edit',             [AttendanceController::class, 'attendanceedit'])->name('attendances.edit');
+    Route::get('/attendances/{id}/history',          [AttendanceController::class, 'attendancehistory'])->name('attendances.history');
+    Route::get('/attendances/{id}/result',           [AttendanceController::class, 'attendanceresult'])->name('attendances.result');
+    Route::put('/attendances/{id}/edit',             [AttendanceController::class, 'attendanceupdate'])->name('attendances.update');
+    Route::post('/attendances/import',               [AttendanceController::class, 'attendanceimport'])->name('attendances.storeimport');
+    Route::post('/attendances/duration',             [AttendanceController::class, 'attendancesetduration'])->name('attendances.setduration');
+    Route::post('/attendances/cancelduration',       [AttendanceController::class, 'attendancecleardeadline'])->name('attendances.cleardeadline');
+    Route::delete('/attendances/studenthistory/delete', [AttendanceController::class, 'attendanceallhistorydelete'])->name('attendances.deleteallstudenthistory');
+
+    // Academic Records
+    Route::get('/academics',              [AcademicRecordsController::class, 'academicrecordsindex'])->name('academicrecords.index');
+    Route::get('/academics/import',       [AcademicRecordsController::class, 'showacademicrecordsimport'])->name('academicrecords.import');
+    Route::get('/academics/{id}/show',    [AcademicRecordsController::class, 'academicrecordsshow'])->name('academicrecords.show');
+    Route::post('/academics/import',      [AcademicRecordsController::class, 'academicrecordimport'])->name('academicrecords.storeimport');
+
 });

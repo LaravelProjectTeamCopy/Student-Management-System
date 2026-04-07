@@ -4,23 +4,22 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class PaymentLog extends Model
+class FinancialHistory extends Model
 {
+    public $timestamps = false;
     protected $fillable = [
         'student_id',
         'total_fees',
         'amount_paid',
-        'payment_method',
+        'balance_remaining',
+        'present_days',
         'payment_status',
-        'payment_date',
+        'status',
     ];
-
-    protected $casts = [
-    'payment_date' => 'date',
-    ];
-
     public function student()
     {
         return $this->belongsTo(Student::class);
     }
+
+
 }

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\StudentsExport;
 use App\Imports\StudentsImport;
+use App\Models\AcademicRecord;
 use App\Models\Student;
 use App\Models\Financial;
 use App\Models\Attendance;
@@ -42,6 +43,14 @@ class StudentController extends Controller
         ]);
 
         Attendance::create([
+            'student_id'   => $student->id,
+            'total_days'   => 0,
+            'present_days' => 0,
+            'absent_days'  => 0,
+            'status'       => 'Critical',
+        ]);
+
+        AcademicRecord::create([
             'student_id'   => $student->id,
             'total_days'   => 0,
             'present_days' => 0,

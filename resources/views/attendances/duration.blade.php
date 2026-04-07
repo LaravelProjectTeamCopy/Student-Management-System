@@ -15,21 +15,23 @@
                 <p class="text-sm text-slate-500 mt-1">Set a deadline for student attendance submission per semester.</p>
             </div>
 
-            <form class="p-8 space-y-10" action="{{ route('attendances.duration') }}" method="POST">
+            <form id="attendance-form" class="p-8 space-y-10" action="{{ route('attendances.duration') }}" method="POST">
                 @csrf
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
 
                     <div class="space-y-2">
                         <label class="text-xs font-bold uppercase tracking-wider text-slate-500 block">Semester Start Date</label>
-                        <input id="semester_start" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" type="date" name="semester_start" />
+                        <input id="semester_start" type="date" name="semester_start"
+                               class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" />
                         @error('semester_start') <p class="text-red-500 text-xs">{{ $message }}</p> @enderror
                     </div>
 
                     {{-- Semester Duration --}}
                     <div class="space-y-2">
                         <label class="text-xs font-bold uppercase tracking-wider text-slate-500 block">Semester Duration</label>
-                        <select id="semester_duration" name="semester_duration" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all cursor-pointer">
+                        <select id="semester_duration" name="semester_duration"
+                                class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all cursor-pointer">
                             <option value="15">15 Weeks</option>
                             <option value="17">17 Weeks</option>
                             <option value="18">18 Weeks</option>
@@ -41,18 +43,13 @@
                     {{-- Apply To --}}
                     <div class="space-y-2">
                         <label class="text-xs font-bold uppercase tracking-wider text-slate-500 block">Apply To</label>
-                        <select name="apply_to" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all cursor-pointer">
+                        <select name="apply_to"
+                                class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all cursor-pointer">
                             <option value="all">All Students</option>
                         </select>
                         @error('apply_to') <p class="text-red-500 text-xs">{{ $message }}</p> @enderror
                     </div>
-                    <div class="flex items-center gap-3 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/50 rounded-lg">
-                        <input type="checkbox" name="reset_attendance" id="reset_attendance" value="1" 
-                            class="w-4 h-4 text-primary border-slate-300 rounded focus:ring-primary cursor-pointer">
-                        <label for="reset_attendance" class="text-sm font-medium text-amber-800 dark:text-amber-200 cursor-pointer">
-                            Reset all student attendance counts to 0 for this new semester?
-                        </label>
-                    </div>
+
                 </div>
 
                 {{-- Actions --}}
@@ -60,7 +57,8 @@
                     <a href="{{ route('attendances.index') }}" class="px-6 py-2.5 rounded-lg text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                         Cancel
                     </a>
-                    <button class="px-8 py-2.5 bg-primary text-white rounded-lg text-sm font-bold shadow-sm hover:bg-primary/90 transition-all active:scale-95" type="submit">
+                    <button type="submit"
+                            class="px-8 py-2.5 bg-primary text-white rounded-lg text-sm font-bold shadow-sm hover:bg-primary/90 transition-all active:scale-95">
                         Set Deadline
                     </button>
                 </div>
@@ -94,46 +92,99 @@
         </div>
 
     </div>
+
+    {{-- Confirmation Modal --}}
+    <div id="reset-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 w-full max-w-md mx-4 p-6">
+
+            <div class="flex items-center justify-center w-14 h-14 rounded-full bg-red-100 dark:bg-red-900/30 mx-auto mb-4">
+                <svg class="w-7 h-7 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                </svg>
+            </div>
+
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white text-center">Set Attendance Deadline?</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 text-center mt-2">
+                This will set a new attendance deadline for <span class="font-semibold text-red-500">all students</span>
+                and reset all attendance counts to <span class="font-semibold">zero</span>. This cannot be undone.
+            </p>
+
+            {{-- Summary --}}
+            <div class="mt-4 p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-500 space-y-1">
+                <div class="flex justify-between">
+                    <span class="font-semibold">Semester Start</span>
+                    <span id="summary-start">—</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="font-semibold">Duration</span>
+                    <span id="summary-duration">—</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="font-semibold">Attendance Deadline</span>
+                    <span id="summary-deadline" class="text-red-500 font-bold">—</span>
+                </div>
+            </div>
+
+            <div class="flex gap-3 mt-6">
+                <button type="button" onclick="closeModal()"
+                        class="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition">
+                    Cancel
+                </button>
+                <button type="button" onclick="confirmSubmit()"
+                        class="flex-1 px-4 py-2.5 rounded-xl bg-red-500 text-white text-sm font-bold hover:bg-red-600 transition shadow-lg">
+                    Yes, Set Deadline
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // 1. Get all the elements (Added 'duration_hint' here)
-        const semesterStartInput = document.getElementById('semester_start');
+        const form                  = document.getElementById('attendance-form');
+        const semesterStartInput    = document.getElementById('semester_start');
         const semesterDurationInput = document.getElementById('semester_duration');
-        const deadlineInput = document.getElementById('deadline');
-        const hint = document.getElementById('duration_hint'); 
+        const hint                  = document.getElementById('duration_hint');
 
         function calculateDeadline() {
-            const startDateStr = semesterStartInput.value;
             const durationWeeks = parseInt(semesterDurationInput.value);
-
-            if (startDateStr && durationWeeks) {
-                const startDate = new Date(startDateStr);
-
-                // Add weeks in days (e.g., 15 * 7 = 105 days)
-                startDate.setDate(startDate.getDate() + durationWeeks * 7);
-
-                // Format as yyyy-mm-dd for the date input
-                const yyyy = startDate.getFullYear();
-                const mm = String(startDate.getMonth() + 1).padStart(2, '0');
-                const dd = String(startDate.getDate()).padStart(2, '0');
-
-                // UPDATE THE INPUT VALUE (The Date)
-                deadlineInput.value = `${yyyy}-${mm}-${dd}`;
-                
-                // UPDATE THE HINT TEXT (The Days)
-                if (hint) {
-                    hint.innerText = `➔ This loop will cover ${durationWeeks * 7} days of attendance.`;
-                }
+            if (semesterStartInput.value && durationWeeks) {
+                hint.innerText = `➔ This semester will cover ${durationWeeks * 7} days of attendance.`;
             } else {
-                deadlineInput.value = '';
-                if (hint) hint.innerText = '';
+                hint.innerText = '';
             }
         }
 
-        // 2. Event Listeners
+        function getDeadlineDate() {
+            const start = semesterStartInput.value;
+            const weeks = parseInt(semesterDurationInput.value);
+            if (!start || !weeks) return '—';
+            const date = new Date(start);
+            date.setDate(date.getDate() + weeks * 7);
+            return date.toISOString().split('T')[0];
+        }
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            document.getElementById('summary-start').textContent    = semesterStartInput.value || '—';
+            document.getElementById('summary-duration').textContent = semesterDurationInput.value ? semesterDurationInput.value + ' Weeks' : '—';
+            document.getElementById('summary-deadline').textContent = getDeadlineDate();
+
+            document.getElementById('reset-modal').classList.remove('hidden');
+        });
+
+        function closeModal() {
+            document.getElementById('reset-modal').classList.add('hidden');
+        }
+
+        function confirmSubmit() {
+            closeModal();
+            form.submit();
+        }
+
         semesterStartInput.addEventListener('change', calculateDeadline);
         semesterDurationInput.addEventListener('change', calculateDeadline);
-
-        // 3. Initial calculation on page load
         window.addEventListener('load', calculateDeadline);
     </script>
+
 </x-layouts.master>
