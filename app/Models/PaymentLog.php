@@ -6,15 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class PaymentLog extends Model
 {
-
-    public $timestamps = false;
-
     protected $fillable = [
         'student_id',
-        'amount',
-        'type',
-        'method',
-        'note',
+        'total_fees',
+        'amount_paid',
+        'payment_method',
         'payment_status',
         'payment_date',
     ];

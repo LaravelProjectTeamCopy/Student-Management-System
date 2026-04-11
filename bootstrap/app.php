@@ -15,4 +15,9 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
-    })->create();
+    })
+    // ADD THIS SECTION BELOW
+    ->withCommands([
+        \App\Console\Commands\CheckFinancialDeadlines::class,
+    ])
+    ->create();

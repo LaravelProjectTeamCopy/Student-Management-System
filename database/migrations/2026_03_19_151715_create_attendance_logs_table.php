@@ -19,7 +19,7 @@ return new class extends Migration
             $table->integer('absent_days');
             $table->string('status')->default('Critical');
             $table->date('log_date')->nullable();
-            $table->text('note')->nullable();
+            $table->timestamps();
         });
     }
 

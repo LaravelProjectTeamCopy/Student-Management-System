@@ -16,7 +16,7 @@ class StudentsImport implements ToModel, WithHeadingRow, WithValidation
             'name'  => $row['name'],
             'email' => $row['email'],
             'major' => $row['major'],
-            // ← no joined_at
+            'student_code' => $row['student_code'],
         ]);
     }
 

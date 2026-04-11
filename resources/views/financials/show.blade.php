@@ -122,8 +122,8 @@
                                 <span class="material-symbols-outlined text-2xl">payments</span>
                             </div>
                             <div class="flex flex-col">
-                                <p class="text-sm font-semibold">{{ $log->type }}</p>
-                                <p class="text-xs text-slate-500">${{ number_format($log->amount, 2) }} via {{ $log->method }}</p>
+                                <p class="text-sm font-semibold">Payment Made</p>
+                                <p class="text-xs text-slate-500">${{ number_format($log->amount_paid, 2) }} via {{ $log->payment_method }}</p>
                                 <p class="text-xs text-slate-500">Status: {{ $log->payment_status }}</p>
                                 <p class="mt-1 text-xs text-slate-400">{{ $log->payment_date ? $log->payment_date->format('M d, Y') : '—' }}</p>
                             </div>

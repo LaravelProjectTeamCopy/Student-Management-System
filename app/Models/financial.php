@@ -16,7 +16,12 @@ class Financial extends Model
         'amount_paid',
         'balance_remaining',    
         'payment_status',
-        'payment_date'
+        'payment_date',
+        'overdue_since',
+        'overdue_days',
+        'semester_start',
+        'semester_duration',
+        'deadline'
     ];
 
     protected $casts = [

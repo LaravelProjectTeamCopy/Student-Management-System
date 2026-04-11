@@ -1,101 +1,115 @@
-<x-layouts.master title="Edit Attendance Record">
-    
+<x-layouts.master title="Weekly Attendance Update">
+
     <x-slot name="breadcrumb">
-        <x-breadcrumb :links="['Dashboard' => '/welcome', 'Attendances' => route('attendances.index') ,'Edit' => route('attendances.edit', $attendance->student_id)]" current="{{ $student->name }}" />
+        <x-breadcrumb :links="['Dashboard' => '/welcome', 'Attendances' => route('attendances.index')]" current="Weekly Update: {{ $student->name }}" />
     </x-slot>
-    
-    {{-- Page Title --}}
-    <div class="mb-8">
-        <h2 class="text-3xl font-bold tracking-tight">Edit Attendance Record</h2>
-    </div>
 
-    {{-- Main Form Card --}}
-    <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden max-w-4xl mx-auto">
-
-        {{-- Profile Header --}}
-        <div class="p-8 border-b border-slate-100 dark:border-slate-800 flex flex-col md:flex-row items-center gap-6">
-            <div class="relative group">
-                <div class="h-24 w-24 rounded-full ring-4 ring-slate-50 dark:ring-slate-800 bg-primary/10 flex items-center justify-center text-primary text-2xl font-bold uppercase">
-                    {{ strtoupper(substr($student->name, 0, 1)) }}{{ strtoupper(substr(strrchr($student->name, ' '), 1, 1)) }}
+    <div class="max-w-4xl mx-auto">
+        {{-- Enterprise Header --}}
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+            <div>
+                <h2 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Attendance Management</h2>
+                <p class="text-slate-500 mt-1">System is currently open for: <span class="font-bold text-primary">{{ $attendance->semester_start }}</span></p>
+            </div>
+            
+            @if($lastUpdate)
+                <div class="flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                    <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    <span class="text-xs font-medium text-slate-600 dark:text-slate-400">
+                        Last saved: {{ $lastUpdate->created_at->diffForHumans() }}
+                    </span>
                 </div>
-            </div>
-            <div class="flex-1 text-center md:text-left">
-                <h3 class="text-2xl font-bold">{{$student->name}}</h3>
-                <p class="text-slate-500 font-medium">Student ID: {{$student->id}}</p>
-                <p class="text-sm text-slate-400 mt-1">{{$student->major}}</p>
-            </div>
+            @endif
         </div>
 
-        {{-- Form --}}
-        <form class="p-8 space-y-10" action="{{ route('attendances.edit', $attendance->student_id) }}" method="POST">
-        @csrf
-        @method('PUT')
-
-            <section>
-                <div class="flex items-center gap-2 mb-6 text-primary">
-                    <span class="material-symbols-outlined">calendar_month</span>
-                    <h4 class="text-lg font-bold">Attendance Information</h4>
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
+            
+            {{-- Student ID Card Section --}}
+            <div class="p-6 bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 flex items-center gap-4">
+                <div class="h-12 w-12 rounded-full bg-primary text-white flex items-center justify-center font-bold">
+                    {{ substr($student->name, 0, 1) }}
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                    <div class="space-y-2">
-                        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">Total Days</label>
-                        <input class="w-full rounded-lg border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:border-primary focus:ring-primary" type="number" name="total_days" value="{{$attendance->total_days}}" />
-                    </div>
-
-                    <div class="space-y-2">
-                        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">Present Days</label>
-                        <input class="w-full rounded-lg border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:border-primary focus:ring-primary" type="number" name="present_days" value="{{$attendance->present_days}}" />
-                    </div>
-
-                    <div class="space-y-2">
-                        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">Absent Days</label>
-                        <input class="w-full rounded-lg border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-400 cursor-not-allowed" type="number" id="absent_days"  value="{{$attendance->absent_days}}" readonly />
-                        <p class="text-xs text-slate-400">Auto-calculated: Total Days − Present Days</p>
-                    </div>
-
+                <div>
+                    <h3 class="font-bold text-slate-900 dark:text-white">{{ $student->name }}</h3>
+                    <p class="text-xs text-slate-500 uppercase tracking-widest font-semibold">Reg ID: {{ $student->id }}</p>
                 </div>
-            </section>
-
-            {{-- Action Buttons --}}
-            <div class="pt-6 border-t border-slate-100 dark:border-slate-800 flex flex-col md:flex-row justify-end gap-3">
-                <button class="px-6 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" type="button">
-                    Cancel Changes
-                </button>
-                <button class="px-6 py-2.5 rounded-lg bg-primary hover:bg-primary/90 text-white text-sm font-bold shadow-md shadow-primary/20 transition-colors" type="submit">
-                    Save Changes
-                </button>
             </div>
 
-        </form>
+            <form action="{{ route('attendances.update', $attendance->student_id) }}" method="POST" class="p-8">
+                @csrf
+                @method('PUT')
+
+                {{-- The "One Week" Table --}}
+                <div class="overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-50 dark:bg-slate-800">
+                            <tr>
+                                <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Work Day</th>
+                                <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                            @foreach($weekDays as $i => $day)
+                            <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                                <td class="px-6 py-4">
+                                    <div class="flex flex-col">
+                                        <span class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ $day['label'] }}</span>
+                                        <span class="text-xs text-slate-400">{{ $day['date'] }}</span>
+                                    </div>
+                                    <input type="hidden" name="days[{{ $i }}][date]" value="{{ $day['date'] }}">
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="flex justify-center gap-8">
+                                        <label class="inline-flex items-center cursor-pointer group">
+                                            <input type="radio" name="days[{{ $i }}][status]" value="present" 
+                                                   {{ $day['status'] === 'present' ? 'checked' : '' }}
+                                                   class="hidden peer" required>
+                                            <div class="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 peer-checked:border-emerald-500 peer-checked:bg-emerald-50 dark:peer-checked:bg-emerald-500/10 peer-checked:text-emerald-600 text-slate-400 transition-all font-bold text-sm">
+                                                Present
+                                            </div>
+                                        </label>
+
+                                        <label class="inline-flex items-center cursor-pointer group">
+                                            <input type="radio" name="days[{{ $i }}][status]" value="absent"
+                                                   {{ $day['status'] === 'absent' ? 'checked' : '' }}
+                                                   class="hidden peer" required>
+                                            <div class="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 peer-checked:border-red-500 peer-checked:bg-red-50 dark:peer-checked:bg-red-500/10 peer-checked:text-red-600 text-slate-400 transition-all font-bold text-sm">
+                                                Absent
+                                            </div>
+                                        </label>
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+
+                {{-- Action Footer --}}
+                <div class="mt-8 flex items-center justify-between">
+                    <p class="text-sm text-slate-400 italic">
+                        * Submission will update the cumulative record for this semester.
+                    </p>
+                    <div class="flex gap-3">
+                        <a href="{{ route('attendances.index') }}" class="px-6 py-2.5 text-sm font-bold text-slate-500 hover:text-slate-700">Cancel</a>
+                        <button type="submit" class="bg-slate-900 dark:bg-primary px-10 py-2.5 rounded-xl text-white font-bold shadow-lg hover:opacity-90 transition-all">
+                            Finalize Week
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
-    <script>
-        const totalDays   = document.querySelector('[name="total_days"]');
-        const presentDays = document.querySelector('[name="present_days"]');
-        const absentDays  = document.getElementById('absent_days');
-        const statusField = document.getElementById('attendance_status');
-
-        function calculate() {
-            const total   = parseInt(totalDays.value) || 0;
-            const present = parseInt(presentDays.value) || 0;
-            const absent  = total - present;
-            const pct     = total > 0 ? Math.round((present / total) * 100) : 0;
-
-            absentDays.value = absent;
-
-            if (pct >= 75) statusField.value = 'Good';
-            else if (pct >= 50) statusField.value = 'At Risk';
-            else statusField.value = 'Critical';
-        }
-
-        totalDays.addEventListener('input', calculate);
-        presentDays.addEventListener('input', calculate);
-    </script>
-
     @if($errors->any())
-        <div class="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-red-100 border border-red-400 text-red-700 px-6 py-3 rounded-lg shadow-lg">
-            {{ $errors }}
+        <div class = "fixed top-4 left-1/2 transform -translate-x-1/2 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg shadow-lg z-50" role="alert">
+            <ul>
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
         </div>
     @endif
-
 </x-layouts.master>

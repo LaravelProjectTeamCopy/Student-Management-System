@@ -20,6 +20,8 @@ class StudentFactory extends Factory
             'name' => $this->faker->name(),
             'email' => $this->faker->unique()->safeEmail(),
             'major' => $this->faker->randomElement(['Computer Science', 'Business', 'Engineering', 'Arts']),
+            'student_code' => 'STU-' . strtoupper($this->faker->unique()->bothify('??####')),
+            'academic_year' => $this->faker->randomElement(['2023-2024', '2024-2025', '2025-2026']),
         ];
     }
 }

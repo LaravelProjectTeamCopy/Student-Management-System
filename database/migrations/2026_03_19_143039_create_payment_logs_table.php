@@ -14,12 +14,11 @@ return new class extends Migration
         Schema::create('payment_logs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('student_id')->constrained('students')->onDelete('cascade');
-            $table->decimal('amount', 10, 2);
-            $table->string('type'); // Payment, Reminder, Invoice
+            $table->decimal('amount_paid', 10, 2);
             $table->string('payment_status')->nullable(); // Paid, Pending, Failed
-            $table->string('method')->nullable(); // Cash, Bank Transfer
+            $table->string('payment_method')->nullable(); // Cash, Bank Transfer
             $table->date('payment_date')->nullable();
-            $table->text('note')->nullable();
+            $table->timestamps();
         });
     }
 
