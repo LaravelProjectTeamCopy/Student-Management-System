@@ -1,173 +1,231 @@
-<x-layouts.master title="Academic Profile">
-    
+<x-layouts.master title="Academic Scores">
+
     <x-slot name="breadcrumb">
-        <x-breadcrumb :links="['Dashboard' => '/welcome', 'Academic Records' => route('academicrecords.index')]" current="{{ $student->name }}" />
+        <x-breadcrumb :links="['Dashboard' => '/welcome']" current="Academic Scores" />
     </x-slot>
-    
-    {{-- Page Header --}}
-    <div class="mb-8 flex flex-col items-start justify-between gap-6 rounded-xl bg-white p-6 shadow-sm dark:bg-slate-900 lg:flex-row lg:items-center">
-        <div class="flex items-center gap-6">
-            <div class="h-24 w-24 rounded-full ring-4 ring-slate-50 dark:ring-slate-800 bg-primary/10 flex items-center justify-center text-primary text-2xl font-bold uppercase">
-                {{ strtoupper(substr($student->name, 0, 1)) }}{{ strtoupper(substr(strrchr($student->name, ' '), 1, 1)) }}
-            </div>
-            <div>
-                <h2 class="text-2xl font-bold">{{ $student->name }}</h2>
-                <div class="mt-1 flex flex-wrap gap-x-4 gap-y-1">
-                    <span class="text-sm text-slate-500">ID: {{ $student->id }}</span>
-                    <span class="flex items-center gap-1 text-sm font-medium text-primary">
-                        <span class="size-2 rounded-full bg-primary"></span>
-                        {{ $student->major }}
-                    </span>
-                </div>
-            </div>
+
+    <x-slot name="search">
+        <x-search
+            action="{{ route('academicrecords.index') }}"
+            placeholder="Search student scores..."
+        />
+    </x-slot>
+
+    {{-- Page Title + Actions --}}
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+        <div>
+            <h1 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Academic Scores</h1>
+            <p class="text-slate-500 dark:text-slate-400 mt-1">Grade management across all years, semesters, and majors.</p>
         </div>
-        <div class="flex w-full gap-3 lg:w-auto">
-            <button class="flex flex-1 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 lg:flex-none transition-colors">
-                <span class="material-symbols-outlined text-sm">download</span>
-                Transcript
+        <div class="flex items-center gap-3 ml-auto">
+            <button class="border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 px-5 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 hover:bg-white dark:hover:bg-slate-800 hover:border-primary/30 hover:shadow-md transition-all active:scale-95">
+                <span class="material-symbols-outlined text-lg">download</span>
+                <span>Export Report</span>
             </button>
             <a href="{{ route('academicrecords.import') }}">
-                <button class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white hover:bg-primary/90 lg:flex-none transition-colors">
-                    <span class="material-symbols-outlined text-sm">add_chart</span>
-                    Update Scores
+                <button class="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 hover:bg-primary/90 hover:shadow-lg transition-all active:scale-95">
+                    <span class="material-symbols-outlined text-lg">add</span>
+                    <span>Add Score</span>
+                </button>
+            </a>
+            <a href="{{ route('academicrecords.subject') }}">
+                <button class="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 hover:bg-primary/90 hover:shadow-lg transition-all active:scale-95">
+                    <span class="material-symbols-outlined text-lg">add</span>
+                    <span>Add Subject</span>
                 </button>
             </a>
         </div>
     </div>
 
-    {{-- Main Grid --}}
-    <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
+    {{-- Filters --}}
+    <div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 flex flex-wrap items-center gap-6 mb-6 shadow-sm">
 
-        {{-- Left / Middle: Performance Overview --}}
-        <div class="lg:col-span-2 flex flex-col gap-8">
-
-            {{-- Grade Summary Cards --}}
-            <section class="rounded-xl bg-white p-6 shadow-sm dark:bg-slate-900">
-                <div class="mb-6 flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary">analytics</span>
-                    <h3 class="text-lg font-bold">Academic Performance</h3>
-                </div>
-                
-                @php 
-                    $avg = $scores->count() > 0 ? $scores->avg('total_score') : 0;
-                @endphp
-
-                <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                    <div class="rounded-lg bg-slate-50 p-4 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
-                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Average Score</p>
-                        <p class="mt-1 text-2xl font-bold text-slate-900 dark:text-white">{{ number_format($avg, 1) }}</p>
-                    </div>
-                    <div class="rounded-lg bg-slate-50 p-4 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
-                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Subjects Passed</p>
-                        <p class="mt-1 text-2xl font-bold text-emerald-600">{{ $scores->where('total_score', '>=', 50)->count() }}</p>
-                    </div>
-                    <div class="rounded-lg bg-slate-50 p-4 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
-                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Total Credits</p>
-                        <p class="mt-1 text-2xl font-bold text-amber-600">{{ $scores->count() * 3 }}</p>
-                    </div>
-                </div>
-
-                {{-- GPA Progress Bar --}}
-                <div class="mt-6">
-                    <div class="flex justify-between text-xs font-medium text-slate-500 mb-1.5">
-                        <span>Overall Completion</span>
-                        <span>{{ number_format($avg, 0) }}% proficiency</span>
-                    </div>
-                    <div class="w-full h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                        <div class="h-full rounded-full {{ $avg >= 80 ? 'bg-emerald-500' : ($avg >= 50 ? 'bg-primary' : 'bg-red-500') }}" style="width: {{ $avg }}%"></div>
-                    </div>
-                </div>
-            </section>
-
-            {{-- Scores Table Breakdown --}}
-            <section class="rounded-xl bg-white shadow-sm dark:bg-slate-900 overflow-hidden">
-                <div class="p-6 border-b border-slate-100 dark:border-slate-800">
-                    <h3 class="text-lg font-bold flex items-center gap-2">
-                        <span class="material-symbols-outlined text-primary">list_alt</span>
-                        Detailed Scores
-                    </h3>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left">
-                        <thead class="bg-slate-50 dark:bg-slate-800/50 text-xs font-bold text-slate-500 uppercase">
-                            <tr>
-                                <th class="px-6 py-4">Subject</th>
-                                <th class="px-6 py-4 text-center">Quiz</th>
-                                <th class="px-6 py-4 text-center">Midterm</th>
-                                <th class="px-6 py-4 text-center">Final</th>
-                                <th class="px-6 py-4 text-right">Total</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-                            @foreach($scores as $score)
-                            <tr class="hover:bg-slate-50/50 transition-colors">
-                                <td class="px-6 py-4">
-                                    <p class="text-sm font-semibold text-slate-900 dark:text-white">{{ $score->subject->name }}</p>
-                                    <p class="text-xs text-slate-500">{{ $score->subject->code ?? 'SUB-'.$score->subject->id }}</p>
-                                </td>
-                                <td class="px-6 py-4 text-center text-sm">{{ $score->quiz_score }}</td>
-                                <td class="px-6 py-4 text-center text-sm">{{ $score->midterm_score }}</td>
-                                <td class="px-6 py-4 text-center text-sm">{{ $score->final_score }}</td>
-                                <td class="px-6 py-4 text-right">
-                                    <span class="text-sm font-bold {{ $score->total_score >= 50 ? 'text-emerald-600' : 'text-red-500' }}">
-                                        {{ $score->total_score }}
-                                    </span>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </section>
+        {{-- Year --}}
+        <div class="flex items-center gap-3">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Year:</span>
+            <div class="flex gap-1.5">
+                @foreach(['2023/2024', '2024/2025', '2025/2026'] as $year)
+                    <a href="?year={{ $year }}&semester={{ $currentSem }}&major={{ $currentMajor }}"
+                       class="px-3 py-1.5 rounded-lg border text-xs font-bold transition-all
+                       {{ $currentYear == $year
+                           ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-slate-900 dark:border-white shadow-sm'
+                           : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-500 hover:border-slate-300' }}">
+                        {{ $year }}
+                    </a>
+                @endforeach
+            </div>
         </div>
 
-        {{-- Right Side - Quick Info --}}
-        <div class="lg:col-span-1">
-            <section class="rounded-xl bg-white p-6 shadow-sm dark:bg-slate-900">
-                <div class="mb-6 flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary">assignment_ind</span>
-                    <h3 class="text-lg font-bold">Academic Status</h3>
-                </div>
+        <div class="h-8 w-px bg-slate-200 dark:bg-slate-800"></div>
 
-                <div class="space-y-6">
-                    <div>
-                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Standing</p>
-                        @if ($avg >= 85)
-                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700 border border-amber-200">
-                                <span class="material-symbols-outlined text-xs">workspace_premium</span> Honor Student
-                            </span>
-                        @elseif ($avg >= 50)
-                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">
-                                <span class="material-symbols-outlined text-xs">check_circle</span> Satisfactory
-                            </span>
-                        @else
-                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700 border border-red-200">
-                                <span class="material-symbols-outlined text-xs">error</span> Academic Probation
-                            </span>
-                        @endif
-                    </div>
-
-                    <div class="pt-4 border-t border-slate-100 dark:border-slate-800">
-                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3">Academic Timeline</p>
-                        <div class="space-y-4">
-                            <div class="flex gap-3">
-                                <div class="size-8 shrink-0 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-                                    <span class="material-symbols-outlined text-sm text-slate-500">event</span>
-                                </div>
-                                <div>
-                                    <p class="text-xs font-bold text-slate-900 dark:text-white">Current Semester</p>
-                                    <p class="text-[11px] text-slate-500">Semester 1, 2025/2026</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <button class="mt-8 w-full rounded-lg border border-slate-200 dark:border-slate-800 py-2.5 text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all active:scale-95">
-                    View Full History
-                </button>
-            </section>
+        {{-- Semester --}}
+        <div class="flex items-center gap-3">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Semester:</span>
+            <div class="flex gap-1.5">
+                @foreach(['Semester 1', 'Semester 2'] as $sem)
+                    <a href="?semester={{ $sem }}&year={{ $currentYear }}&major={{ $currentMajor }}"
+                       class="px-3 py-1.5 rounded-full border text-xs font-bold transition-all
+                       {{ $currentSem == $sem
+                           ? 'bg-primary text-white border-primary'
+                           : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                        {{ $sem }}
+                    </a>
+                @endforeach
+            </div>
         </div>
 
     </div>
+
+    {{-- Stat Cards --}}
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        @php
+            $stats = [
+                ['label' => 'Class Average',   'val' => number_format($classAvg ?? 0, 1), 'icon' => 'analytics', 'color' => 'text-primary'],
+                ['label' => 'Passing Rate',    'val' => ($passingRate ?? 0).'%',           'icon' => 'verified',  'color' => 'text-emerald-500'],
+                ['label' => 'At Risk Students','val' => $atRisk ?? 0,                      'icon' => 'warning',   'color' => 'text-red-500'],
+                ['label' => 'Highest Score',   'val' => number_format($topScore ?? 0, 1), 'icon' => 'trophy',    'color' => 'text-amber-500'],
+            ];
+        @endphp
+
+        @foreach($stats as $stat)
+        <div class="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 hover:shadow-md transition-all">
+            <div class="flex justify-between items-start mb-2">
+                <p class="text-xs font-bold uppercase tracking-widest text-slate-500">{{ $stat['label'] }}</p>
+                <span class="material-symbols-outlined {{ $stat['color'] }} text-xl opacity-20">{{ $stat['icon'] }}</span>
+            </div>
+            <h3 class="text-2xl font-bold text-slate-900 dark:text-white">{{ $stat['val'] }}</h3>
+        </div>
+        @endforeach
+    </div>
+
+    {{-- Major Tabs --}}
+    <div class="border-b border-slate-200 dark:border-slate-800 mb-6 overflow-x-auto">
+        <div class="flex gap-0 min-w-max">
+            @foreach($majors as $m)
+                <a href="?major={{ $m }}&year={{ $currentYear }}&semester={{ $currentSem }}"
+                   class="px-5 py-3 text-sm font-bold border-b-2 transition-colors whitespace-nowrap
+                   {{ $currentMajor == $m
+                       ? 'border-primary text-primary'
+                       : 'border-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-300' }}">
+                    {{ strtoupper($m) }}
+                </a>
+            @endforeach
+        </div>
+    </div>
+
+    {{-- Score Table --}}
+    <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
+                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Student</th>
+                        @foreach($subjects as $subject)
+                            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest text-center">
+                                {{ $subject->name }}
+                            </th>
+                        @endforeach
+                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest text-left">Avg</th>
+                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest text-right">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                    @forelse($academicrecords as $academicrecord)
+                        @php
+                            $studentScores   = $academicrecord->scores ?? collect();
+                            $scoresBySubject = $studentScores->keyBy('subject_id');
+                            $studentAvg      = $studentScores->count() > 0
+                                                ? $studentScores->avg('total_score')
+                                                : 0;
+                        @endphp
+                        <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-all group">
+
+                            {{-- Student --}}
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="size-9 rounded-full bg-primary/10 flex items-center justify-center text-primary text-sm font-bold uppercase shrink-0 transition-transform group-hover:scale-110">
+                                        {{ strtoupper(substr($academicrecord->name, 0, 1)) }}{{ strtoupper(substr(strrchr($academicrecord->name, ' '), 1, 1)) }}
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="text-sm font-semibold text-slate-900 dark:text-white group-hover:text-primary transition-colors">
+                                            {{ $academicrecord->name }}
+                                        </span>
+                                        <span class="text-xs text-slate-500 dark:text-slate-400">
+                                            ID: {{ $academicrecord->id }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </td>
+
+                            {{-- Dynamic subject columns --}}
+                            @foreach($subjects as $subject)
+                                @php
+                                    $score      = $scoresBySubject[$subject->id]->total_score ?? null;
+                                    $scoreColor = match(true) {
+                                        $score === null => 'text-slate-400',
+                                        $score < 50     => 'text-red-500',
+                                        $score >= 85    => 'text-emerald-500',
+                                        default         => 'text-slate-700 dark:text-slate-300',
+                                    };
+                                @endphp
+                                <td class="px-6 py-4 text-center">
+                                    <span class="text-sm font-bold {{ $scoreColor }}">
+                                        {{ $score !== null ? number_format($score, 0) : '—' }}
+                                    </span>
+                                </td>
+                            @endforeach
+
+                            {{-- Average + progress bar --}}
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-20 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                        <div class="h-full rounded-full transition-all duration-700
+                                            {{ $studentAvg < 50 ? 'bg-red-500' : ($studentAvg >= 80 ? 'bg-emerald-500' : 'bg-primary') }}"
+                                             style="width: {{ min($studentAvg, 100) }}%">
+                                        </div>
+                                    </div>
+                                    <span class="text-sm font-bold text-slate-700 dark:text-slate-300">
+                                        {{ number_format($studentAvg, 1) }}
+                                    </span>
+                                </div>
+                            </td>
+
+                            {{-- Actions --}}
+                            <td class="px-6 py-4 text-right">
+                                <a href="{{ route('academicrecords.show', $academicrecord->id) }}"
+                                   class="inline-flex items-center justify-end gap-1 text-primary font-bold text-xs hover:gap-2 transition-all active:scale-95 uppercase">
+                                    VIEW DETAILS
+                                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                                </a>
+                            </td>
+
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="{{ $subjects->count() + 3 }}"
+                                class="px-6 py-12 text-center text-slate-400 dark:text-slate-600 text-sm">
+                                <span class="material-symbols-outlined text-4xl block mb-2 opacity-20">search_off</span>
+                                No records found for the selected filters.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        {{-- Footer --}}
+        <div class="px-6 py-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/30 flex justify-between items-center flex-wrap gap-3">
+            <p class="text-[11px] text-slate-400 font-medium">
+                Showing performance for
+                <span class="font-bold text-slate-600 dark:text-slate-300">{{ $currentMajor }}</span>
+                ·
+                <span class="font-bold text-slate-600 dark:text-slate-300">{{ $currentSem }}</span>
+                ·
+                <span class="font-bold text-slate-600 dark:text-slate-300">{{ $currentYear }}</span>
+            </p>
+            <div>{{ $academicrecords->links() }}</div>
+        </div>
+    </div>
+
 </x-layouts.master>

@@ -5,15 +5,29 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Financial;
+use Illuminate\Support\Str;
 
 class Student extends Model
 {
     use HasFactory;
 
+    protected static function booted(): void
+    {
+        static::creating(function ($student) {
+            do {
+                $code = 'STU-' . strtoupper(Str::random(2)) . rand(1000, 9999);
+            } while (Student::where('student_code', $code)->exists()); // Guarantee uniqueness
+
+            $student->student_code = $code;
+        });
+    }
+
     protected $fillable = [
         'name',
         'email',
-        'major'
+        'major',
+        'student_code',
+        'academic_year',
     ];
 
     protected $casts = [

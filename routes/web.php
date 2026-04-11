@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\FinancialController;
 use App\Http\Controllers\AttendanceController;
@@ -24,17 +25,20 @@ Route::post('/verify-otp', [AuthController::class, 'verifyOtp'])->name('verifyOt
 Route::post('/reset', [AuthController::class, 'resetpassword'])->name('handleResetPassword');
 
 Route::middleware('auth')->group(function () {
-
-    Route::get('/welcome', [AuthController::class, 'welcome']);
-
+    
+    // Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'dashboardindex'])->name('dashboard.index');
+  
     // Students
-    Route::get('/create',    [StudentController::class, 'showcreate']);
-    Route::post('/create',   [StudentController::class, 'studentcreate'])->name('students.create');
-    Route::get('/import',    [StudentController::class, 'showimport']);
-    Route::post('/import',   [StudentController::class, 'import'])->name('students.import');
-    Route::get('/index',     [StudentController::class, 'showindex'])->name('students.index');
-    Route::get('/export',    [StudentController::class, 'showexport']);
-    Route::get('/exportcsv', [StudentController::class, 'export'])->name('students.export');
+    Route::get('/student', [StudentController::class, 'studentindex'])->name('students.index');
+    Route::get('/student/{id}/show', [StudentController::class, 'studentshow'])->name('students.show');
+    Route::get('/student/create',    [StudentController::class, 'showstudentcreate']);
+    Route::post('/student/create',   [StudentController::class, 'studentcreate'])->name('students.create');
+    Route::get('/student/import',    [StudentController::class, 'showimport']);
+    Route::post('/student/import',   [StudentController::class, 'import'])->name('students.import');
+    Route::get('/student/index',     [StudentController::class, 'showindex'])->name('students.index');
+    Route::get('/student/export',    [StudentController::class, 'showexport']);
+    Route::get('/student/exportcsv', [StudentController::class, 'export'])->name('students.export');
 
     // Financials
     Route::get('/financials',                    [FinancialController::class, 'financialindex'])->name('financials.index');
@@ -73,5 +77,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/academics/import',       [AcademicRecordsController::class, 'showacademicrecordsimport'])->name('academicrecords.import');
     Route::get('/academics/{id}/show',    [AcademicRecordsController::class, 'academicrecordsshow'])->name('academicrecords.show');
     Route::post('/academics/import',      [AcademicRecordsController::class, 'academicrecordimport'])->name('academicrecords.storeimport');
-
+    Route::get('/academics/subject',      [AcademicRecordsController::class, 'showacademicrecordssubject'])->name('academicrecords.subject');
+    Route::post('/academics/subject',     [AcademicRecordsController::class, 'academicrecordssubject'])->name('academicrecords.subjectstore');
 });

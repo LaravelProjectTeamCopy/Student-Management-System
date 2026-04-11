@@ -45,7 +45,13 @@
                         </select>
                         @error('major') <p class="text-red-500 text-xs">{{ $message }}</p> @enderror
                     </div>
-
+            
+                    {{-- Academic Year --}}
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold uppercase tracking-wider text-slate-500 block">Academic Year</label>
+                        <input class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" type="text" name="academic_year" placeholder="e.g. 2023-2024" value="{{ old('academic_year') }}" />
+                        @error('academic_year') <p class="text-red-500 text-xs">{{ $message }}</p> @enderror
+                    </div>
                 </div>
 
                 {{-- Actions --}}

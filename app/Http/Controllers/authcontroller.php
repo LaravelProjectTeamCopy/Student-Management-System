@@ -71,7 +71,7 @@ class authcontroller extends Controller
 
         User::create($validated);
 
-        return redirect('/welcome')->with('success', 'Registration successful! You can now log in.');
+        return redirect('/login')->with('success', 'Registration successful! You can now log in.');
     }
     public function logout(Request $request)
     {
@@ -90,7 +90,7 @@ class authcontroller extends Controller
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
-            return redirect()->intended('/welcome')->with('success', 'Login Successful.');
+            return redirect()->intended('/dashboard')->with('success', 'Login Successful.');
         }
 
         throw ValidationException::withMessages([

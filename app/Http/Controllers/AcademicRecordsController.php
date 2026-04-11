@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Score;
 use App\Models\Student;
 use App\Models\Subject;
+use App\Models\SystemHistory;
 use Illuminate\Http\Request;
+use App\Imports\ScoreImport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AcademicRecordsController extends Controller
 {
@@ -87,54 +89,25 @@ class AcademicRecordsController extends Controller
     {
         $subjects = Subject::orderBy('major')->orderBy('name')->get();
         $majors   = Student::distinct()->pluck('major');
+
         return view('academicrecords.import', compact('subjects', 'majors'));
     }
 
     public function academicrecordimport(Request $request)
     {
-        $request->validate([
-            'file'          => 'required|file|mimes:csv,txt',
-            'subject_id'    => 'required|exists:subjects,id',
-            'academic_year' => 'required|string',
-            'semester'      => 'required|string',
-        ]);
+        $request->validate(['file' => 'required|file|mimes:csv,xlsx']);
 
-        $rows    = array_map('str_getcsv', file($request->file('file')->getRealPath()));
-        $headers = array_shift($rows); // [student_code, attendance, quiz, midterm, final]
+        Excel::import(new ScoreImport, $request->file('file'));
 
-        $subject = Subject::findOrFail($request->subject_id);
-
-        foreach ($rows as $row) {
-            if (empty($row[0])) continue;
-
-            $student = Student::where('student_code', trim($row[0]))->first();
-            if (!$student) continue;
-
-            $attendance = isset($row[1]) && $row[1] !== '' ? (float) $row[1] : 0;
-            $quiz       = isset($row[2]) && $row[2] !== '' ? (float) $row[2] : 0;
-            $midterm    = isset($row[3]) && $row[3] !== '' ? (float) $row[3] : 0;
-            $final_exam = isset($row[4]) && $row[4] !== '' ? (float) $row[4] : 0;
-
-            // Auto calculate total score
-            $total_score = $attendance + $quiz + $midterm + $final_exam;
-
-            Score::updateOrCreate(
-                [
-                    'student_id' => $student->id,
-                    'subject_id' => $subject->id,
-                ],
-                [
-                    'attendance'  => $attendance,
-                    'quiz'        => $quiz,
-                    'midterm'     => $midterm,
-                    'final_exam'  => $final_exam,
-                    'total_score' => $total_score,
-                ]
-            );
-        }
+        SystemHistory::log(
+            'Imported Academic Scores',
+            'Academic',
+            "Imported grade sheet from {$request->file('file')->getClientOriginalName()}",
+            'upload_file'
+        );
 
         return redirect()->route('academicrecords.index')
-                         ->with('success', count($rows) . ' student scores imported successfully.');
+                         ->with('success', 'Enterprise import completed. All scores mapped successfully.');
     }
 
     public function academicrecordsshow($id)
@@ -143,5 +116,37 @@ class AcademicRecordsController extends Controller
         $scores  = $student->scores()->with('subject')->get();
 
         return view('academicrecords.show', compact('student', 'scores'));
+    }
+
+    public function showacademicrecordssubject()
+    {
+        $majors = Student::distinct()->pluck('major');
+
+        return view('academicrecords.subject', compact('majors'));
+    }
+
+    public function academicrecordssubject(Request $request)
+    {
+        $validated = $request->validate([
+            'name'          => 'required|string|max:255',
+            'subject_code'  => 'required|string|max:50|unique:subjects,subject_code',
+            'major'         => 'required|string',
+            'academic_year' => 'required|string',
+            'semester'      => 'required|string',
+        ]);
+
+        $validated['subject_code'] = str_replace(' ', '-', strtoupper($validated['subject_code']));
+
+        Subject::create($validated);
+
+        SystemHistory::log(
+            'Created Subject',
+            'Academic',
+            "Added subject [{$validated['subject_code']}] {$validated['name']} — {$validated['major']}, {$validated['semester']} {$validated['academic_year']}",
+            'book'
+        );
+
+        return redirect()->route('academicrecords.index')
+                         ->with('success', "Subject [{$validated['subject_code']}] created successfully! You can now import scores for this class.");
     }
 }

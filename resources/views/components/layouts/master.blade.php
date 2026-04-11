@@ -46,12 +46,12 @@
         {{-- Navigation --}}
         <nav class="flex-1 px-4 space-y-1 overflow-y-auto">
     
-            <a href="/welcome" class="flex items-center gap-3 px-3 py-2 rounded-lg {{ request()->is('welcome') ? 'bg-primary/10 text-primary' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800' }}">
+            <a href="/dashboard" class="flex items-center gap-3 px-3 py-2 rounded-lg {{ request()->is('dashboard') ? 'bg-primary/10 text-primary' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800' }}">
                 <span class="material-symbols-outlined">dashboard</span>
                 <span class="text-sm font-medium leading-normal">Dashboard</span>
             </a>
 
-            <a href="/index" class="flex items-center gap-3 px-3 py-2 rounded-lg {{ request()->is('index') ? 'bg-primary/10 text-primary' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800' }}">
+            <a href="/student" class="flex items-center gap-3 px-3 py-2 rounded-lg {{ request()->is('student*') ? 'bg-primary/10 text-primary' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800' }}">
                 <span class="material-symbols-outlined">group</span>
                 <span class="text-sm font-medium leading-normal">Student Directory</span>
             </a>
@@ -89,10 +89,18 @@
                 <div class="size-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">
                     {{ strtoupper(substr($user->name, 0, 1)) }}{{ strtoupper(substr(strrchr($user->name, ' '), 1, 1)) }}
                 </div>
-                <div class="flex flex-col">
-                    <p class="text-xs font-bold">{{$user->name}}</p>
+                <div class="flex flex-col flex-1 min-w-0">
+                    <p class="text-xs font-bold truncate">{{ $user->name }}</p>
                     <p class="text-[10px] text-slate-500">Administrator</p>
                 </div>
+                <form method="POST" action="{{ route('handleLogout') }}">
+                    @csrf
+                    <button type="submit"
+                        class="text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                        title="Logout">
+                        <span class="material-symbols-outlined text-xl">logout</span>
+                    </button>
+                </form>
             </div>
         </div>
 

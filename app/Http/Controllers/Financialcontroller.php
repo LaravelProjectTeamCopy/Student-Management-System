@@ -7,6 +7,7 @@ use App\Models\Financial;
 use App\Models\Student;
 use App\Models\PaymentLog;
 use App\Models\FinancialHistory;
+use App\Models\SystemHistory;
 use App\Imports\FinancialImport;
 use App\Exports\FinancialExport;
 use Maatwebsite\Excel\Facades\Excel;
@@ -42,7 +43,6 @@ class FinancialController extends Controller
         return view('financials.show', compact('student', 'financial', 'logs'));
     }
 
-    // ✅ Fixed typo: finacialhistory → financialhistory
     public function financialhistory($id)
     {
         $student = Student::findOrFail($id);
@@ -93,6 +93,13 @@ class FinancialController extends Controller
             'payment_date'   => $validated['payment_date'],
         ]);
 
+        SystemHistory::log(
+            'Updated Financial Record',
+            'Financial',
+            "Updated payment for {$financial->student->name} — {$validated['payment_status']} (${$validated['amount_paid']})",
+            'payments'
+        );
+
         return redirect('/financials')->with('success', 'Financial record updated successfully!');
     }
 
@@ -108,6 +115,13 @@ class FinancialController extends Controller
 
     public function financialexport()
     {
+        SystemHistory::log(
+            'Exported Financials',
+            'Financial',
+            'Exported financial records to Excel',
+            'download'
+        );
+
         return Excel::download(new FinancialExport, 'Financials_.xlsx');
     }
 
@@ -118,6 +132,13 @@ class FinancialController extends Controller
         ]);
 
         Excel::import(new FinancialImport, $request->file('file'));
+
+        SystemHistory::log(
+            'Imported Financials',
+            'Financial',
+            "Imported financial records from {$request->file('file')->getClientOriginalName()}",
+            'upload_file'
+        );
 
         return redirect('/welcome')->with('success', 'Financial records imported successfully!');
     }
@@ -132,16 +153,14 @@ class FinancialController extends Controller
         $request->validate([
             'semester_start'    => 'required|date',
             'semester_duration' => 'required|integer|in:15,17,18',
-            'confirm_reset'     => 'required|in:1', // force confirmation
+            'confirm_reset'     => 'required|in:1',
         ]);
 
         $semesterStart = \Carbon\Carbon::parse($request->semester_start);
         $weeks         = (int) $request->semester_duration;
+        $deadline      = $semesterStart->copy()->addMonth();
+        $semesterEnd   = $semesterStart->copy()->addWeeks($weeks);
 
-        $deadline    = $semesterStart->copy()->addMonth();
-        $semesterEnd = $semesterStart->copy()->addWeeks($weeks);
-
-        // Update deadline fields
         Financial::query()->update([
             'semester_start'    => $semesterStart->format('Y-m-d'),
             'semester_duration' => $weeks,
@@ -149,7 +168,6 @@ class FinancialController extends Controller
             'semester_end'      => $semesterEnd->format('Y-m-d'),
         ]);
 
-        // Reset all financial fields to zero
         Financial::query()->update([
             'total_fees'        => 0,
             'amount_paid'       => 0,
@@ -157,30 +175,41 @@ class FinancialController extends Controller
             'payment_status'    => 'Unpaid',
         ]);
 
+        SystemHistory::log(
+            'Set Financial Deadline',
+            'Financial',
+            "Semester set from {$semesterStart->format('M d, Y')} — deadline {$deadline->format('M d, Y')} ({$weeks} weeks)",
+            'event'
+        );
+
         return redirect('/financials')->with('success', 'Deadline set and all records reset successfully!');
     }
 
     public function financialcleardeadline()
     {
-        // ✅ Clear all deadline and overdue tracking fields
         Financial::query()->update([
-            'deadline'      => null,
-            'semester_end'  => null,
+            'deadline'     => null,
+            'semester_end' => null,
         ]);
 
-        // ✅ Revert Overdue back to Unpaid
         Financial::where('payment_status', 'Overdue')
             ->update(['payment_status' => 'Unpaid']);
+
+        SystemHistory::log(
+            'Cleared Financial Deadline',
+            'Financial',
+            'Payment deadlines cleared and overdue statuses reverted to Unpaid',
+            'event_busy'
+        );
 
         return redirect('/financials')->with('success', 'Payment deadlines cleared successfully!');
     }
 
     public function financialallhistory(Request $request)
     {
-        $majors = Student::distinct()->pluck('major');
+        $majors          = Student::distinct()->pluck('major');
         $paymentStatuses = ['Paid', 'Partial', 'Unpaid', 'Overdue'];
 
-        // Get semesters from FinancialHistory, grouped by year
         $semesters = FinancialHistory::select('semester_end')
             ->distinct()
             ->orderByDesc('semester_end')
@@ -188,7 +217,6 @@ class FinancialController extends Controller
             ->groupBy(fn($date) => \Carbon\Carbon::parse($date)->format('Y'))
             ->map(fn($group) => $group->values());
 
-        // Build the query for financial history
         $histories = FinancialHistory::with('student')
             ->when(request('major'), function ($query) {
                 $query->whereHas('student', function ($q) {
@@ -202,10 +230,10 @@ class FinancialController extends Controller
                 $query->where('semester_end', request('semester'));
             })
             ->latest('id')
-            ->paginate(10) // 10 per page
-            ->withQueryString(); // preserve filters on pagination
+            ->paginate(10)
+            ->withQueryString();
 
-        return view('financials.all-students-hisitory', compact('majors', 'paymentStatuses', 'histories', 'semesters') );
+        return view('financials.all-students-hisitory', compact('majors', 'paymentStatuses', 'histories', 'semesters'));
     }
 
     public function financialallhistorydelete(Request $request)
@@ -214,6 +242,13 @@ class FinancialController extends Controller
 
         if ($semesterEnd) {
             FinancialHistory::where('semester_end', $semesterEnd)->delete();
+
+            SystemHistory::log(
+                'Deleted Financial History',
+                'Financial',
+                "Deleted all financial history records for semester ending {$semesterEnd}",
+                'delete'
+            );
 
             return redirect()->route('financials.studenthistory')
                 ->with('success', 'All records for the selected semester have been deleted.');

@@ -8,144 +8,164 @@
 
         {{-- Page Header --}}
         <div class="mb-8">
-            <h2 class="text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
+            <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
                 Import Academic Records
             </h2>
             <p class="text-slate-500 dark:text-slate-400 mt-2">
-                Select the subject and term, then upload your grade sheet. This will automatically calculate total scores.
+                Upload your master grade sheet. The system will automatically map students to their respective subjects using unique codes.
             </p>
         </div>
 
         {{-- Import Card --}}
         <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
 
-            <form action="{{ route('academicrecords.storeimport') }}" method="POST" enctype="multipart/form-data" id="importForm">
-                @csrf
+            <div class="p-8">
 
-                <div class="p-8">
-
-                    {{-- Context Selectors --}}
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 p-6 bg-slate-50 dark:bg-slate-800/30 rounded-xl border border-slate-100 dark:border-slate-800">
-                        <div>
-                            <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Subject</label>
-                            <select name="subject_id" class="w-full bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 rounded-lg text-sm font-bold focus:ring-primary" required>
-                                <option value="">Select Subject</option>
-                                @foreach($subjects as $subject)
-                                    <option value="{{ $subject->id }}">
-                                        {{ $subject->name }} — {{ $subject->major }} ({{ $subject->academic_year }} {{ $subject->semester }})
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Academic Year</label>
-                            <select name="academic_year" class="w-full bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 rounded-lg text-sm font-bold focus:ring-primary" required>
-                                <option value="2025/2026">2025/2026</option>
-                                <option value="2024/2025">2024/2025</option>
-                                <option value="2023/2024">2023/2024</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Semester</label>
-                            <select name="semester" class="w-full bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 rounded-lg text-sm font-bold focus:ring-primary" required>
-                                <option value="Semester 1">Semester 1</option>
-                                <option value="Semester 2">Semester 2</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    {{-- Instructions --}}
-                    <div class="mb-8 p-4 rounded-lg bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30">
-                        <h3 class="text-sm font-bold text-blue-900 dark:text-blue-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-                            <span class="material-symbols-outlined text-lg">info</span>
-                            CSV Format Requirements
-                        </h3>
-                        <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
-                            Your CSV only needs the student code and the raw scores. The subject and semester are handled by your selection above.
-                        </p>
-                        <div class="mt-3 flex flex-wrap gap-2">
-                            @foreach(['student_code', 'attendance', 'quiz', 'midterm', 'final'] as $header)
-                                <span class="px-2 py-1 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-mono font-bold">
-                                    {{ $header }}
-                                </span>
+                {{-- Instructions --}}
+                <div class="mb-8">
+                    <h3 class="text-lg font-semibold mb-2">Instructions</h3>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+                        Please ensure your CSV file follows the required format. The first row must contain the following exact headers:
+                        <span class="inline-flex flex-wrap items-center gap-1.5 mt-2">
+                            @foreach(['student_code', 'subject_code', 'attendance', 'quiz', 'midterm', 'final_exam'] as $header)
+                                <span class="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-mono">{{ $header }}</span>
                             @endforeach
-                        </div>
-                        <p class="text-xs text-slate-400 mt-3 italic">Total score is calculated automatically — do not include it in the CSV.</p>
-                    </div>
+                        </span>
+                        <span class="block mt-2">You can include multiple subjects in a single file. Maximum file size is 10MB.</span>
+                    </p>
+                </div>
+
+                {{-- Upload Form --}}
+                <form action="{{ route('academicrecords.storeimport') }}" method="POST" enctype="multipart/form-data" id="importForm">
+                    @csrf
 
                     {{-- Drop Zone --}}
                     <div
-                        class="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl p-12 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer group"
+                        class="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl p-12 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer group"
                         onclick="document.getElementById('fileInput').click()"
                     >
-                        <div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all duration-300">
-                            <span class="material-symbols-outlined text-4xl">grade</span>
+                        <div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <span class="material-symbols-outlined text-primary text-4xl">upload_file</span>
                         </div>
-                        <h4 class="text-base font-bold text-slate-900 dark:text-slate-100 mb-1">
-                            Drag and drop your Grade Sheet here
+                        <h4 class="text-base font-semibold text-slate-900 dark:text-slate-100 mb-1">
+                            Drag and drop your CSV file here
                         </h4>
                         <p class="text-slate-500 dark:text-slate-400 text-sm mb-6">
-                            CSV files up to 10MB
+                            or search for the file on your computer
                         </p>
-                        <button type="button" class="bg-slate-900 dark:bg-slate-700 text-white px-6 py-2.5 rounded-lg text-sm font-bold hover:bg-slate-800 transition-all shadow-md active:scale-95">
-                            Select File
+                        <button
+                            type="button"
+                            class="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
+                        >
+                            Choose File
                         </button>
 
-                        <input type="file" name="file" id="fileInput" accept=".csv,.txt" class="hidden" onchange="showPreview(this)" />
+                        {{-- Hidden File Input --}}
+                        <input
+                            type="file"
+                            name="file"
+                            id="fileInput"
+                            accept=".csv,.xlsx,.xls"
+                            class="hidden"
+                        />
                     </div>
 
+                    {{-- Error --}}
                     @error('file')
-                        <p class="text-red-500 text-sm font-bold mt-3 flex items-center gap-1">
-                            <span class="material-symbols-outlined text-sm">error</span>
-                            {{ $message }}
-                        </p>
+                        <p class="text-red-500 text-sm mt-3">{{ $message }}</p>
                     @enderror
 
-                    {{-- File Preview --}}
+                    {{-- Selected File Preview --}}
                     <div id="filePreview" class="mt-6 hidden">
-                        <div class="flex items-center gap-4 p-4 border border-primary/20 bg-primary/5 rounded-lg">
+                        <div class="flex items-center gap-4 p-4 border border-slate-200 dark:border-slate-700 rounded-lg">
                             <span class="material-symbols-outlined text-primary">description</span>
                             <div class="flex-1">
-                                <p class="text-sm font-bold text-slate-900 dark:text-white" id="fileName"></p>
+                                <p class="text-sm font-medium" id="fileName"></p>
                                 <p class="text-xs text-slate-500" id="fileSize"></p>
                             </div>
-                            <button type="button" onclick="clearFile()" class="size-8 flex items-center justify-center rounded-full text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors">
-                                <span class="material-symbols-outlined text-lg">delete</span>
+                            <button type="button" onclick="clearFile()" class="text-slate-400 hover:text-red-500">
+                                <span class="material-symbols-outlined">delete</span>
                             </button>
                         </div>
                     </div>
 
-                </div>
+                </form>
 
-                {{-- Actions --}}
-                <div class="px-8 py-5 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end gap-4">
-                    <a href="{{ route('academicrecords.index') }}" class="px-6 py-2 text-sm font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors">
-                        Cancel
-                    </a>
-                    <button type="submit" class="bg-primary text-white px-8 py-2.5 rounded-lg text-sm font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 active:scale-95">
-                        Process Scores
-                    </button>
-                </div>
+            </div>
 
-            </form>
+            {{-- Actions --}}
+            <div class="px-8 py-5 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end gap-4">
+                <a href="{{ route('academicrecords.index') }}" class="px-6 py-2 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors">
+                    Cancel
+                </a>
+                <button
+                    type="submit"
+                    form="importForm"
+                    class="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
+                >
+                    Upload and Import
+                </button>
+            </div>
+
         </div>
+
+        {{-- Helpful Links --}}
+        <div class="mt-8 flex items-center justify-center gap-8">
+            <a href="#" class="flex items-center gap-2 text-sm text-primary font-medium hover:underline">
+                <span class="material-symbols-outlined text-lg">download</span>
+                Download CSV Template
+            </a>
+            <a href="#" class="flex items-center gap-2 text-sm text-primary font-medium hover:underline">
+                <span class="material-symbols-outlined text-lg">help_outline</span>
+                View Import Guide
+            </a>
+        </div>
+
     </div>
 
+    {{-- JS --}}
     <script>
-        // noinspection JSUnresolvedReference
-        function showPreview(input) {
-            if (input.files && input.files[0]) {
-                const file = input.files[0];
-                document.getElementById('fileName').textContent = file.name;
-                document.getElementById('fileSize').textContent = (file.size / 1024).toFixed(1) + ' KB';
-                document.getElementById('filePreview').classList.remove('hidden');
-            }
+        const fileInput   = document.getElementById('fileInput');
+        const filePreview = document.getElementById('filePreview');
+        const fileName    = document.getElementById('fileName');
+        const fileSize    = document.getElementById('fileSize');
+        const dropZone    = document.querySelector('.border-dashed');
+
+        function showFile(file) {
+            fileName.textContent = file.name;
+            fileSize.textContent = (file.size / 1024).toFixed(1) + ' KB';
+            filePreview.classList.remove('hidden');
         }
 
+        fileInput.addEventListener('change', function () {
+            if (this.files.length > 0) showFile(this.files[0]);
+        });
+
         function clearFile() {
-            document.getElementById('fileInput').value = '';
-            document.getElementById('filePreview').classList.add('hidden');
+            fileInput.value = '';
+            filePreview.classList.add('hidden');
         }
+
+        dropZone.addEventListener('dragover', function (e) {
+            e.preventDefault();
+            this.classList.add('border-primary', 'bg-primary/5');
+        });
+
+        dropZone.addEventListener('dragleave', function () {
+            this.classList.remove('border-primary', 'bg-primary/5');
+        });
+
+        dropZone.addEventListener('drop', function (e) {
+            e.preventDefault();
+            this.classList.remove('border-primary', 'bg-primary/5');
+            const file = e.dataTransfer.files[0];
+            if (file) {
+                const dt = new DataTransfer();
+                dt.items.add(file);
+                fileInput.files = dt.files;
+                showFile(file);
+            }
+        });
     </script>
 
 </x-layouts.master>

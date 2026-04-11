@@ -18,16 +18,22 @@
             <p class="text-slate-500 dark:text-slate-400 mt-1">Grade management across all years, semesters, and majors.</p>
         </div>
         <div class="flex items-center gap-3 ml-auto">
-            <button class="border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 px-5 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 hover:bg-white dark:hover:bg-slate-800 hover:border-primary/30 hover:shadow-md transition-all active:scale-95">
-                <span class="material-symbols-outlined text-lg">download</span>
-                <span>Export Report</span>
-            </button>
             <a href="{{ route('academicrecords.import') }}">
-                <button class="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 hover:bg-primary/90 hover:shadow-lg transition-all active:scale-95">
+                <button class="border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 px-5 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 hover:bg-white dark:hover:bg-slate-800 hover:border-primary/30 hover:shadow-md transition-all active:scale-95">
                     <span class="material-symbols-outlined text-lg">add</span>
                     <span>Add Score</span>
                 </button>
             </a>
+            <a href="{{ route('academicrecords.subject') }}">
+                <button class="border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 px-5 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 hover:bg-white dark:hover:bg-slate-800 hover:border-primary/30 hover:shadow-md transition-all active:scale-95">
+                    <span class="material-symbols-outlined text-lg">add</span>
+                    <span>Add Subject</span>
+                </button>
+            </a>
+            <button class="bg-slate-900 dark:bg-slate-800 text-white px-5 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 hover:bg-slate-800 dark:hover:bg-slate-700 hover:shadow-lg transition-all active:scale-95">
+                <span class="material-symbols-outlined text-lg">download</span>
+                <span>Export Report</span>
+            </button>
         </div>
     </div>
 
