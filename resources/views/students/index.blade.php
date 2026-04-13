@@ -1,7 +1,7 @@
 <x-layouts.master title="Student Directory">
 
     <x-slot name="breadcrumb">
-        <x-breadcrumb :links="['Dashboard' => '/welcome']" current="Student Directory" />
+        <x-breadcrumb :links="['Dashboard' => '/dashboard']" current="Student Directory" />
     </x-slot>
 
     <x-slot name="search">

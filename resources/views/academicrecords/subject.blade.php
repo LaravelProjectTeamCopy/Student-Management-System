@@ -1,7 +1,7 @@
 <x-layouts.master title="Create New Subject">
 
     <x-slot name="breadcrumb">
-        <x-breadcrumb :links="['Dashboard' => '/welcome', 'Academic Records' => route('academicrecords.index')]" current="New Subject" />
+        <x-breadcrumb :links="['Dashboard' => '/dashboard', 'Academic Records' => route('academicrecords.index')]" current="New Subject" />
     </x-slot>
 
     <div class="max-w-4xl mx-auto">

@@ -1,7 +1,7 @@
 <x-layouts.master title="Attendance">
 
     <x-slot name="breadcrumb">
-        <x-breadcrumb :links="['Dashboard' => '/welcome']" current="Attendances" />
+        <x-breadcrumb :links="['Dashboard' => '/dashboard']" current="Attendances" />
     </x-slot>
 
     <x-slot name="search">
@@ -71,13 +71,13 @@
         <div class="flex items-center gap-3">
             <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Status:</span>
             <div class="flex gap-1.5">
-                @foreach(['Active', 'Inactive', 'Graduated'] as $status)
-                    <a href="?status={{ $status }}&year={{ request('year', '2025/2026') }}&major={{ request('major') }}"
+                @foreach(['Good' => 'Good', 'At Risk' => 'At Risk', 'Critical' => 'Critical'] as $key => $label)
+                    <a href="?status={{ urlencode($key) }}&year={{ request('year', '2025/2026') }}&major={{ request('major') }}"
                        class="px-3 py-1.5 rounded-full border text-xs font-bold transition-all
-                       {{ request('status') == $status
+                       {{ request('status') == $key
                            ? 'bg-primary text-white border-primary'
                            : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
-                        {{ $status }}
+                        {{ $label }}
                     </a>
                 @endforeach
             </div>
@@ -88,7 +88,7 @@
     {{-- Stat Cards --}}
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
 
-        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col gap-3">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col gap-3 hover:shadow-md transition-all">
             <div class="w-9 h-9 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center">
                 <span class="material-symbols-outlined text-blue-600 dark:text-blue-400 text-lg">schedule</span>
             </div>
@@ -99,45 +99,45 @@
             <p class="text-xs font-medium text-blue-600 dark:text-blue-400">All semesters</p>
         </div>
 
-        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col gap-3">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col gap-3 hover:shadow-md transition-all">
             <div class="w-9 h-9 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center">
-                <span class="material-symbols-outlined text-emerald-600 dark:text-emerald-400 text-lg">check</span>
+                <span class="material-symbols-outlined text-emerald-600 dark:text-emerald-400 text-lg">check_circle</span>
             </div>
             <div>
-                <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">Present</p>
-                <p class="text-3xl font-bold text-slate-900 dark:text-white leading-none">{{ $presentCount }}</p>
+                <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">Good</p>
+                <p class="text-3xl font-bold text-slate-900 dark:text-white leading-none">{{ $goodCount }}</p>
             </div>
             <div class="h-1 bg-emerald-100 dark:bg-emerald-900/30 rounded-full overflow-hidden">
-                @php $presentPct = $totalAttendance > 0 ? round(($presentCount / $totalAttendance) * 100) : 0; @endphp
-                <div class="h-full bg-emerald-500 rounded-full" style="width: {{ $presentPct }}%"></div>
+                @php $goodPct = $totalAttendance > 0 ? round(($goodCount / $totalAttendance) * 100) : 0; @endphp
+                <div class="h-full bg-emerald-500 rounded-full" style="width: {{ $goodPct }}%"></div>
             </div>
         </div>
 
-        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col gap-3">
-            <div class="w-9 h-9 rounded-lg bg-red-50 dark:bg-red-900/20 flex items-center justify-center">
-                <span class="material-symbols-outlined text-red-500 dark:text-red-400 text-lg">close</span>
-            </div>
-            <div>
-                <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">Absent</p>
-                <p class="text-3xl font-bold text-slate-900 dark:text-white leading-none">{{ $absentCount }}</p>
-            </div>
-            <div class="h-1 bg-red-100 dark:bg-red-900/30 rounded-full overflow-hidden">
-                @php $absentPct = $totalAttendance > 0 ? round(($absentCount / $totalAttendance) * 100) : 0; @endphp
-                <div class="h-full bg-red-500 rounded-full" style="width: {{ $absentPct }}%"></div>
-            </div>
-        </div>
-
-        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col gap-3">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col gap-3 hover:shadow-md transition-all">
             <div class="w-9 h-9 rounded-lg bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center">
-                <span class="material-symbols-outlined text-amber-500 dark:text-amber-400 text-lg">error_outline</span>
+                <span class="material-symbols-outlined text-amber-500 dark:text-amber-400 text-lg">warning</span>
             </div>
             <div>
-                <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">Pending</p>
-                <p class="text-3xl font-bold text-slate-900 dark:text-white leading-none">{{ $pendingCount }}</p>
+                <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">At Risk</p>
+                <p class="text-3xl font-bold text-slate-900 dark:text-white leading-none">{{ $atRiskCount }}</p>
             </div>
             <div class="h-1 bg-amber-100 dark:bg-amber-900/30 rounded-full overflow-hidden">
-                @php $pendingPct = $totalAttendance > 0 ? round(($pendingCount / $totalAttendance) * 100) : 0; @endphp
-                <div class="h-full bg-amber-400 rounded-full" style="width: {{ $pendingPct }}%"></div>
+                @php $atRiskPct = $totalAttendance > 0 ? round(($atRiskCount / $totalAttendance) * 100) : 0; @endphp
+                <div class="h-full bg-amber-500 rounded-full" style="width: {{ $atRiskPct }}%"></div>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col gap-3 hover:shadow-md transition-all">
+            <div class="w-9 h-9 rounded-lg bg-red-50 dark:bg-red-900/20 flex items-center justify-center">
+                <span class="material-symbols-outlined text-red-500 dark:text-red-400 text-lg">error</span>
+            </div>
+            <div>
+                <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">Critical</p>
+                <p class="text-3xl font-bold text-slate-900 dark:text-white leading-none">{{ $criticalCount }}</p>
+            </div>
+            <div class="h-1 bg-red-100 dark:bg-red-900/30 rounded-full overflow-hidden">
+                @php $criticalPct = $totalAttendance > 0 ? round(($criticalCount / $totalAttendance) * 100) : 0; @endphp
+                <div class="h-full bg-red-500 rounded-full" style="width: {{ $criticalPct }}%"></div>
             </div>
         </div>
 

@@ -12,14 +12,14 @@
      <?php $__env->slot('breadcrumb', null, []); ?> 
         <?php if (isset($component)) { $__componentOriginale19f62b34dfe0bfdf95075badcb45bc2 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginale19f62b34dfe0bfdf95075badcb45bc2 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.breadcrumb','data' => ['links' => ['Dashboard' => '/welcome'],'current' => 'Attendances']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.breadcrumb','data' => ['links' => ['Dashboard' => '/dashboard'],'current' => 'Attendances']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('breadcrumb'); ?>
 <?php if ($component->shouldRender()): ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
 <?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
-<?php $component->withAttributes(['links' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(['Dashboard' => '/welcome']),'current' => 'Attendances']); ?>
+<?php $component->withAttributes(['links' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(['Dashboard' => '/dashboard']),'current' => 'Attendances']); ?>
 <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>
 <?php if (isset($__attributesOriginale19f62b34dfe0bfdf95075badcb45bc2)): ?>
@@ -116,13 +116,13 @@
         <div class="flex items-center gap-3">
             <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Status:</span>
             <div class="flex gap-1.5">
-                <?php $__currentLoopData = ['Active', 'Inactive', 'Graduated']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $status): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                    <a href="?status=<?php echo e($status); ?>&year=<?php echo e(request('year', '2025/2026')); ?>&major=<?php echo e(request('major')); ?>"
+                <?php $__currentLoopData = ['Good' => 'Good', 'At Risk' => 'At Risk', 'Critical' => 'Critical']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <a href="?status=<?php echo e(urlencode($key)); ?>&year=<?php echo e(request('year', '2025/2026')); ?>&major=<?php echo e(request('major')); ?>"
                        class="px-3 py-1.5 rounded-full border text-xs font-bold transition-all
-                       <?php echo e(request('status') == $status
+                       <?php echo e(request('status') == $key
                            ? 'bg-primary text-white border-primary'
                            : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'); ?>">
-                        <?php echo e($status); ?>
+                        <?php echo e($label); ?>
 
                     </a>
                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
@@ -134,7 +134,7 @@
     
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
 
-        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col gap-3">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col gap-3 hover:shadow-md transition-all">
             <div class="w-9 h-9 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center">
                 <span class="material-symbols-outlined text-blue-600 dark:text-blue-400 text-lg">schedule</span>
             </div>
@@ -145,45 +145,45 @@
             <p class="text-xs font-medium text-blue-600 dark:text-blue-400">All semesters</p>
         </div>
 
-        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col gap-3">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col gap-3 hover:shadow-md transition-all">
             <div class="w-9 h-9 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center">
-                <span class="material-symbols-outlined text-emerald-600 dark:text-emerald-400 text-lg">check</span>
+                <span class="material-symbols-outlined text-emerald-600 dark:text-emerald-400 text-lg">check_circle</span>
             </div>
             <div>
-                <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">Present</p>
-                <p class="text-3xl font-bold text-slate-900 dark:text-white leading-none"><?php echo e($presentCount); ?></p>
+                <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">Good</p>
+                <p class="text-3xl font-bold text-slate-900 dark:text-white leading-none"><?php echo e($goodCount); ?></p>
             </div>
             <div class="h-1 bg-emerald-100 dark:bg-emerald-900/30 rounded-full overflow-hidden">
-                <?php $presentPct = $totalAttendance > 0 ? round(($presentCount / $totalAttendance) * 100) : 0; ?>
-                <div class="h-full bg-emerald-500 rounded-full" style="width: <?php echo e($presentPct); ?>%"></div>
+                <?php $goodPct = $totalAttendance > 0 ? round(($goodCount / $totalAttendance) * 100) : 0; ?>
+                <div class="h-full bg-emerald-500 rounded-full" style="width: <?php echo e($goodPct); ?>%"></div>
             </div>
         </div>
 
-        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col gap-3">
-            <div class="w-9 h-9 rounded-lg bg-red-50 dark:bg-red-900/20 flex items-center justify-center">
-                <span class="material-symbols-outlined text-red-500 dark:text-red-400 text-lg">close</span>
-            </div>
-            <div>
-                <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">Absent</p>
-                <p class="text-3xl font-bold text-slate-900 dark:text-white leading-none"><?php echo e($absentCount); ?></p>
-            </div>
-            <div class="h-1 bg-red-100 dark:bg-red-900/30 rounded-full overflow-hidden">
-                <?php $absentPct = $totalAttendance > 0 ? round(($absentCount / $totalAttendance) * 100) : 0; ?>
-                <div class="h-full bg-red-500 rounded-full" style="width: <?php echo e($absentPct); ?>%"></div>
-            </div>
-        </div>
-
-        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col gap-3">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col gap-3 hover:shadow-md transition-all">
             <div class="w-9 h-9 rounded-lg bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center">
-                <span class="material-symbols-outlined text-amber-500 dark:text-amber-400 text-lg">error_outline</span>
+                <span class="material-symbols-outlined text-amber-500 dark:text-amber-400 text-lg">warning</span>
             </div>
             <div>
-                <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">Pending</p>
-                <p class="text-3xl font-bold text-slate-900 dark:text-white leading-none"><?php echo e($pendingCount); ?></p>
+                <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">At Risk</p>
+                <p class="text-3xl font-bold text-slate-900 dark:text-white leading-none"><?php echo e($atRiskCount); ?></p>
             </div>
             <div class="h-1 bg-amber-100 dark:bg-amber-900/30 rounded-full overflow-hidden">
-                <?php $pendingPct = $totalAttendance > 0 ? round(($pendingCount / $totalAttendance) * 100) : 0; ?>
-                <div class="h-full bg-amber-400 rounded-full" style="width: <?php echo e($pendingPct); ?>%"></div>
+                <?php $atRiskPct = $totalAttendance > 0 ? round(($atRiskCount / $totalAttendance) * 100) : 0; ?>
+                <div class="h-full bg-amber-500 rounded-full" style="width: <?php echo e($atRiskPct); ?>%"></div>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col gap-3 hover:shadow-md transition-all">
+            <div class="w-9 h-9 rounded-lg bg-red-50 dark:bg-red-900/20 flex items-center justify-center">
+                <span class="material-symbols-outlined text-red-500 dark:text-red-400 text-lg">error</span>
+            </div>
+            <div>
+                <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">Critical</p>
+                <p class="text-3xl font-bold text-slate-900 dark:text-white leading-none"><?php echo e($criticalCount); ?></p>
+            </div>
+            <div class="h-1 bg-red-100 dark:bg-red-900/30 rounded-full overflow-hidden">
+                <?php $criticalPct = $totalAttendance > 0 ? round(($criticalCount / $totalAttendance) * 100) : 0; ?>
+                <div class="h-full bg-red-500 rounded-full" style="width: <?php echo e($criticalPct); ?>%"></div>
             </div>
         </div>
 

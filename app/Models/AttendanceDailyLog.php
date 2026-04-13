@@ -8,7 +8,7 @@ class AttendanceDailyLog extends Model
 {
     //
     protected $fillable = ['student_id', 'log_date', 'status'];
-    function attendance(){
+    public function attendance(){
         return $this->belongsTo(Attendance::class);
     }
 }

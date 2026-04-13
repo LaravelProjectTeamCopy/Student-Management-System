@@ -32,7 +32,7 @@
         {{-- Action Button --}}
         <div class="w-full">
             <a
-                href="/welcome"
+                href="/dashboard"
                 class="w-full flex items-center justify-center bg-primary hover:bg-primary/90 text-white font-bold py-4 px-6 rounded-lg transition-colors text-lg shadow-md shadow-primary/20"
             >
                 Continue

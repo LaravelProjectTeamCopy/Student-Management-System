@@ -1,7 +1,7 @@
 <x-layouts.master title="Student Attendance">
     
     <x-slot name="breadcrumb">
-        <x-breadcrumb :links="['Dashboard' => '/welcome', 'Attendances' => route('attendances.index')]" current="{{ $student->name }}" />
+        <x-breadcrumb :links="['Dashboard' => '/dashboard', 'Attendances' => route('attendances.index')]" current="{{ $student->name }}" />
     </x-slot>
     
     {{-- Page Header --}}

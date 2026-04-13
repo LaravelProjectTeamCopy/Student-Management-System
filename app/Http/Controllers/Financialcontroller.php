@@ -152,7 +152,7 @@ class FinancialController extends Controller
             'upload_file'
         );
 
-        return redirect('/welcome')->with('success', 'Financial records imported successfully!');
+        return redirect('/financials')->with('success', 'Financial records imported successfully!');
     }
 
     public function financialdeadline()

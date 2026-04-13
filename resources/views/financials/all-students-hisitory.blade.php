@@ -1,7 +1,7 @@
 <x-layouts.master title="Financial History">
     
     <x-slot name="breadcrumb">
-        <x-breadcrumb :links="['Dashboard' => '/welcome', 'Financials' => route('financials.index')]" current="History" />
+        <x-breadcrumb :links="['Dashboard' => '/dashboard', 'Financials' => route('financials.index')]" current="History" />
     </x-slot>
 
     {{-- Page Title --}}

@@ -1,7 +1,7 @@
 <x-layouts.master title="Import Academic Records">
 
     <x-slot name="breadcrumb">
-        <x-breadcrumb :links="['Dashboard' => '/welcome', 'Academic Scores' => route('academicrecords.index')]" current="Import" />
+        <x-breadcrumb :links="['Dashboard' => '/dashboard', 'Academic Scores' => route('academicrecords.index')]" current="Import" />
     </x-slot>
 
     <div class="max-w-4xl mx-auto">

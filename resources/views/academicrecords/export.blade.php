@@ -1,7 +1,7 @@
 <x-layouts.master title="Export Academic Scores">
 
     <x-slot name="breadcrumb">
-        <x-breadcrumb :links="['Dashboard' => '/welcome', 'Academic Scores' => route('academicrecords.index')]" current="Export" />
+        <x-breadcrumb :links="['Dashboard' => '/dashboard', 'Academic Scores' => route('academicrecords.index')]" current="Export" />
     </x-slot>
 
     <div class="flex flex-1 flex-col items-center justify-center">

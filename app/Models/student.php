@@ -36,7 +36,7 @@ class Student extends Model
 
     public function financial()
     {
-        return $this->hasMany(Financial::class);
+        return $this->hasOne(Financial::class);
     }
 
     public function attendance()

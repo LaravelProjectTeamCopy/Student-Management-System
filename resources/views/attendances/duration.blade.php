@@ -1,7 +1,7 @@
 <x-layouts.master title="Set Attendance Deadline">
 
     <x-slot name="breadcrumb">
-        <x-breadcrumb :links="['Dashboard' => '/welcome', 'Attendance' => route('attendances.index')]" current="Set Attendance Deadline" />
+        <x-breadcrumb :links="['Dashboard' => '/dashboard', 'Attendance' => route('attendances.index')]" current="Set Attendance Deadline" />
     </x-slot>
 
     <div class="max-w-4xl mx-auto">

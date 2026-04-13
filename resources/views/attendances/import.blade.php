@@ -1,7 +1,7 @@
 <x-layouts.master title="Import Attendance">
     
     <x-slot name="breadcrumb">
-        <x-breadcrumb :links="['Dashboard' => '/welcome', 'Attendances' => route('attendances.index')]" current="Import" />
+        <x-breadcrumb :links="['Dashboard' => '/dashboard', 'Attendances' => route('attendances.index')]" current="Import" />
     </x-slot>
     
     <div class="max-w-4xl mx-auto">

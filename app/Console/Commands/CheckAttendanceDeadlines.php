@@ -21,9 +21,6 @@ class CheckAttendanceDeadlines extends Command
 
     public function handle(): int
     {
-        // --- For testing only, remove in production ---
-        Carbon::setTestNow(Carbon::parse('2026-12-28 14:00:00'));
-
         // ── Step 1: Validate semester data exists ──
         $first = Attendance::first();
 

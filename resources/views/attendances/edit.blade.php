@@ -1,7 +1,7 @@
 <x-layouts.master title="Weekly Attendance Update">
 
     <x-slot name="breadcrumb">
-        <x-breadcrumb :links="['Dashboard' => '/welcome', 'Attendances' => route('attendances.index')]" current="Weekly Update: {{ $student->name }}" />
+        <x-breadcrumb :links="['Dashboard' => '/dashboard', 'Attendances' => route('attendances.index')]" current="Weekly Update: {{ $student->name }}" />
     </x-slot>
 
     <div class="max-w-4xl mx-auto">

@@ -1,7 +1,7 @@
 <x-layouts.master title="Attendance History">
     
     <x-slot name="breadcrumb">
-        <x-breadcrumb :links="['Dashboard' => '/welcome', 'Attendances' => route('attendances.index')]" current="History" />
+        <x-breadcrumb :links="['Dashboard' => '/dashboard', 'Attendances' => route('attendances.index')]" current="History" />
     </x-slot>
 
     {{-- Page Title + Actions --}}

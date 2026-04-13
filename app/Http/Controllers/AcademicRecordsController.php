@@ -159,7 +159,7 @@ class AcademicRecordsController extends Controller
                 // Check if this retake fee was already charged
                 $alreadyCharged = PaymentLog::where('student_id', $student->id)
                     ->where('payment_method', 'Surcharge')
-                    ->where('note', 'like', "%{$fingerprint}%")
+                    ->where('notes', 'like', "%{$fingerprint}%")
                     ->exists();
 
                 if ($alreadyCharged) continue;
@@ -189,7 +189,7 @@ class AcademicRecordsController extends Controller
                     'payment_method' => 'Surcharge',
                     'payment_status' => $financial->payment_status,
                     'payment_date'   => now()->toDateString(),
-                    'note'           => "Retake exam fee – {$subject->name} (score: {$score->total_score}/100) | {$fingerprint}",
+                    'notes'          => "Retake exam fee – {$subject->name} (score: {$score->total_score}/100) | {$fingerprint}",
                 ]);
 
                 SystemHistory::log(

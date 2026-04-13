@@ -1,7 +1,7 @@
 <x-layouts.master title="Payment History">
 
     <x-slot name="breadcrumb">
-        <x-breadcrumb :links="['Dashboard' => '/welcome', 'Financials' => route('financials.index') ,'History' => route('financials.history', $student->id)]" current="{{ $student->name }}" />
+        <x-breadcrumb :links="['Dashboard' => '/dashboard', 'Financials' => route('financials.index') ,'History' => route('financials.history', $student->id)]" current="{{ $student->name }}" />
     </x-slot>
 
     {{-- Page Header --}}

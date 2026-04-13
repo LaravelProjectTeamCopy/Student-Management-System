@@ -21,11 +21,17 @@ class AttendanceController extends Controller
     public function attendanceindex()
     {
         $majors      = Student::distinct()->pluck('major');
+        $yearLevels  = ['Year 1', 'Year 2', 'Year 3', 'Year 4'];
         $statuses    = Attendance::distinct()->pluck('status');
         $attendances = $this->searchByStudent(Attendance::with('student'), request('search'))
             ->when(request('major'), function ($query) {
                 $query->whereHas('student', function ($q) {
                     $q->where('major', request('major'));
+                });
+            })
+            ->when(request('year_level'), function ($query) {
+                $query->whereHas('student', function ($q) {
+                    $q->where('year_level', request('year_level'));
                 });
             })
             ->when(request('status'), function ($query) {
@@ -36,13 +42,13 @@ class AttendanceController extends Controller
 
         // Summary variables for dashboard cards
         $totalAttendance = Attendance::count();
-        $presentCount    = Attendance::where('status', 'present')->count();
-        $absentCount     = Attendance::where('status', 'absent')->count();
-        $pendingCount    = Attendance::where('status', 'pending')->count();
+        $goodCount       = Attendance::where('status', 'Good')->count();
+        $atRiskCount     = Attendance::where('status', 'At Risk')->count();
+        $criticalCount   = Attendance::where('status', 'Critical')->count();
 
         return view('attendances.index', compact(
-            'attendances', 'majors', 'statuses',
-            'totalAttendance', 'presentCount', 'absentCount', 'pendingCount'
+            'attendances', 'majors', 'yearLevels', 'statuses',
+            'totalAttendance', 'goodCount', 'atRiskCount', 'criticalCount'
         ));
     }
 
@@ -57,7 +63,6 @@ class AttendanceController extends Controller
 
     public function attendanceshow($id)
     {
-        \Carbon\Carbon::setTestNow(\Carbon\Carbon::parse('2026-10-28 14:00:00'));
         $student    = Student::findOrFail($id);
         $attendance = Attendance::where('student_id', $id)->firstOrFail();
         $logs       = AttendanceLog::where('student_id', $id)->orderBy('log_date', 'desc')->take(3)->get();
@@ -81,7 +86,6 @@ class AttendanceController extends Controller
 
     public function attendanceedit(Request $request, $id)
     {
-        \Carbon\Carbon::setTestNow(\Carbon\Carbon::parse('2026-07-28 14:00:00'));
         $attendance    = Attendance::where('student_id', $id)->firstOrFail();
         $student       = $attendance->student;
         $semesterStart = \Carbon\Carbon::parse($attendance->semester_start)->startOfDay();
@@ -130,7 +134,6 @@ class AttendanceController extends Controller
 
     public function attendanceupdate(Request $request, $id)
     {
-        \Carbon\Carbon::setTestNow(\Carbon\Carbon::parse('2026-07-28 14:00:00'));
         $attendance    = Attendance::where('student_id', $id)->firstOrFail();
         $semesterStart = \Carbon\Carbon::parse($attendance->semester_start)->startOfDay();
         $semesterEnd   = \Carbon\Carbon::parse($attendance->deadline)->endOfDay();
@@ -246,7 +249,7 @@ class AttendanceController extends Controller
             // Check if a surcharge for this subject was already applied this semester
             $alreadyCharged = \App\Models\PaymentLog::where('student_id', $student->id)
                 ->where('payment_method', 'Surcharge')
-                ->where('note', 'like', "%subject_id:{$schedule->subject_id}%")
+                ->where('notes', 'like', "%subject_id:{$schedule->subject_id}%")
                 ->where('payment_date', '>=', $semesterStart)
                 ->exists();
 
@@ -277,7 +280,7 @@ class AttendanceController extends Controller
                 'payment_method' => 'Surcharge',
                 'payment_status' => $financial->payment_status,
                 'payment_date'   => now()->toDateString(),
-                'note'           => "Subject failure surcharge – {$schedule->subject->name} ({$absentCount} absences) | subject_id:{$schedule->subject_id}",
+                'notes'          => "Subject failure surcharge – {$schedule->subject->name} ({$absentCount} absences) | subject_id:{$schedule->subject_id}",
             ]);
 
             SystemHistory::log(
@@ -326,7 +329,7 @@ class AttendanceController extends Controller
             'upload_file'
         );
 
-        return redirect('/welcome')->with('success', 'Attendance record imported successfully!');
+        return redirect('/attendances')->with('success', 'Attendance record imported successfully!');
     }
 
     public function attendanceduration()
@@ -533,27 +536,26 @@ class AttendanceController extends Controller
 
         $subject = Subject::findOrFail($request->subject_id);
 
-        // Prevent same subject being scheduled on multiple days
-        $alreadyScheduled = SubjectSchedule::where('subject_id', $request->subject_id)->first();
-        if ($alreadyScheduled) {
-            return back()->withErrors(['duplicate' => "{$subject->name} is already scheduled on {$alreadyScheduled->day_of_week}. Remove it first to reassign."]);
-        }
+        // Update or create - allows reassigning to different day
+        $schedule = SubjectSchedule::updateOrCreate(
+            ['subject_id' => $request->subject_id],
+            [
+                'day_of_week' => $request->day_of_week,
+                'start_time'  => $request->start_time,
+                'end_time'    => $request->end_time,
+            ]
+        );
 
-        SubjectSchedule::create([
-            'subject_id'  => $request->subject_id,
-            'day_of_week' => $request->day_of_week,
-            'start_time'  => $request->start_time,
-            'end_time'    => $request->end_time,
-        ]);
+        $action = $schedule->wasRecentlyCreated ? 'Assigned' : 'Reassigned';
 
         SystemHistory::log(
-            'Assigned Subject Schedule',
+            "{$action} Subject Schedule",
             'Attendance',
-            "Assigned {$subject->name} ({$subject->subject_code}) to {$request->day_of_week}",
+            "{$action} {$subject->name} ({$subject->subject_code}) to {$request->day_of_week}",
             'calendar_month'
         );
 
-        return back()->with('success', "{$subject->name} assigned to {$request->day_of_week} successfully!");
+        return back()->with('success', "{$subject->name} {$action} to {$request->day_of_week} successfully!");
     }
 
     public function attendancescheduleauto(Request $request)

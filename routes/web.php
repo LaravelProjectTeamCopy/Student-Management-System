@@ -39,7 +39,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/student/{id}',   [StudentController::class, 'studentdestroy'])->name('students.destroy');
     Route::get('/student/import',    [StudentController::class, 'showimport']);
     Route::post('/student/import',   [StudentController::class, 'import'])->name('students.import');
-    Route::get('/student/index',     [StudentController::class, 'showindex'])->name('students.index');
+    Route::get('/student/index',     [StudentController::class, 'studentindex'])->name('students.index');
     Route::get('/student/export',    [StudentController::class, 'showexport']);
     Route::get('/student/exportcsv', [StudentController::class, 'export'])->name('students.export');
 
@@ -73,7 +73,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/attendances/{id}/show',             [AttendanceController::class, 'attendanceshow'])->name('attendances.show');
     Route::get('/attendances/{id}/edit',             [AttendanceController::class, 'attendanceedit'])->name('attendances.edit');
     Route::get('/attendances/{id}/history',          [AttendanceController::class, 'attendancehistory'])->name('attendances.history');
-    Route::get('/attendances/{id}/result',           [AttendanceController::class, 'attendanceresult'])->name('attendances.result');
+    Route::get('/attendances/{id}/history',          [AttendanceController::class, 'attendancehistory'])->name('attendances.history');
     Route::put('/attendances/{id}/edit',             [AttendanceController::class, 'attendanceupdate'])->name('attendances.update');
     Route::post('/attendances/import',               [AttendanceController::class, 'attendanceimport'])->name('attendances.storeimport');
     Route::post('/attendances/duration',             [AttendanceController::class, 'attendancesetduration'])->name('attendances.setduration');

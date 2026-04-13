@@ -8,11 +8,11 @@ class PaymentLog extends Model
 {
     protected $fillable = [
         'student_id',
-        'total_fees',
         'amount_paid',
         'payment_method',
         'payment_status',
         'payment_date',
+        'notes',
     ];
 
     protected $casts = [
