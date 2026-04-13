@@ -47,13 +47,13 @@
                     Edit Student
                 </button>
             </a>
-            <form action="{{ route('students.destroy', $student->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this student?')">
+            <button type="button" onclick="openDeleteModal()" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-red-500 px-4 py-2 text-sm font-bold text-white hover:bg-red-600 lg:flex-none transition-colors">
+                <span class="material-symbols-outlined text-sm">delete</span>
+                Delete
+            </button>
+            <form id="delete-form" action="{{ route('students.destroy', $student->id) }}" method="POST" class="hidden">
                 @csrf
                 @method('DELETE')
-                <button type="submit" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-red-500 px-4 py-2 text-sm font-bold text-white hover:bg-red-600 lg:flex-none transition-colors">
-                    <span class="material-symbols-outlined text-sm">delete</span>
-                    Delete
-                </button>
             </form>
         </div>
     </div>
@@ -230,5 +230,63 @@
         </div>
 
     </div>
+
+    {{-- Delete Confirmation Modal --}}
+    <div id="delete-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 w-full max-w-md mx-4 p-6">
+
+            <div class="flex items-center justify-center w-14 h-14 rounded-full bg-red-100 dark:bg-red-900/30 mx-auto mb-4">
+                <svg class="w-7 h-7 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                </svg>
+            </div>
+
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white text-center">Delete Student?</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 text-center mt-2">
+                This will permanently delete <span class="font-semibold text-red-500">{{ $student->name }}</span>
+                and all associated records. This action <span class="font-semibold">cannot be undone</span>.
+            </p>
+
+            {{-- Student Summary --}}
+            <div class="mt-4 p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-500 space-y-1">
+                <div class="flex justify-between">
+                    <span class="font-semibold">Name</span>
+                    <span>{{ $student->name }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="font-semibold">Student ID</span>
+                    <span>{{ $student->student_code ?? $student->student_id ?? 'N/A' }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="font-semibold">Major</span>
+                    <span class="text-red-500 font-bold">{{ $student->major }}</span>
+                </div>
+            </div>
+
+            <div class="flex gap-3 mt-6">
+                <button type="button" onclick="closeDeleteModal()"
+                        class="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition">
+                    Cancel
+                </button>
+                <button type="button" onclick="document.getElementById('delete-form').submit()"
+                        class="flex-1 px-4 py-2.5 rounded-xl bg-red-500 text-white text-sm font-bold hover:bg-red-600 transition shadow-lg">
+                    Yes, Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openDeleteModal() {
+            document.getElementById('delete-modal').classList.remove('hidden');
+        }
+        function closeDeleteModal() {
+            document.getElementById('delete-modal').classList.add('hidden');
+        }
+        document.getElementById('delete-modal').addEventListener('click', function(e) {
+            if (e.target === this) closeDeleteModal();
+        });
+    </script>
 
 </x-layouts.master>

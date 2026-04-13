@@ -96,6 +96,52 @@ class StudentController extends Controller
         return view('students.import');
     }
 
+    public function studentedit($id)
+    {
+        $student = Student::findOrFail($id);
+        return view('students.edit', compact('student'));
+    }
+
+    public function studentupdate(Request $request, $id)
+    {
+        $student = Student::findOrFail($id);
+
+        $validated = $request->validate([
+            'name'          => 'required|string|max:255',
+            'email'         => 'required|email|unique:students,email,' . $student->id,
+            'major'         => 'required|string|max:255',
+            'academic_year' => 'required|string|max:20',
+        ]);
+
+        $student->update($validated);
+
+        SystemHistory::log(
+            'Updated Student',
+            'Student',
+            "Updated {$student->name} ({$student->major}) profile",
+            'edit'
+        );
+
+        return redirect('/student/' . $student->id . '/show')->with('success', 'Student updated successfully!');
+    }
+
+    public function studentdestroy($id)
+    {
+        $student = Student::findOrFail($id);
+        $name = $student->name;
+        $major = $student->major;
+        $student->delete();
+
+        SystemHistory::log(
+            'Deleted Student',
+            'Student',
+            "Removed {$name} ({$major}) from the directory",
+            'person_remove'
+        );
+
+        return redirect('/student')->with('success', 'Student deleted successfully!');
+    }
+
     public function showexport()
     {
         return view('students.export');

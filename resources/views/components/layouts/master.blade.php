@@ -1,5 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+<script>
+    if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+    }
+</script>
 
 <head>
     <meta charset="utf-8"/>
@@ -129,6 +136,12 @@
                     <span class="material-symbols-outlined">notifications</span>
                 </button>
 
+                {{-- Theme Toggle --}}
+                <button onclick="toggleTheme()" id="theme-toggle" class="size-10 flex items-center justify-center rounded-full text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" title="Toggle dark mode">
+                    <span class="material-symbols-outlined dark:hidden">dark_mode</span>
+                    <span class="material-symbols-outlined hidden dark:inline">light_mode</span>
+                </button>
+
             </div>
         </header>
 
@@ -140,5 +153,17 @@
     </main>
 
 </div>
+<script>
+    function toggleTheme() {
+        const html = document.documentElement;
+        if (html.classList.contains('dark')) {
+            html.classList.remove('dark');
+            localStorage.setItem('theme', 'light');
+        } else {
+            html.classList.add('dark');
+            localStorage.setItem('theme', 'dark');
+        }
+    }
+</script>
 </body>
 </html>

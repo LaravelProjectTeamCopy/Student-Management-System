@@ -10,6 +10,8 @@ return new class extends Migration
         Schema::create('attendance_histories', function (Blueprint $table) {
             $table->id();
             $table->foreignId('student_id')->constrained('students')->onDelete('cascade');
+            $table->string('academic_year')->nullable();
+            $table->string('semester')->nullable();
             $table->date('semester_start')->nullable();
             $table->date('semester_end')->nullable();
             $table->integer('total_days')->nullable(); 

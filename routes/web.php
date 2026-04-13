@@ -34,6 +34,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/student/{id}/show', [StudentController::class, 'studentshow'])->name('students.show');
     Route::get('/student/create',    [StudentController::class, 'showstudentcreate']);
     Route::post('/student/create',   [StudentController::class, 'studentcreate'])->name('students.create');
+    Route::get('/student/{id}/edit', [StudentController::class, 'studentedit'])->name('students.edit');
+    Route::put('/student/{id}/edit', [StudentController::class, 'studentupdate'])->name('students.update');
+    Route::delete('/student/{id}',   [StudentController::class, 'studentdestroy'])->name('students.destroy');
     Route::get('/student/import',    [StudentController::class, 'showimport']);
     Route::post('/student/import',   [StudentController::class, 'import'])->name('students.import');
     Route::get('/student/index',     [StudentController::class, 'showindex'])->name('students.index');
@@ -54,6 +57,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/financials/import',            [FinancialController::class, 'financialimport'])->name('financials.import');
     Route::post('/financials/deadline',          [FinancialController::class, 'financialsetdeadline'])->name('financials.overdue');
     Route::post('/financials/cleardeadline',     [FinancialController::class, 'financialcleardeadline'])->name('financials.cleardeadline');
+    Route::delete('/financials/studenthistory/delete', [FinancialController::class, 'financialallhistorydelete'])->name('financials.deleteallstudenthistory');
 
     // Attendances
     Route::get('/attendances',                       [AttendanceController::class, 'attendanceindex'])->name('attendances.index');
@@ -62,6 +66,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/attendances/exportcsv',             [AttendanceController::class, 'attendanceexport'])->name('attendances.export');
     Route::get('/attendances/duration',              [AttendanceController::class, 'attendanceduration'])->name('attendances.duration');
     Route::get('/attendances/studenthistory',        [AttendanceController::class, 'attendanceallhistory'])->name('attendances.studenthistory');
+    Route::get('/attendances/schedule',              [AttendanceController::class, 'attendanceschedule'])->name('attendances.schedule');
+    Route::post('/attendances/schedule',             [AttendanceController::class, 'attendancescheduleset'])->name('attendances.scheduleset');
+    Route::post('/attendances/schedule/auto',        [AttendanceController::class, 'attendancescheduleauto'])->name('attendances.scheduleauto');
+    Route::delete('/attendances/schedule/{id}',      [AttendanceController::class, 'attendancescheduleremove'])->name('attendances.scheduleremove');
     Route::get('/attendances/{id}/show',             [AttendanceController::class, 'attendanceshow'])->name('attendances.show');
     Route::get('/attendances/{id}/edit',             [AttendanceController::class, 'attendanceedit'])->name('attendances.edit');
     Route::get('/attendances/{id}/history',          [AttendanceController::class, 'attendancehistory'])->name('attendances.history');

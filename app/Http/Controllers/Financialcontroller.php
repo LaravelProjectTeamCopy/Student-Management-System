@@ -31,7 +31,16 @@ class FinancialController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        return view('financials.index', compact('financials', 'majors', 'statuses'));
+        // Summary card variables
+        $totalFinancial = Financial::count();
+        $paidCount      = Financial::where('payment_status', 'Paid')->count();
+        $partialCount   = Financial::where('payment_status', 'Partial')->count();
+        $overdueCount   = Financial::where('payment_status', 'Overdue')->count();
+
+        return view('financials.index', compact(
+            'financials', 'majors', 'statuses',
+            'totalFinancial', 'paidCount', 'partialCount', 'overdueCount'
+        ));
     }
 
     public function financialshow($id)
@@ -53,35 +62,38 @@ class FinancialController extends Controller
 
     public function financialedit($id)
     {
-        \Carbon\Carbon::setTestNow(\Carbon\Carbon::parse('2026-05-03 14:00:00'));
         $financial = Financial::where('student_id', $id)->firstOrFail();
         $student   = $financial->student;
         $lastLog   = PaymentLog::where('student_id', $id)->orderBy('payment_date', 'desc')->first();
-        $isLocked  = $financial->deadline && \Carbon\Carbon::now()->gt(\Carbon\Carbon::parse($financial->deadline));
+        $isLocked  = $financial->deadline && now()->gt($financial->deadline);
 
         return view('financials.edit', compact('financial', 'student', 'lastLog', 'isLocked'));
     }
 
     public function financialupdate(Request $request, $id)
     {
-        \Carbon\Carbon::setTestNow(\Carbon\Carbon::parse('2026-05-03 14:00:00'));
         $financial = Financial::where('student_id', $id)->firstOrFail();
-        $now       = \Carbon\Carbon::now();
-        $deadline  = $financial->deadline ? \Carbon\Carbon::parse($financial->deadline) : null;
 
-        if ($deadline && $now->gt($deadline)) {
+        if ($financial->deadline && now()->gt($financial->deadline)) {
             return back()->withErrors(['locked' => 'Financial period has ended. Records are now closed.']);
         }
 
         $validated = $request->validate([
             'total_fees'     => 'required|numeric|min:0',
-            'amount_paid'    => 'required|numeric|min:0',
-            'payment_status' => 'required|in:Paid,Partial,Unpaid,Overdue',
+            'amount_paid'    => 'required|numeric|min:0|lte:total_fees',
             'payment_date'   => 'required|date',
             'payment_method' => 'required|in:Cash,Bank Transfer,Online',
         ]);
 
         $validated['balance_remaining'] = $validated['total_fees'] - $validated['amount_paid'];
+
+        if ($validated['amount_paid'] <= 0) {
+            $validated['payment_status'] = 'Unpaid';
+        } elseif ($validated['balance_remaining'] <= 0) {
+            $validated['payment_status'] = 'Paid';
+        } else {
+            $validated['payment_status'] = 'Partial';
+        }
 
         $financial->update($validated);
 
@@ -96,7 +108,7 @@ class FinancialController extends Controller
         SystemHistory::log(
             'Updated Financial Record',
             'Financial',
-            "Updated payment for {$financial->student->name} — {$validated['payment_status']} (${$validated['amount_paid']})",
+            "Updated payment for {$financial->student->name} — {$validated['payment_status']} (\${$validated['amount_paid']})",
             'payments'
         );
 
@@ -161,18 +173,36 @@ class FinancialController extends Controller
         $deadline      = $semesterStart->copy()->addMonth();
         $semesterEnd   = $semesterStart->copy()->addWeeks($weeks);
 
+        // Archive existing records if there's payment data before resetting
+        $hasPaymentData = Financial::where('amount_paid', '>', 0)->exists();
+        if ($hasPaymentData) {
+            $rows = Financial::all()->map(fn($f) => [
+                'student_id'        => $f->student_id,
+                'semester_start'    => $f->semester_start,
+                'semester_end'      => $f->semester_end ?? $f->deadline,
+                'total_fees'        => $f->total_fees,
+                'amount_paid'       => $f->amount_paid,
+                'balance_remaining' => $f->balance_remaining,
+                'payment_status'    => $f->payment_status,
+                'payment_date'      => $f->payment_date,
+                'deadline'          => $f->deadline,
+            ])->toArray();
+
+            foreach (array_chunk($rows, 500) as $chunk) {
+                FinancialHistory::insert($chunk);
+            }
+        }
+
         Financial::query()->update([
             'semester_start'    => $semesterStart->format('Y-m-d'),
             'semester_duration' => $weeks,
             'deadline'          => $deadline->format('Y-m-d'),
             'semester_end'      => $semesterEnd->format('Y-m-d'),
-        ]);
-
-        Financial::query()->update([
             'total_fees'        => 0,
             'amount_paid'       => 0,
             'balance_remaining' => 0,
             'payment_status'    => 'Unpaid',
+            'payment_date'      => null,
         ]);
 
         SystemHistory::log(
@@ -188,8 +218,10 @@ class FinancialController extends Controller
     public function financialcleardeadline()
     {
         Financial::query()->update([
-            'deadline'     => null,
-            'semester_end' => null,
+            'semester_start'    => null,
+            'semester_duration' => null,
+            'semester_end'      => null,
+            'deadline'          => null,
         ]);
 
         Financial::where('payment_status', 'Overdue')

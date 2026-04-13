@@ -78,24 +78,59 @@
 
     {{-- Stat Cards --}}
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        @php
-            $stats = [
-                ['label' => 'Class Average',   'val' => number_format($classAvg ?? 0, 1), 'icon' => 'analytics', 'color' => 'text-primary'],
-                ['label' => 'Passing Rate',    'val' => ($passingRate ?? 0).'%',           'icon' => 'verified',  'color' => 'text-emerald-500'],
-                ['label' => 'At Risk Students','val' => $atRisk ?? 0,                      'icon' => 'warning',   'color' => 'text-red-500'],
-                ['label' => 'Highest Score',   'val' => number_format($topScore ?? 0, 1), 'icon' => 'trophy',    'color' => 'text-amber-500'],
-            ];
-        @endphp
 
-        @foreach($stats as $stat)
-        <div class="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 hover:shadow-md transition-all">
-            <div class="flex justify-between items-start mb-2">
-                <p class="text-xs font-bold uppercase tracking-widest text-slate-500">{{ $stat['label'] }}</p>
-                <span class="material-symbols-outlined {{ $stat['color'] }} text-xl opacity-20">{{ $stat['icon'] }}</span>
+        {{-- Class Average --}}
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col gap-3 hover:shadow-md transition-all">
+            <div class="w-9 h-9 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center">
+                <span class="material-symbols-outlined text-blue-600 dark:text-blue-400 text-lg">analytics</span>
             </div>
-            <h3 class="text-2xl font-bold text-slate-900 dark:text-white">{{ $stat['val'] }}</h3>
+            <div>
+                <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">Class Average</p>
+                <p class="text-3xl font-bold text-slate-900 dark:text-white leading-none">{{ number_format($classAvg ?? 0, 1) }}</p>
+            </div>
+            <div class="h-1 bg-blue-100 dark:bg-blue-900/30 rounded-full overflow-hidden">
+                <div class="h-full bg-blue-500 rounded-full transition-all duration-700" style="width: {{ min($classAvg ?? 0, 100) }}%"></div>
+            </div>
         </div>
-        @endforeach
+
+        {{-- Passing Rate --}}
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col gap-3 hover:shadow-md transition-all">
+            <div class="w-9 h-9 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center">
+                <span class="material-symbols-outlined text-emerald-600 dark:text-emerald-400 text-lg">verified</span>
+            </div>
+            <div>
+                <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">Passing Rate</p>
+                <p class="text-3xl font-bold text-slate-900 dark:text-white leading-none">{{ $passingRate ?? 0 }}%</p>
+            </div>
+            <div class="h-1 bg-emerald-100 dark:bg-emerald-900/30 rounded-full overflow-hidden">
+                <div class="h-full bg-emerald-500 rounded-full transition-all duration-700" style="width: {{ $passingRate ?? 0 }}%"></div>
+            </div>
+        </div>
+
+        {{-- At Risk Students --}}
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col gap-3 hover:shadow-md transition-all">
+            <div class="w-9 h-9 rounded-lg bg-red-50 dark:bg-red-900/20 flex items-center justify-center">
+                <span class="material-symbols-outlined text-red-500 dark:text-red-400 text-lg">warning</span>
+            </div>
+            <div>
+                <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">At Risk Students</p>
+                <p class="text-3xl font-bold text-slate-900 dark:text-white leading-none">{{ $atRisk ?? 0 }}</p>
+            </div>
+            <p class="text-xs font-medium text-red-500 dark:text-red-400">Needs attention</p>
+        </div>
+
+        {{-- Highest Score --}}
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col gap-3 hover:shadow-md transition-all">
+            <div class="w-9 h-9 rounded-lg bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center">
+                <span class="material-symbols-outlined text-amber-500 dark:text-amber-400 text-lg">trophy</span>
+            </div>
+            <div>
+                <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">Highest Score</p>
+                <p class="text-3xl font-bold text-slate-900 dark:text-white leading-none">{{ number_format($topScore ?? 0, 1) }}</p>
+            </div>
+            <p class="text-xs font-medium text-amber-500 dark:text-amber-400">Top performer</p>
+        </div>
+
     </div>
 
     {{-- Major Tabs --}}
@@ -144,7 +179,7 @@
                             {{-- Student --}}
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-3">
-                                    <div class="size-9 rounded-full bg-primary/10 flex items-center justify-center text-primary text-sm font-bold uppercase shrink-0">
+                                    <div class="size-9 rounded-full bg-primary/10 flex items-center justify-center text-primary text-sm font-bold uppercase shrink-0 transition-transform group-hover:scale-110">
                                         {{ strtoupper(substr($academicrecord->name, 0, 1)) }}{{ strtoupper(substr(strrchr($academicrecord->name, ' '), 1, 1)) }}
                                     </div>
                                     <div class="flex flex-col">
@@ -194,9 +229,9 @@
                             {{-- Actions --}}
                             <td class="px-6 py-4 text-right">
                                 <a href="{{ route('academicrecords.show', $academicrecord->id) }}"
-                                   class="text-primary font-semibold text-sm hover:underline flex items-center justify-end gap-1">
-                                    View Details
-                                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                                   class="inline-flex items-center gap-1 text-primary font-bold text-xs hover:gap-2 transition-all active:scale-95 group/link">
+                                    VIEW DETAILS
+                                    <span class="material-symbols-outlined text-sm transition-transform group-hover/link:translate-x-0.5">arrow_forward</span>
                                 </a>
                             </td>
 

@@ -14,22 +14,23 @@ class Financial extends Model
         'student_id',
         'total_fees',
         'amount_paid',
-        'balance_remaining',    
+        'balance_remaining',
         'payment_status',
         'payment_date',
-        'overdue_since',
-        'overdue_days',
         'semester_start',
         'semester_duration',
+        'semester_end',
         'deadline'
     ];
 
     protected $casts = [
-    'payment_date' => 'date', // 👈 tells Laravel to convert it to Carbon automatically
-];
+        'payment_date'   => 'date',
+        'semester_start' => 'date',
+        'deadline'       => 'date',
+    ];
 
     public function student()
     {
-        return $this->belongsTo(student::class);
+        return $this->belongsTo(Student::class);
     }
 }
