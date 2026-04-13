@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             StudentSeeder::class,
             SubjectSeeder::class,
+            ScoreSeeder::class,      // Added: Creates sample academic scores
             FinancialSeeder::class,
             AttendanceSeeder::class,
         ]);

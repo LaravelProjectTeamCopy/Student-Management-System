@@ -69,19 +69,30 @@ class ScoreImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFai
         
         $studentId = $student->id;
 
-        // Find subject using student's major and academic_year
+        // Find subject - try exact match first, then just by code
         $subject = Subject::where('subject_code', trim($row['subject_code']))
             ->where('major', $student->major)
             ->where('academic_year', $student->academic_year)
             ->first();
 
-        $subjectId = $subject?->id;
+        // If no exact match, try finding subject by code only
+        if (!$subject) {
+            $subject = Subject::where('subject_code', trim($row['subject_code']))->first();
+            
+            if (!$subject) {
+                Log::warning('ScoreImport: subject not found', [
+                    'student_code' => $row['student_code'],
+                    'subject_code' => $row['subject_code'],
+                    'student_major' => $student->major,
+                    'student_year' => $student->academic_year,
+                ]);
+                return null;
+            }
+        }
+
+        $subjectId = $subject->id;
 
         if (!$studentId || !$subjectId) {
-            Log::warning('ScoreImport: subject not found', [
-                'student_code' => $row['student_code'],
-                'subject_code' => $row['subject_code'],
-            ]);
             return null;
         }
 

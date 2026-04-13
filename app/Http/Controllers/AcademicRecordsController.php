@@ -97,17 +97,31 @@ class AcademicRecordsController extends Controller
     {
         $request->validate(['file' => 'required|file|mimes:csv,xlsx']);
 
-        Excel::import(new ScoreImport, $request->file('file'));
+        $import = new ScoreImport;
+        Excel::import($import, $request->file('file'));
+
+        $failures = $import->failures();
+        $failureCount = count($failures);
 
         SystemHistory::log(
             'Imported Academic Scores',
             'Academic',
-            "Imported grade sheet from {$request->file('file')->getClientOriginalName()}",
+            "Imported grade sheet from {$request->file('file')->getClientOriginalName()}" . 
+            ($failureCount > 0 ? " ({$failureCount} rows failed)" : ""),
             'upload_file'
         );
 
+        if ($failureCount > 0) {
+            $errorMessages = collect($failures)->take(5)->map(function($failure) {
+                return "Row {$failure->row()}: " . implode(', ', $failure->errors());
+            })->implode('; ');
+            
+            return redirect()->route('academicrecords.index')
+                ->with('error', "Import completed with {$failureCount} errors. First errors: {$errorMessages}");
+        }
+
         return redirect()->route('academicrecords.index')
-                         ->with('success', 'Enterprise import completed. All scores mapped successfully.');
+                         ->with('success', 'Import completed successfully. All scores have been recorded.');
     }
 
     public function academicrecordsshow($id)
@@ -115,7 +129,21 @@ class AcademicRecordsController extends Controller
         $student = Student::findOrFail($id);
         $scores  = $student->scores()->with('subject')->get();
 
-        return view('academicrecords.show', compact('student', 'scores'));
+        $currentYear = request('year', '2025/2026');
+        $currentSem  = request('semester', 'Semester 1');
+
+        $filteredScores = $scores->filter(function ($score) use ($currentYear, $currentSem) {
+            return $score->subject &&
+                   $score->subject->academic_year === $currentYear &&
+                   $score->subject->semester === $currentSem;
+        });
+
+        $avgScore = $filteredScores->count() > 0 ? $filteredScores->avg('total_score') : 0;
+
+        return view('academicrecords.show', compact(
+            'student', 'scores', 'filteredScores',
+            'avgScore', 'currentYear', 'currentSem'
+        ));
     }
 
     public function showacademicrecordssubject()
