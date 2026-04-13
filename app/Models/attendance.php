@@ -19,6 +19,8 @@ class Attendance extends Model
         'present_days',
         'absent_days',
         'status',
+        'academic_year',
+        'semester',
         'semester_start',
         'semester_duration',
         'deadline',

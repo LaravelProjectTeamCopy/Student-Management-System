@@ -18,6 +18,9 @@ return new class extends Migration
             $table->string('major');
             $table->string('student_code')->unique()->nullable();
             $table->string('academic_year');
+            $table->date('date_of_birth')->nullable();
+            $table->string('gender')->nullable();
+            $table->text('address')->nullable();
             $table->enum('status', ['Active', 'Inactive', 'Graduated'])->default('Active');
             $table->timestamps();
         });

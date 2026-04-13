@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Student;
 use App\Models\Subject;
+use App\Models\Financial;
+use App\Models\PaymentLog;
 use App\Models\SystemHistory;
 use Illuminate\Http\Request;
 use App\Imports\ScoreImport;
+use App\Exports\AcademicRecordExport;
 use Maatwebsite\Excel\Facades\Excel;
 
 class AcademicRecordsController extends Controller
@@ -97,17 +100,106 @@ class AcademicRecordsController extends Controller
     {
         $request->validate(['file' => 'required|file|mimes:csv,xlsx']);
 
-        Excel::import(new ScoreImport, $request->file('file'));
+        $import = new ScoreImport;
+        Excel::import($import, $request->file('file'));
+
+        $failures     = $import->failures();
+        $failureCount = count($failures);
 
         SystemHistory::log(
             'Imported Academic Scores',
             'Academic',
-            "Imported grade sheet from {$request->file('file')->getClientOriginalName()}",
+            "Imported grade sheet from {$request->file('file')->getClientOriginalName()}" .
+            ($failureCount > 0 ? " ({$failureCount} rows failed)" : ""),
             'upload_file'
         );
 
+        // ── Apply retake surcharges for failed subjects ────────────────
+        $this->applyRetakeSurcharges();
+        // ─────────────────────────────────────────────────────────────
+
+        if ($failureCount > 0) {
+            $errorMessages = collect($failures)->take(5)->map(function ($failure) {
+                return "Row {$failure->row()}: " . implode(', ', $failure->errors());
+            })->implode('; ');
+
+            return redirect()->route('academicrecords.index')
+                ->with('error', "Import completed with {$failureCount} errors. First errors: {$errorMessages}");
+        }
+
         return redirect()->route('academicrecords.index')
-                         ->with('success', 'Enterprise import completed. All scores mapped successfully.');
+                         ->with('success', 'Import completed successfully. All scores have been recorded.');
+    }
+
+    /**
+     * After every score import, check all students' scores.
+     * If total_score < 60 for a subject, charge $20 retake fee once per subject per semester.
+     */
+    private function applyRetakeSurcharges(): void
+    {
+        // Load all students who have scores, with their scores and subjects
+        $students = Student::with(['scores.subject'])->get();
+
+        foreach ($students as $student) {
+            $financial = Financial::where('student_id', $student->id)->first();
+
+            if (!$financial) continue;
+
+            foreach ($student->scores as $score) {
+                $subject = $score->subject;
+
+                if (!$subject) continue;
+
+                // Failed threshold: total_score under 60
+                if ($score->total_score >= 60) continue;
+
+                // Build a unique fingerprint for this student + subject + semester
+                $fingerprint = "retake_subject_id:{$subject->id}|year:{$subject->academic_year}|sem:{$subject->semester}";
+
+                // Check if this retake fee was already charged
+                $alreadyCharged = PaymentLog::where('student_id', $student->id)
+                    ->where('payment_method', 'Surcharge')
+                    ->where('note', 'like', "%{$fingerprint}%")
+                    ->exists();
+
+                if ($alreadyCharged) continue;
+
+                $surcharge = 20;
+
+                // Add $20 to total_fees and recalculate balance + status
+                $financial->increment('total_fees', $surcharge);
+                $financial->refresh();
+
+                $financial->balance_remaining = $financial->total_fees - $financial->amount_paid;
+
+                if ($financial->amount_paid <= 0) {
+                    $financial->payment_status = 'Unpaid';
+                } elseif ($financial->balance_remaining <= 0) {
+                    $financial->payment_status = 'Paid';
+                } else {
+                    $financial->payment_status = 'Partial';
+                }
+
+                $financial->save();
+
+                // Log the surcharge in payment_logs
+                PaymentLog::create([
+                    'student_id'     => $student->id,
+                    'amount_paid'    => 0,
+                    'payment_method' => 'Surcharge',
+                    'payment_status' => $financial->payment_status,
+                    'payment_date'   => now()->toDateString(),
+                    'note'           => "Retake exam fee – {$subject->name} (score: {$score->total_score}/100) | {$fingerprint}",
+                ]);
+
+                SystemHistory::log(
+                    'Retake Exam Surcharge',
+                    'Financial',
+                    "Charged \${$surcharge} to {$student->name} — failed [{$subject->subject_code}] {$subject->name} (score: {$score->total_score})",
+                    'payments'
+                );
+            }
+        }
     }
 
     public function academicrecordsshow($id)
@@ -115,7 +207,21 @@ class AcademicRecordsController extends Controller
         $student = Student::findOrFail($id);
         $scores  = $student->scores()->with('subject')->get();
 
-        return view('academicrecords.show', compact('student', 'scores'));
+        $currentYear = request('year', '2025/2026');
+        $currentSem  = request('semester', 'Semester 1');
+
+        $filteredScores = $scores->filter(function ($score) use ($currentYear, $currentSem) {
+            return $score->subject &&
+                   $score->subject->academic_year === $currentYear &&
+                   $score->subject->semester === $currentSem;
+        });
+
+        $avgScore = $filteredScores->count() > 0 ? $filteredScores->avg('total_score') : 0;
+
+        return view('academicrecords.show', compact(
+            'student', 'scores', 'filteredScores',
+            'avgScore', 'currentYear', 'currentSem'
+        ));
     }
 
     public function showacademicrecordssubject()
@@ -148,5 +254,22 @@ class AcademicRecordsController extends Controller
 
         return redirect()->route('academicrecords.index')
                          ->with('success', "Subject [{$validated['subject_code']}] created successfully! You can now import scores for this class.");
+    }
+
+    public function academicrecordsexport()
+    {
+        return view('academicrecords.export');
+    }
+
+    public function academicrecordsexportcsv()
+    {
+        SystemHistory::log(
+            'Exported Students',
+            'Student',
+            'Exported student list to Excel',
+            'download'
+        );
+
+        return Excel::download(new AcademicRecordExport, 'students_' . now()->format('Y-m-d') . '.xlsx');
     }
 }

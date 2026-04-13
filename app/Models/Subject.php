@@ -19,4 +19,9 @@ class Subject extends Model
     {
         return $this->hasMany(Score::class);
     }
+
+    public function schedules()
+    {
+        return $this->hasMany(SubjectSchedule::class);
+    }
 }

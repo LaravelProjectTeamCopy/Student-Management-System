@@ -24,10 +24,23 @@ class StudentController extends Controller
         $majors   = Student::select('major')->distinct()->pluck('major');
         $statuses = ['Active', 'Inactive', 'Graduated'];
 
-        $students = Student::query()
-            ->when($currentYear,   fn($q) => $q->where('academic_year', $currentYear))
-            ->when($currentMajor,  fn($q) => $q->where('major',         $currentMajor))
-            ->when($currentStatus, fn($q) => $q->where('status',        $currentStatus))
+        // Base query scoped to year + major (shared by both stats and table)
+        $base = Student::query()
+            ->when($currentYear,  fn($q) => $q->where('academic_year', $currentYear))
+            ->when($currentMajor, fn($q) => $q->where('major', $currentMajor));
+
+        // Stat cards — not affected by status filter so counts always show full breakdown
+        $totalStudents  = (clone $base)->count();
+        $activeStudents = (clone $base)->where('status', 'Active')->count();
+        $graduated      = (clone $base)->where('status', 'Graduated')->count();
+        $newThisMonth   = (clone $base)
+                            ->whereMonth('created_at', now()->month)
+                            ->whereYear('created_at',  now()->year)
+                            ->count();
+
+        // Table — applies status filter on top
+        $students = (clone $base)
+            ->when($currentStatus, fn($q) => $q->where('status', $currentStatus))
             ->paginate(15)
             ->withQueryString();
 
@@ -39,6 +52,10 @@ class StudentController extends Controller
             'currentYear',
             'currentStatus',
             'currentMajor',
+            'totalStudents',
+            'activeStudents',
+            'graduated',
+            'newThisMonth',
         ));
     }
 
@@ -94,6 +111,52 @@ class StudentController extends Controller
     public function showimport()
     {
         return view('students.import');
+    }
+
+    public function studentedit($id)
+    {
+        $student = Student::findOrFail($id);
+        return view('students.edit', compact('student'));
+    }
+
+    public function studentupdate(Request $request, $id)
+    {
+        $student = Student::findOrFail($id);
+
+        $validated = $request->validate([
+            'name'          => 'required|string|max:255',
+            'email'         => 'required|email|unique:students,email,' . $student->id,
+            'major'         => 'required|string|max:255',
+            'academic_year' => 'required|string|max:20',
+        ]);
+
+        $student->update($validated);
+
+        SystemHistory::log(
+            'Updated Student',
+            'Student',
+            "Updated {$student->name} ({$student->major}) profile",
+            'edit'
+        );
+
+        return redirect('/student/' . $student->id . '/show')->with('success', 'Student updated successfully!');
+    }
+
+    public function studentdestroy($id)
+    {
+        $student = Student::findOrFail($id);
+        $name = $student->name;
+        $major = $student->major;
+        $student->delete();
+
+        SystemHistory::log(
+            'Deleted Student',
+            'Student',
+            "Removed {$name} ({$major}) from the directory",
+            'person_remove'
+        );
+
+        return redirect('/student')->with('success', 'Student deleted successfully!');
     }
 
     public function showexport()

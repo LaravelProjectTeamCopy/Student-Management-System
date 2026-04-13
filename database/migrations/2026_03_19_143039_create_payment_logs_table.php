@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('payment_status')->nullable(); // Paid, Pending, Failed
             $table->string('payment_method')->nullable(); // Cash, Bank Transfer
             $table->date('payment_date')->nullable();
+            $table->string('notes')->nullable();
             $table->timestamps();
         });
     }

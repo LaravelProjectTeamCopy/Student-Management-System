@@ -20,6 +20,29 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
 
+                    {{-- Academic Year --}}
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold uppercase tracking-wider text-slate-500 block">Academic Year</label>
+                        <select name="academic_year" required
+                                class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all cursor-pointer">
+                            <option value="2025/2026">2025/2026</option>
+                            <option value="2026/2027" selected>2026/2027</option>
+                            <option value="2027/2028">2027/2028</option>
+                        </select>
+                        @error('academic_year') <p class="text-red-500 text-xs">{{ $message }}</p> @enderror
+                    </div>
+
+                    {{-- Semester --}}
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold uppercase tracking-wider text-slate-500 block">Semester</label>
+                        <select name="semester" required
+                                class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all cursor-pointer">
+                            <option value="Semester 1">Semester 1</option>
+                            <option value="Semester 2">Semester 2</option>
+                        </select>
+                        @error('semester') <p class="text-red-500 text-xs">{{ $message }}</p> @enderror
+                    </div>
+
                     <div class="space-y-2">
                         <label class="text-xs font-bold uppercase tracking-wider text-slate-500 block">Semester Start Date</label>
                         <input id="semester_start" type="date" name="semester_start"

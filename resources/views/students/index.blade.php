@@ -44,7 +44,15 @@
         <div class="flex items-center gap-3">
             <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Year:</span>
             <div class="flex gap-1.5">
-                @foreach(['2023/2024', '2024/2025', '2025/2026'] as $year)
+                <a href="?year=&major={{ $currentMajor }}&status={{ $currentStatus }}"
+                   class="px-3 py-1.5 rounded-lg border text-xs font-bold transition-all
+                   {{ $currentYear == '' 
+                       ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-slate-900 dark:border-white shadow-sm'
+                       : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-500 hover:border-slate-300' }}">
+                    All Years
+                </a>
+                @foreach($years as $year)
+                    @if($year) {{-- Skip null/empty values --}}
                     <a href="?year={{ $year }}&major={{ $currentMajor }}&status={{ $currentStatus }}"
                        class="px-3 py-1.5 rounded-lg border text-xs font-bold transition-all
                        {{ $currentYear == $year
@@ -52,6 +60,7 @@
                            : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-500 hover:border-slate-300' }}">
                         {{ $year }}
                     </a>
+                    @endif
                 @endforeach
             </div>
         </div>
@@ -62,7 +71,14 @@
         <div class="flex items-center gap-3">
             <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Status:</span>
             <div class="flex gap-1.5">
-                @foreach(['Active', 'Inactive', 'Graduated'] as $status)
+                <a href="?status=&year={{ $currentYear }}&major={{ $currentMajor }}"
+                   class="px-3 py-1.5 rounded-full border text-xs font-bold transition-all
+                   {{ $currentStatus == ''
+                       ? 'bg-primary text-white border-primary'
+                       : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                    All
+                </a>
+                @foreach($statuses as $status)
                     <a href="?status={{ $status }}&year={{ $currentYear }}&major={{ $currentMajor }}"
                        class="px-3 py-1.5 rounded-full border text-xs font-bold transition-all
                        {{ $currentStatus == $status
@@ -78,24 +94,61 @@
 
     {{-- Stat Cards --}}
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        @php
-            $stats = [
-                ['label' => 'Total Students',   'val' => $totalStudents ?? 0,   'icon' => 'groups',       'color' => 'text-primary'],
-                ['label' => 'Active Students',  'val' => $activeStudents ?? 0,  'icon' => 'verified',     'color' => 'text-emerald-500'],
-                ['label' => 'New This Month',   'val' => $newThisMonth ?? 0,    'icon' => 'person_add',   'color' => 'text-amber-500'],
-                ['label' => 'Graduated',        'val' => $graduated ?? 0,       'icon' => 'school',       'color' => 'text-violet-500'],
-            ];
-        @endphp
 
-        @foreach($stats as $stat)
-        <div class="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 hover:shadow-md transition-all">
-            <div class="flex justify-between items-start mb-2">
-                <p class="text-xs font-bold uppercase tracking-widest text-slate-500">{{ $stat['label'] }}</p>
-                <span class="material-symbols-outlined {{ $stat['color'] }} text-xl opacity-20">{{ $stat['icon'] }}</span>
+        {{-- Total Students --}}
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col gap-3 hover:shadow-md transition-all">
+            <div class="w-9 h-9 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center">
+                <span class="material-symbols-outlined text-blue-600 dark:text-blue-400 text-lg">groups</span>
             </div>
-            <h3 class="text-2xl font-bold text-slate-900 dark:text-white">{{ $stat['val'] }}</h3>
+            <div>
+                <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">Total Students</p>
+                <p class="text-3xl font-bold text-slate-900 dark:text-white leading-none">{{ $totalStudents ?? 0 }}</p>
+            </div>
+            <p class="text-xs font-medium text-blue-600 dark:text-blue-400">All majors</p>
         </div>
-        @endforeach
+
+        {{-- Active Students --}}
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col gap-3 hover:shadow-md transition-all">
+            <div class="w-9 h-9 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center">
+                <span class="material-symbols-outlined text-emerald-600 dark:text-emerald-400 text-lg">verified</span>
+            </div>
+            <div>
+                <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">Active Students</p>
+                <p class="text-3xl font-bold text-slate-900 dark:text-white leading-none">{{ $activeStudents ?? 0 }}</p>
+            </div>
+            <div class="h-1 bg-emerald-100 dark:bg-emerald-900/30 rounded-full overflow-hidden">
+                @php $activePct = ($totalStudents ?? 0) > 0 ? round((($activeStudents ?? 0) / $totalStudents) * 100) : 0; @endphp
+                <div class="h-full bg-emerald-500 rounded-full transition-all duration-700" style="width: {{ $activePct }}%"></div>
+            </div>
+        </div>
+
+        {{-- New This Month --}}
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col gap-3 hover:shadow-md transition-all">
+            <div class="w-9 h-9 rounded-lg bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center">
+                <span class="material-symbols-outlined text-amber-500 dark:text-amber-400 text-lg">person_add</span>
+            </div>
+            <div>
+                <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">New This Month</p>
+                <p class="text-3xl font-bold text-slate-900 dark:text-white leading-none">{{ $newThisMonth ?? 0 }}</p>
+            </div>
+            <p class="text-xs font-medium text-amber-500 dark:text-amber-400">Recently enrolled</p>
+        </div>
+
+        {{-- Graduated --}}
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col gap-3 hover:shadow-md transition-all">
+            <div class="w-9 h-9 rounded-lg bg-violet-50 dark:bg-violet-900/20 flex items-center justify-center">
+                <span class="material-symbols-outlined text-violet-500 dark:text-violet-400 text-lg">school</span>
+            </div>
+            <div>
+                <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">Graduated</p>
+                <p class="text-3xl font-bold text-slate-900 dark:text-white leading-none">{{ $graduated ?? 0 }}</p>
+            </div>
+            <div class="h-1 bg-violet-100 dark:bg-violet-900/30 rounded-full overflow-hidden">
+                @php $gradPct = ($totalStudents ?? 0) > 0 ? round((($graduated ?? 0) / $totalStudents) * 100) : 0; @endphp
+                <div class="h-full bg-violet-500 rounded-full transition-all duration-700" style="width: {{ $gradPct }}%"></div>
+            </div>
+        </div>
+
     </div>
 
     {{-- Major Tabs --}}
@@ -123,7 +176,6 @@
                         <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Student ID</th>
                         <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Major</th>
                         <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Year</th>
-                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Phone</th>
                         <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Status</th>
                         <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest text-right">Actions</th>
                     </tr>
@@ -178,11 +230,6 @@
                                 {{ $student->academic_year }}
                             </td>
 
-                            {{-- Phone --}}
-                            <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
-                                {{ $student->phone ?? '—' }}
-                            </td>
-
                             {{-- Status --}}
                             <td class="px-6 py-4">
                                 <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase {{ $statusClasses[$statusLabel] ?? $statusClasses['Active'] }}">
@@ -194,9 +241,9 @@
                             {{-- Actions --}}
                             <td class="px-6 py-4 text-right">
                                 <a href="{{ route('students.show', $student->id) }}"
-                                   class="inline-flex items-center gap-1 text-primary font-bold text-xs hover:gap-2 transition-all active:scale-95">
+                                   class="inline-flex items-center gap-1 text-primary font-bold text-xs hover:gap-2 transition-all active:scale-95 group/link">
                                     VIEW PROFILE
-                                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                                    <span class="material-symbols-outlined text-sm transition-transform group-hover/link:translate-x-0.5">arrow_forward</span>
                                 </a>
                             </td>
 
