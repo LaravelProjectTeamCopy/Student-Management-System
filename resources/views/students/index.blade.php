@@ -163,7 +163,7 @@
 
                             {{-- Student ID --}}
                             <td class="px-6 py-4 text-sm font-medium text-slate-600 dark:text-slate-400">
-                                {{ $student->student_id }}
+                                {{ $student->id }}
                             </td>
 
                             {{-- Major --}}
@@ -175,7 +175,7 @@
 
                             {{-- Enrollment Year --}}
                             <td class="px-6 py-4 text-sm font-medium text-slate-600 dark:text-slate-400">
-                                {{ $student->enrollment_year }}
+                                {{ $student->academic_year }}
                             </td>
 
                             {{-- Phone --}}
