@@ -11,10 +11,6 @@ use Illuminate\Http\Request;
 
 class authcontroller extends Controller
 {
-    public function welcome()
-    {
-        return view('welcome');
-    }
     public function showlogin()
     {
         return view('auth.login');
@@ -55,7 +51,7 @@ class authcontroller extends Controller
     public function messagelogin()
     {
         if (auth()->check()) {
-        return redirect('/welcome')->with('success', 'Welcome back, ' . auth()->user()->name . '!');
+        return redirect('/dashboard')->with('success', 'Welcome back, ' . auth()->user()->name . '!');
         }
         return redirect('/login');
     }
