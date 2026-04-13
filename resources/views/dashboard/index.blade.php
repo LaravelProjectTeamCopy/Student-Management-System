@@ -13,33 +13,57 @@
     </div>
 
     {{-- Stat Cards --}}
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-5">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
 
-        <div class="bg-white dark:bg-slate-900 rounded-xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
-            <div class="flex items-center justify-between mb-4">
-                <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">Total Students</p>
-                <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400">All Time</span>
+        {{-- Total Students --}}
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col gap-3 hover:shadow-md transition-all">
+            <div class="w-9 h-9 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center">
+                <span class="material-symbols-outlined text-blue-600 dark:text-blue-400 text-lg">groups</span>
             </div>
-            <p class="text-[2rem] font-bold text-slate-900 dark:text-white tracking-tight leading-none mb-4">{{ number_format($totalStudents) }}</p>
-            <div class="h-[3px] w-16 rounded-full bg-primary"></div>
+            <div>
+                <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">Total Students</p>
+                <p class="text-3xl font-bold text-slate-900 dark:text-white leading-none">{{ number_format($totalStudents) }}</p>
+            </div>
+            <p class="text-xs font-medium text-blue-600 dark:text-blue-400">All Time</p>
         </div>
 
-        <div class="bg-white dark:bg-slate-900 rounded-xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
-            <div class="flex items-center justify-between mb-4">
-                <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">Active Students</p>
-                <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400">Active</span>
+        {{-- Active Students --}}
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col gap-3 hover:shadow-md transition-all">
+            <div class="w-9 h-9 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center">
+                <span class="material-symbols-outlined text-emerald-600 dark:text-emerald-400 text-lg">verified</span>
             </div>
-            <p class="text-[2rem] font-bold text-slate-900 dark:text-white tracking-tight leading-none mb-4">{{ number_format($activeStudents) }}</p>
-            <div class="h-[3px] w-16 rounded-full bg-primary"></div>
+            <div>
+                <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">Active Students</p>
+                <p class="text-3xl font-bold text-slate-900 dark:text-white leading-none">{{ number_format($activeStudents) }}</p>
+            </div>
+            <div class="h-1 bg-emerald-100 dark:bg-emerald-900/30 rounded-full overflow-hidden">
+                @php $activePct = $totalStudents > 0 ? round(($activeStudents / $totalStudents) * 100) : 0; @endphp
+                <div class="h-full bg-emerald-500 rounded-full transition-all duration-700" style="width: {{ $activePct }}%"></div>
+            </div>
         </div>
 
-        <div class="bg-white dark:bg-slate-900 rounded-xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
-            <div class="flex items-center justify-between mb-4">
-                <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">New Enrollments</p>
-                <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400">This Month</span>
+        {{-- New This Month --}}
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col gap-3 hover:shadow-md transition-all">
+            <div class="w-9 h-9 rounded-lg bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center">
+                <span class="material-symbols-outlined text-amber-500 dark:text-amber-400 text-lg">person_add</span>
             </div>
-            <p class="text-[2rem] font-bold text-slate-900 dark:text-white tracking-tight leading-none mb-4">{{ number_format($newEnrollments) }}</p>
-            <div class="h-[3px] w-16 rounded-full bg-primary"></div>
+            <div>
+                <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">New Enrollments</p>
+                <p class="text-3xl font-bold text-slate-900 dark:text-white leading-none">{{ number_format($newEnrollments) }}</p>
+            </div>
+            <p class="text-xs font-medium text-amber-500 dark:text-amber-400">This Month</p>
+        </div>
+
+        {{-- System Users --}}
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col gap-3 hover:shadow-md transition-all">
+            <div class="w-9 h-9 rounded-lg bg-violet-50 dark:bg-violet-900/20 flex items-center justify-center">
+                <span class="material-symbols-outlined text-violet-500 dark:text-violet-400 text-lg">dashboard</span>
+            </div>
+            <div>
+                <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">System Overview</p>
+                <p class="text-3xl font-bold text-slate-900 dark:text-white leading-none">Ready</p>
+            </div>
+            <p class="text-xs font-medium text-violet-500 dark:text-violet-400">All Systems Active</p>
         </div>
 
     </div>
@@ -49,66 +73,215 @@
 
         {{-- Enrollment Trend Chart --}}
         <div class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
-            <div class="flex items-center justify-between mb-5">
-                <h2 class="text-base font-bold text-slate-800 dark:text-white">Student Enrollment Trends</h2>
-                <select class="text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 outline-none cursor-pointer">
-                    <option>Last 6 Months</option>
-                    <option>Last 12 Months</option>
-                    <option>This Year</option>
-                </select>
-            </div>
-            <div class="h-52">
-                <canvas id="enrollChart"></canvas>
+            <h2 class="text-base font-bold text-slate-800 dark:text-white mb-5">Student Enrollment Trends</h2>
+            <div class="relative h-80">
+                <canvas id="enrollmentChart"></canvas>
             </div>
         </div>
 
-        {{-- Department Distribution --}}
+        {{-- Department Distribution Chart --}}
         <div class="bg-white dark:bg-slate-900 rounded-xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
-            <h2 class="text-base font-bold text-slate-800 dark:text-white mb-5">Department Distribution</h2>
-            <div class="flex justify-center mb-5">
-                <div class="relative w-36 h-36">
-                    <canvas id="deptChart"></canvas>
-                    <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                        <span class="text-2xl font-bold text-slate-900 dark:text-white">{{ number_format($totalStudents) }}</span>
-                        <span class="text-[10px] uppercase tracking-widest text-slate-400 dark:text-slate-500 font-semibold">Total</span>
+            <h2 class="text-base font-bold text-slate-800 dark:text-white mb-5">Student Status Overview</h2>
+            <div class="relative h-64 flex justify-center">
+                <canvas id="departmentChart"></canvas>
+            </div>
+        </div>
+
+    </div>
+
+    {{-- Failed Attendance & Scores Row --}}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-8">
+
+        {{-- Failed Attendance Card --}}
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold text-slate-800 dark:text-white">Attendance Performance</h3>
+                <span class="material-symbols-outlined text-red-500 text-2xl">warning</span>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-semibold text-slate-600 dark:text-slate-400">Failed (< 75%)</span>
+                        <span class="text-2xl font-bold text-red-600 dark:text-red-400">{{ $failedAttendance['failed'] }}</span>
                     </div>
+                    <p class="text-xs text-slate-500">Students with poor attendance</p>
+                </div>
+                
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-semibold text-slate-600 dark:text-slate-400">Passed (≥ 75%)</span>
+                        <span class="text-2xl font-bold text-green-600 dark:text-green-400">{{ $failedAttendance['passed'] }}</span>
+                    </div>
+                    <p class="text-xs text-slate-500">Students meeting attendance requirements</p>
+                </div>
+
+                <div class="pt-3 border-t border-slate-200 dark:border-slate-800">
+                    <div class="text-xs text-slate-500">Total Students with Records: <span class="font-bold text-slate-700 dark:text-slate-300">{{ $failedAttendance['total'] }}</span></div>
                 </div>
             </div>
-            <div class="space-y-2.5 text-sm">
-                <div class="flex items-center justify-between">
-                    <span class="flex items-center gap-2">
-                        <span class="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block"></span>
-                        <span class="text-slate-600 dark:text-slate-400">Science</span>
-                    </span>
-                    <span class="font-bold text-slate-700 dark:text-slate-300">40%</span>
+        </div>
+
+        {{-- Failed Scores Card --}}
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold text-slate-800 dark:text-white">Academic Performance</h3>
+                <span class="material-symbols-outlined text-red-500 text-2xl">school</span>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-semibold text-slate-600 dark:text-slate-400">Failed Subjects (< 60)</span>
+                        <span class="text-2xl font-bold text-red-600 dark:text-red-400">{{ $failedScores['failed'] }}</span>
+                    </div>
+                    <p class="text-xs text-slate-500">Students with at least one failed subject</p>
                 </div>
-                <div class="flex items-center justify-between">
-                    <span class="flex items-center gap-2">
-                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span>
-                        <span class="text-slate-600 dark:text-slate-400">Arts</span>
-                    </span>
-                    <span class="font-bold text-slate-700 dark:text-slate-300">30%</span>
+                
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-semibold text-slate-600 dark:text-slate-400">Passed All Subjects</span>
+                        <span class="text-2xl font-bold text-green-600 dark:text-green-400">{{ $failedScores['passed'] }}</span>
+                    </div>
+                    <p class="text-xs text-slate-500">Students passing all subjects</p>
                 </div>
-                <div class="flex items-center justify-between">
-                    <span class="flex items-center gap-2">
-                        <span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></span>
-                        <span class="text-slate-600 dark:text-slate-400">Tech</span>
-                    </span>
-                    <span class="font-bold text-slate-700 dark:text-slate-300">20%</span>
-                </div>
-                <div class="flex items-center justify-between">
-                    <span class="flex items-center gap-2">
-                        <span class="w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-600 inline-block"></span>
-                        <span class="text-slate-600 dark:text-slate-400">Other</span>
-                    </span>
-                    <span class="font-bold text-slate-700 dark:text-slate-300">10%</span>
+
+                <div class="pt-3 border-t border-slate-200 dark:border-slate-800">
+                    <div class="text-xs text-slate-500">Total Students with Scores: <span class="font-bold text-slate-700 dark:text-slate-300">{{ $failedScores['total'] }}</span></div>
                 </div>
             </div>
         </div>
 
     </div>
 
-    {{-- Recent Activities Table --}}
+    {{-- Attendance & Financial Summary Row --}}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
+
+        {{-- Attendance Summary --}}
+        <div class="bg-white dark:bg-slate-900 rounded-xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+            <h2 class="text-base font-bold text-slate-800 dark:text-white mb-5">Attendance Status</h2>
+            <div class="space-y-4">
+                @php
+                    $attTotal = $attendanceSummary['excellent'] + $attendanceSummary['good'] + $attendanceSummary['average'] + $attendanceSummary['critical'];
+                @endphp
+                
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-semibold text-slate-600 dark:text-slate-400">Excellent</span>
+                        <span class="text-sm font-bold text-slate-700 dark:text-slate-300">
+                            {{ $attendanceSummary['excellent'] ?? 0 }}
+                            <span class="text-xs text-slate-500">({{ $attTotal > 0 ? round(($attendanceSummary['excellent'] ?? 0) / $attTotal * 100) : 0 }}%)</span>
+                        </span>
+                    </div>
+                    <div class="h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                        <div class="h-full bg-emerald-500 rounded-full" style="width: {{ $attTotal > 0 ? round(($attendanceSummary['excellent'] ?? 0) / $attTotal * 100) : 0 }}%"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-semibold text-slate-600 dark:text-slate-400">Good</span>
+                        <span class="text-sm font-bold text-slate-700 dark:text-slate-300">
+                            {{ $attendanceSummary['good'] ?? 0 }}
+                            <span class="text-xs text-slate-500">({{ $attTotal > 0 ? round(($attendanceSummary['good'] ?? 0) / $attTotal * 100) : 0 }}%)</span>
+                        </span>
+                    </div>
+                    <div class="h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                        <div class="h-full bg-blue-500 rounded-full" style="width: {{ $attTotal > 0 ? round(($attendanceSummary['good'] ?? 0) / $attTotal * 100) : 0 }}%"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-semibold text-slate-600 dark:text-slate-400">Average</span>
+                        <span class="text-sm font-bold text-slate-700 dark:text-slate-300">
+                            {{ $attendanceSummary['average'] ?? 0 }}
+                            <span class="text-xs text-slate-500">({{ $attTotal > 0 ? round(($attendanceSummary['average'] ?? 0) / $attTotal * 100) : 0 }}%)</span>
+                        </span>
+                    </div>
+                    <div class="h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                        <div class="h-full bg-amber-500 rounded-full" style="width: {{ $attTotal > 0 ? round(($attendanceSummary['average'] ?? 0) / $attTotal * 100) : 0 }}%"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-semibold text-slate-600 dark:text-slate-400">Critical</span>
+                        <span class="text-sm font-bold text-slate-700 dark:text-slate-300">
+                            {{ $attendanceSummary['critical'] ?? 0 }}
+                            <span class="text-xs text-slate-500">({{ $attTotal > 0 ? round(($attendanceSummary['critical'] ?? 0) / $attTotal * 100) : 0 }}%)</span>
+                        </span>
+                    </div>
+                    <div class="h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                        <div class="h-full bg-red-500 rounded-full" style="width: {{ $attTotal > 0 ? round(($attendanceSummary['critical'] ?? 0) / $attTotal * 100) : 0 }}%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Financial Summary --}}
+        <div class="bg-white dark:bg-slate-900 rounded-xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+            <h2 class="text-base font-bold text-slate-800 dark:text-white mb-5">Financial Status</h2>
+            <div class="space-y-4">
+                @php
+                    $finTotal = $financialSummary['paid'] + $financialSummary['partial'] + $financialSummary['unpaid'] + $financialSummary['overdue'];
+                @endphp
+                
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-semibold text-slate-600 dark:text-slate-400">Paid</span>
+                        <span class="text-sm font-bold text-slate-700 dark:text-slate-300">
+                            {{ $financialSummary['paid'] ?? 0 }}
+                            <span class="text-xs text-slate-500">({{ $finTotal > 0 ? round(($financialSummary['paid'] ?? 0) / $finTotal * 100) : 0 }}%)</span>
+                        </span>
+                    </div>
+                    <div class="h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                        <div class="h-full bg-emerald-500 rounded-full" style="width: {{ $finTotal > 0 ? round(($financialSummary['paid'] ?? 0) / $finTotal * 100) : 0 }}%"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-semibold text-slate-600 dark:text-slate-400">Partial</span>
+                        <span class="text-sm font-bold text-slate-700 dark:text-slate-300">
+                            {{ $financialSummary['partial'] ?? 0 }}
+                            <span class="text-xs text-slate-500">({{ $finTotal > 0 ? round(($financialSummary['partial'] ?? 0) / $finTotal * 100) : 0 }}%)</span>
+                        </span>
+                    </div>
+                    <div class="h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                        <div class="h-full bg-blue-500 rounded-full" style="width: {{ $finTotal > 0 ? round(($financialSummary['partial'] ?? 0) / $finTotal * 100) : 0 }}%"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-semibold text-slate-600 dark:text-slate-400">Unpaid</span>
+                        <span class="text-sm font-bold text-slate-700 dark:text-slate-300">
+                            {{ $financialSummary['unpaid'] ?? 0 }}
+                            <span class="text-xs text-slate-500">({{ $finTotal > 0 ? round(($financialSummary['unpaid'] ?? 0) / $finTotal * 100) : 0 }}%)</span>
+                        </span>
+                    </div>
+                    <div class="h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                        <div class="h-full bg-amber-500 rounded-full" style="width: {{ $finTotal > 0 ? round(($financialSummary['unpaid'] ?? 0) / $finTotal * 100) : 0 }}%"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-semibold text-slate-600 dark:text-slate-400">Overdue</span>
+                        <span class="text-sm font-bold text-slate-700 dark:text-slate-300">
+                            {{ $financialSummary['overdue'] ?? 0 }}
+                            <span class="text-xs text-slate-500">({{ $finTotal > 0 ? round(($financialSummary['overdue'] ?? 0) / $finTotal * 100) : 0 }}%)</span>
+                        </span>
+                    </div>
+                    <div class="h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                        <div class="h-full bg-red-500 rounded-full" style="width: {{ $finTotal > 0 ? round(($financialSummary['overdue'] ?? 0) / $finTotal * 100) : 0 }}%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
     <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
         <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800">
             <h2 class="text-base font-bold text-slate-800 dark:text-white">Recent Activities</h2>
@@ -183,106 +356,130 @@
     </div>
 
     @push('scripts')
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-    <script>
-        let enrollInst = null, deptInst = null;
-
-        function isDark() {
-            return document.documentElement.classList.contains('dark');
-        }
-
-        function buildEnrollChart() {
-            const ctx  = document.getElementById('enrollChart').getContext('2d');
-            const dark = isDark();
-            const grad = ctx.createLinearGradient(0, 0, 0, 200);
-            grad.addColorStop(0, dark ? 'rgba(59,130,246,.25)' : 'rgba(59,130,246,.15)');
-            grad.addColorStop(1, 'rgba(59,130,246,0)');
-
-            enrollInst = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                    datasets: [{
-                        data: [320, 415, 480, 625, 780, 720],
-                        fill: true,
-                        backgroundColor: grad,
-                        borderColor: '#3B82F6',
-                        borderWidth: 2.5,
-                        pointRadius: 0,
-                        pointHoverRadius: 5,
-                        pointHoverBackgroundColor: '#3B82F6',
-                        tension: 0.45,
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            backgroundColor: dark ? '#1e293b' : '#fff',
-                            titleColor:      dark ? '#e2e8f0' : '#1e293b',
-                            bodyColor:       dark ? '#94a3b8' : '#64748b',
-                            borderColor:     dark ? '#334155' : '#e2e8f0',
-                            borderWidth: 1, padding: 10,
-                            callbacks: { label: c => ` ${c.parsed.y} students` }
-                        }
-                    },
-                    scales: {
-                        x: { grid: { display: false }, ticks: { color: dark ? '#64748b' : '#94a3b8', font: { size: 11 } }, border: { display: false } },
-                        y: { grid: { color: dark ? 'rgba(255,255,255,.05)' : 'rgba(0,0,0,.05)' }, ticks: { color: dark ? '#64748b' : '#94a3b8', font: { size: 11 }, maxTicksLimit: 5 }, border: { display: false } }
-                    }
-                }
-            });
-        }
-
-        function buildDeptChart() {
-            const ctx  = document.getElementById('deptChart').getContext('2d');
-            const dark = isDark();
-            deptInst = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    datasets: [{
-                        data: [40, 30, 20, 10],
-                        backgroundColor: ['#3B82F6', '#10B981', '#F59E0B', dark ? '#334155' : '#E2E8F0'],
-                        borderWidth: 0,
-                        hoverOffset: 4,
-                    }]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: true, cutout: '74%',
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            backgroundColor: dark ? '#1e293b' : '#fff',
-                            titleColor:      dark ? '#e2e8f0' : '#1e293b',
-                            bodyColor:       dark ? '#94a3b8' : '#64748b',
-                            borderColor:     dark ? '#334155' : '#e2e8f0',
-                            borderWidth: 1,
-                            callbacks: { label: c => ` ${c.parsed}%` }
-                        }
-                    }
-                }
-            });
-        }
-
-        function rebuildCharts() {
-            if (enrollInst) enrollInst.destroy();
-            if (deptInst)   deptInst.destroy();
-            buildEnrollChart();
-            buildDeptChart();
-        }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            buildEnrollChart();
-            buildDeptChart();
-        });
-
-        const _origToggle = window.toggleTheme;
-        if (typeof _origToggle === 'function') {
-            window.toggleTheme = function () { _origToggle(); rebuildCharts(); };
-        }
-    </script>
     @endpush
 
 </x-layouts.master>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<script>
+    console.log('=== Dashboard Chart Initialization ===');
+    console.log('Chart.js loaded:', typeof Chart !== 'undefined');
+    
+    function initializeCharts() {
+        if (typeof Chart === 'undefined') {
+            console.error('Chart.js is not loaded!');
+            return;
+        }
+
+        // Get data from controller
+        const enrollData = @json($enrollmentTrend);
+        const deptData = @json($deptDistribution);
+
+        console.log('Enrollment Data:', enrollData);
+        console.log('Department Data:', deptData);
+
+        // Render enrollment chart
+        const canvas1 = document.getElementById('enrollmentChart');
+        console.log('Enrollment canvas found:', canvas1 !== null);
+        
+        if (canvas1) {
+            try {
+                const ctx1 = canvas1.getContext('2d');
+                new Chart(ctx1, {
+                    type: 'line',
+                    data: {
+                        labels: enrollData.labels,
+                        datasets: [
+                            {
+                                label: 'New Enrollments',
+                                data: enrollData.newEnrollments,
+                                borderColor: '#EF4444',
+                                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                                borderWidth: 2,
+                                tension: 0.4,
+                                fill: true,
+                                pointRadius: 4,
+                                pointBackgroundColor: '#EF4444',
+                            },
+                            {
+                                label: 'Total Students',
+                                data: enrollData.totalStudents,
+                                borderColor: '#3B82F6',
+                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                borderWidth: 2,
+                                tension: 0.4,
+                                fill: true,
+                                pointRadius: 4,
+                                pointBackgroundColor: '#3B82F6',
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { 
+                            legend: { 
+                                display: true,
+                                position: 'top'
+                            } 
+                        },
+                        scales: {
+                            y: { beginAtZero: true },
+                        }
+                    }
+                });
+                console.log('✓ Enrollment chart rendered successfully');
+            } catch (error) {
+                console.error('✗ Error rendering enrollment chart:', error);
+            }
+        }
+
+        // Render department chart
+        const canvas2 = document.getElementById('departmentChart');
+        console.log('Department canvas found:', canvas2 !== null);
+        
+        if (canvas2) {
+            try {
+                const ctx2 = canvas2.getContext('2d');
+                
+                if (!deptData.labels || deptData.labels.length === 0) {
+                    console.warn('No department data available');
+                    canvas2.parentElement.innerHTML = '<p class="text-center text-slate-400 text-sm py-8">No student status data available</p>';
+                } else {
+                    new Chart(ctx2, {
+                        type: 'doughnut',
+                        data: {
+                            labels: deptData.labels,
+                            datasets: [{
+                                data: deptData.data,
+                                backgroundColor: deptData.colors,
+                                borderWidth: 2,
+                                borderColor: '#ffffff',
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { 
+                                legend: { 
+                                    display: true,
+                                    position: 'bottom'
+                                } 
+                            }
+                        }
+                    });
+                    console.log('✓ Department chart rendered successfully');
+                }
+            } catch (error) {
+                console.error('✗ Error rendering department chart:', error);
+            }
+        }
+    }
+
+    // Initialize when Chart.js loads and DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeCharts);
+    } else {
+        initializeCharts();
+    }
+</script>

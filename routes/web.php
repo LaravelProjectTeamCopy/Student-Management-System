@@ -87,4 +87,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/academics/import',      [AcademicRecordsController::class, 'academicrecordimport'])->name('academicrecords.storeimport');
     Route::get('/academics/subject',      [AcademicRecordsController::class, 'showacademicrecordssubject'])->name('academicrecords.subject');
     Route::post('/academics/subject',     [AcademicRecordsController::class, 'academicrecordssubject'])->name('academicrecords.subjectstore');
+    Route::get('/academics/export',       [AcademicRecordsController::class, 'academicrecordsexport'])->name('academicrecords.export');
+    Route::get('/academics/exportcsv',    [AcademicRecordsController::class, 'academicrecordsexportcsv'])->name('academicrecords.exportcsv');
 });

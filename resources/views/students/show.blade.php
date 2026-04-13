@@ -13,8 +13,8 @@
             <div>
                 <h2 class="text-2xl font-bold">{{ $student->name }}</h2>
                 <div class="mt-1 flex flex-wrap gap-x-4 gap-y-1">
-                    <span class="text-sm text-slate-500">ID: {{ $student->student_id }}</span>
-                    <span class="text-sm text-slate-500">{{ $student->email }}</span>
+                    <span class="text-sm text-slate-500">ID : {{ $student->id }}</span>
+                    <span class="text-sm text-slate-500">Student Email : {{ $student->email }}</span>
                     @php
                         $statusColor = match($student->status ?? 'Active') {
                             'Active'    => 'text-emerald-600',
@@ -37,10 +37,6 @@
             </div>
         </div>
         <div class="flex w-full gap-3 lg:w-auto">
-            <button class="flex flex-1 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 lg:flex-none transition-colors">
-                <span class="material-symbols-outlined text-sm">print</span>
-                Print Profile
-            </button>
             <a href="{{ route('students.edit', $student->id) }}">
                 <button class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-slate-100 px-4 py-2 text-sm font-bold text-slate-900 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-100 lg:flex-none transition-colors">
                     <span class="material-symbols-outlined text-sm">edit</span>
@@ -80,10 +76,6 @@
                         <p class="mt-1 font-medium text-slate-900 dark:text-slate-100">{{ $student->email }}</p>
                     </div>
                     <div>
-                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Phone Number</p>
-                        <p class="mt-1 font-medium text-slate-900 dark:text-slate-100">{{ $student->phone ?? '—' }}</p>
-                    </div>
-                    <div>
                         <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Date of Birth</p>
                         <p class="mt-1 font-medium text-slate-900 dark:text-slate-100">
                             {{ $student->date_of_birth ? \Carbon\Carbon::parse($student->date_of_birth)->format('M d, Y') : '—' }}
@@ -109,7 +101,7 @@
                 <div class="grid grid-cols-1 gap-y-6 sm:grid-cols-2">
                     <div>
                         <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Student ID</p>
-                        <p class="mt-1 font-medium text-slate-900 dark:text-slate-100">{{ $student->student_id }}</p>
+                        <p class="mt-1 font-medium text-slate-900 dark:text-slate-100">{{ $student->id }}</p>
                     </div>
                     <div>
                         <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Major</p>
@@ -124,7 +116,7 @@
                     <div>
                         <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Enrollment Date</p>
                         <p class="mt-1 font-medium text-slate-900 dark:text-slate-100">
-                            {{ $student->enrolled_at ? \Carbon\Carbon::parse($student->enrolled_at)->format('M d, Y') : '—' }}
+                            {{ $student->created_at }}
                         </p>
                     </div>
                     <div>
@@ -146,10 +138,6 @@
                             <span class="size-1.5 rounded-full {{ $dotClasses[$statusLabel] ?? $dotClasses['Active'] }}"></span>
                             {{ $statusLabel }}
                         </span>
-                    </div>
-                    <div>
-                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">GPA</p>
-                        <p class="mt-1 font-medium text-slate-900 dark:text-slate-100">{{ $student->gpa ? number_format($student->gpa, 2) : '—' }}</p>
                     </div>
                 </div>
             </section>
@@ -191,40 +179,6 @@
                         </p>
                     </div>
                 </div>
-            </section>
-
-            {{-- Activity Log --}}
-            <section class="rounded-xl bg-white p-6 shadow-sm dark:bg-slate-900">
-                <div class="mb-6 flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary">history</span>
-                    <h3 class="text-lg font-bold">Activity Log</h3>
-                </div>
-
-                <div class="flex flex-col gap-6">
-                    @forelse($logs ?? [] as $log)
-                        <div class="relative flex gap-4 pb-2">
-                            <div class="absolute left-4 top-8 h-full w-px bg-slate-200 dark:bg-slate-800"></div>
-                            <div class="relative z-10 flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                                <span class="material-symbols-outlined text-lg">edit_note</span>
-                            </div>
-                            <div class="flex flex-col">
-                                <p class="text-sm font-semibold text-slate-800 dark:text-slate-200">{{ $log->action ?? 'Record Updated' }}</p>
-                                <p class="text-xs text-slate-500">{{ $log->description ?? '—' }}</p>
-                                <p class="mt-1 text-xs text-slate-400">
-                                    {{ isset($log->created_at) ? $log->created_at->format('M d, Y') : '—' }}
-                                </p>
-                            </div>
-                        </div>
-                    @empty
-                        <p class="text-sm text-slate-400">No activity recorded yet.</p>
-                    @endforelse
-                </div>
-
-                <a href="{{ route('students.index') }}">
-                    <button class="mt-8 w-full rounded-lg border border-slate-200 dark:border-slate-800 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                        Back to Directory
-                    </button>
-                </a>
             </section>
 
         </div>

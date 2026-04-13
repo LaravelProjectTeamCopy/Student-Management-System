@@ -202,6 +202,10 @@ class AttendanceController extends Controller
             'status'       => $status,
         ]);
 
+        // ── Apply subject failure surcharges ──────────────────────────
+        $this->applySubjectFailureSurcharges($attendance, $semesterStart, $semesterEnd);
+        // ─────────────────────────────────────────────────────────────
+
         SystemHistory::log(
             'Updated Attendance',
             'Attendance',
@@ -210,6 +214,79 @@ class AttendanceController extends Controller
         );
 
         return redirect('/attendances')->with('success', 'Attendance record updated successfully!');
+    }
+
+    private function applySubjectFailureSurcharges(Attendance $attendance, $semesterStart, $semesterEnd): void
+    {
+        $student   = $attendance->student;
+        $financial = \App\Models\Financial::where('student_id', $student->id)->first();
+
+        if (!$financial) return;
+
+        // Get all scheduled subjects for this student's major/year/semester
+        $schedules = SubjectSchedule::whereHas('subject', function ($q) use ($attendance) {
+            $q->where('major', $attendance->student->major)
+              ->where('academic_year', $attendance->academic_year)
+              ->where('semester', $attendance->semester);
+        })->with('subject')->get();
+
+        if ($schedules->isEmpty()) return;
+
+        foreach ($schedules as $schedule) {
+            // Count absences on this subject's scheduled day within the semester
+            $absentCount = AttendanceDailyLog::where('student_id', $student->id)
+                ->where('status', 'absent')
+                ->whereBetween('log_date', [$semesterStart, $semesterEnd])
+                ->get()
+                ->filter(fn($log) => Carbon::parse($log->log_date)->format('l') === $schedule->day_of_week)
+                ->count();
+
+            if ($absentCount < 3) continue;
+
+            // Check if a surcharge for this subject was already applied this semester
+            $alreadyCharged = \App\Models\PaymentLog::where('student_id', $student->id)
+                ->where('payment_method', 'Surcharge')
+                ->where('note', 'like', "%subject_id:{$schedule->subject_id}%")
+                ->where('payment_date', '>=', $semesterStart)
+                ->exists();
+
+            if ($alreadyCharged) continue;
+
+            $surcharge = 100;
+
+            // Add $100 to total_fees and recalculate balance + status
+            $financial->increment('total_fees', $surcharge);
+            $financial->refresh();
+
+            $financial->balance_remaining = $financial->total_fees - $financial->amount_paid;
+
+            if ($financial->amount_paid <= 0) {
+                $financial->payment_status = 'Unpaid';
+            } elseif ($financial->balance_remaining <= 0) {
+                $financial->payment_status = 'Paid';
+            } else {
+                $financial->payment_status = 'Partial';
+            }
+
+            $financial->save();
+
+            // Log the surcharge as a PaymentLog entry
+            \App\Models\PaymentLog::create([
+                'student_id'     => $student->id,
+                'amount_paid'    => 0,
+                'payment_method' => 'Surcharge',
+                'payment_status' => $financial->payment_status,
+                'payment_date'   => now()->toDateString(),
+                'note'           => "Subject failure surcharge – {$schedule->subject->name} ({$absentCount} absences) | subject_id:{$schedule->subject_id}",
+            ]);
+
+            SystemHistory::log(
+                'Subject Failure Surcharge',
+                'Financial',
+                "Charged \${$surcharge} to {$student->name} — failed {$schedule->subject->name} ({$absentCount} absences on {$schedule->day_of_week})",
+                'payments'
+            );
+        }
     }
 
     public function showattendanceimport()
@@ -369,7 +446,7 @@ class AttendanceController extends Controller
     public function attendanceschedule(Request $request)
     {
         $majors       = Student::distinct()->pluck('major');
-        
+
         // Default to the active semester from attendance records if set
         $activeAtt    = Attendance::whereNotNull('academic_year')->first();
         $defaultYear  = $activeAtt?->academic_year ?? '2025/2026';
@@ -497,7 +574,7 @@ class AttendanceController extends Controller
             ->pluck('major');
 
         $totalAssigned = 0;
-        $summary = [];
+        $summary       = [];
 
         foreach ($majors as $major) {
             // Get subjects for this major that are NOT yet scheduled

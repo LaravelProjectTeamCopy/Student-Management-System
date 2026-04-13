@@ -30,10 +30,12 @@
                     <span>Add Subject</span>
                 </button>
             </a>
-            <button class="bg-slate-900 dark:bg-slate-800 text-white px-5 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 hover:bg-slate-800 dark:hover:bg-slate-700 hover:shadow-lg transition-all active:scale-95">
-                <span class="material-symbols-outlined text-lg">download</span>
-                <span>Export Report</span>
-            </button>
+            <a href="{{ route('academicrecords.export') }}">
+                <button class="bg-slate-900 dark:bg-slate-800 text-white px-5 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 hover:bg-slate-800 dark:hover:bg-slate-700 hover:shadow-lg transition-all active:scale-95">
+                    <span class="material-symbols-outlined text-lg">download</span>
+                    <span>Export Report</span>
+                </button>
+            </a>
         </div>
     </div>
 

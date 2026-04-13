@@ -44,7 +44,15 @@
         <div class="flex items-center gap-3">
             <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Year:</span>
             <div class="flex gap-1.5">
-                @foreach(['2023/2024', '2024/2025', '2025/2026'] as $year)
+                <a href="?year=&major={{ $currentMajor }}&status={{ $currentStatus }}"
+                   class="px-3 py-1.5 rounded-lg border text-xs font-bold transition-all
+                   {{ $currentYear == '' 
+                       ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-slate-900 dark:border-white shadow-sm'
+                       : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-500 hover:border-slate-300' }}">
+                    All Years
+                </a>
+                @foreach($years as $year)
+                    @if($year) {{-- Skip null/empty values --}}
                     <a href="?year={{ $year }}&major={{ $currentMajor }}&status={{ $currentStatus }}"
                        class="px-3 py-1.5 rounded-lg border text-xs font-bold transition-all
                        {{ $currentYear == $year
@@ -52,6 +60,7 @@
                            : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-500 hover:border-slate-300' }}">
                         {{ $year }}
                     </a>
+                    @endif
                 @endforeach
             </div>
         </div>
@@ -62,7 +71,14 @@
         <div class="flex items-center gap-3">
             <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Status:</span>
             <div class="flex gap-1.5">
-                @foreach(['Active', 'Inactive', 'Graduated'] as $status)
+                <a href="?status=&year={{ $currentYear }}&major={{ $currentMajor }}"
+                   class="px-3 py-1.5 rounded-full border text-xs font-bold transition-all
+                   {{ $currentStatus == ''
+                       ? 'bg-primary text-white border-primary'
+                       : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                    All
+                </a>
+                @foreach($statuses as $status)
                     <a href="?status={{ $status }}&year={{ $currentYear }}&major={{ $currentMajor }}"
                        class="px-3 py-1.5 rounded-full border text-xs font-bold transition-all
                        {{ $currentStatus == $status
@@ -160,7 +176,6 @@
                         <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Student ID</th>
                         <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Major</th>
                         <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Year</th>
-                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Phone</th>
                         <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Status</th>
                         <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest text-right">Actions</th>
                     </tr>
@@ -200,7 +215,7 @@
 
                             {{-- Student ID --}}
                             <td class="px-6 py-4 text-sm font-medium text-slate-600 dark:text-slate-400">
-                                {{ $student->student_id }}
+                                {{ $student->id }}
                             </td>
 
                             {{-- Major --}}
@@ -212,12 +227,7 @@
 
                             {{-- Enrollment Year --}}
                             <td class="px-6 py-4 text-sm font-medium text-slate-600 dark:text-slate-400">
-                                {{ $student->enrollment_year }}
-                            </td>
-
-                            {{-- Phone --}}
-                            <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
-                                {{ $student->phone ?? '—' }}
+                                {{ $student->academic_year }}
                             </td>
 
                             {{-- Status --}}
