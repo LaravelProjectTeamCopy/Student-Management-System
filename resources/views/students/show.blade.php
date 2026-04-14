@@ -78,16 +78,16 @@
                     <div>
                         <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Date of Birth</p>
                         <p class="mt-1 font-medium text-slate-900 dark:text-slate-100">
-                            {{ $student->date_of_birth ? \Carbon\Carbon::parse($student->date_of_birth)->format('M d, Y') : '—' }}
+                            {{ $student->date_of_birth}}
                         </p>
                     </div>
                     <div>
                         <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Gender</p>
-                        <p class="mt-1 font-medium text-slate-900 dark:text-slate-100">{{ $student->gender ?? '—' }}</p>
+                        <p class="mt-1 font-medium text-slate-900 dark:text-slate-100">{{ $student->gender }}</p>
                     </div>
                     <div>
                         <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Address</p>
-                        <p class="mt-1 font-medium text-slate-900 dark:text-slate-100">{{ $student->address ?? '—' }}</p>
+                        <p class="mt-1 font-medium text-slate-900 dark:text-slate-100">{{ $student->address}}</p>
                     </div>
                 </div>
             </section>

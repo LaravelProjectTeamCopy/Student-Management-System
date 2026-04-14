@@ -17,57 +17,53 @@ use Carbon\Carbon;
 class CheckAttendanceDeadlines extends Command
 {
     protected $signature = 'app:check-attendance-deadlines';
-    protected $description = 'Archive attendance records when deadline passes and start a new semester cycle';
+    protected $description = 'Archive attendance records, track failed subjects, and reset for the new semester';
 
     public function handle(): int
     {
-        // --- For testing only, remove in production ---
-        Carbon::setTestNow(Carbon::parse('2026-12-28 14:00:00'));
+        // For testing demo
+        Carbon::setTestNow(Carbon::parse('2026-07-29 14:00:00'));
 
-        // ── Step 1: Validate semester data exists ──
         $first = Attendance::first();
 
+        // 1. Validation
         if (!$first || !$first->deadline || !$first->semester_duration) {
             $this->warn('No attendance record or deadline found. Skipping.');
-            Log::channel('single')->info('[Attendance Archive] Skipped — no attendance data or deadline configured.');
             return self::SUCCESS;
         }
 
-        $deadline         = Carbon::parse($first->deadline);
-        $semesterStart    = $first->semester_start;
-        $semesterDuration = (int) $first->semester_duration;
-        $now              = Carbon::now();
+        $deadline = Carbon::parse($first->deadline)->startOfDay();
+        $now      = Carbon::now()->startOfDay();
 
-        $this->info("Semester: {$semesterStart} → {$first->deadline} ({$semesterDuration} weeks)");
-
-        // ── Step 2: Check if deadline has passed ──
+        // 2. Timing Check
         if ($now->lt($deadline)) {
-            $daysLeft = $now->diffInDays($deadline);
+            $daysLeft = $now->diffInDays($deadline, false);
             $this->info("Deadline has not passed yet. {$daysLeft} days remaining.");
             return self::SUCCESS;
         }
 
-        // ── Step 3: Prevent double-archiving ──
-        $alreadyArchived = AttendanceHistory::where('semester_end', $first->deadline)
-            ->where('academic_year', $first->academic_year)
-            ->where('semester', $first->semester)
-            ->exists();
+        // 3. Double-Archive Protection
+        $deadlineString = $first->deadline instanceof \Carbon\Carbon
+            ? $first->deadline->format('Y-m-d')
+            : $first->deadline;
+
+        $alreadyArchived = AttendanceHistory::where('semester_end', $deadlineString)->exists();
 
         if ($alreadyArchived) {
             $this->warn('This semester has already been archived. Skipping.');
-            Log::channel('single')->warning("[Attendance Archive] Double-archive prevented for {$first->academic_year} {$first->semester} ending {$first->deadline}.");
             return self::SUCCESS;
         }
 
-        // ── Step 4: Begin atomic archive + reset ──
-        $this->info('Deadline passed. Starting archive...');
+        $this->info('Deadline passed. Starting archive and semester reset...');
 
+        // 4. Execution
         try {
-            DB::transaction(function () use ($first, $deadline, $semesterStart, $semesterDuration) {
-                $this->archiveSemester($first, $deadline, $semesterStart, $semesterDuration);
+            DB::transaction(function () use ($first, $deadline) {
+                $this->archiveSemester($first, $deadline);
             });
         } catch (\Throwable $e) {
             $this->error("Archive failed: {$e->getMessage()}");
+            $this->error("Line: {$e->getLine()} File: {$e->getFile()}");
             Log::channel('single')->error("[Attendance Archive] FAILED: {$e->getMessage()}", [
                 'trace' => $e->getTraceAsString(),
             ]);
@@ -77,155 +73,152 @@ class CheckAttendanceDeadlines extends Command
         return self::SUCCESS;
     }
 
-    private function archiveSemester($first, Carbon $deadline, string $semesterStart, int $semesterDuration): void
+    private function archiveSemester($first, Carbon $deadline): void
     {
-        // ── Load all data upfront (avoid N+1 queries) ──
-        $attendances  = Attendance::with('student')->get();
-        $academicYear = $first->academic_year;
-        $semester     = $first->semester;
+        $semesterStart = $first->semester_start instanceof \Carbon\Carbon
+            ? $first->semester_start->format('Y-m-d')
+            : $first->semester_start;
 
-        // Load only schedules that match this semester's academic_year + semester
-        $schedules = SubjectSchedule::with('subject')
-            ->whereHas('subject', function ($q) use ($academicYear, $semester) {
-                $q->when($academicYear, fn($q) => $q->where('academic_year', $academicYear))
-                  ->when($semester, fn($q) => $q->where('semester', $semester));
-            })
-            ->get();
+        $semesterEnd = $first->deadline instanceof \Carbon\Carbon
+            ? $first->deadline->format('Y-m-d')
+            : $first->deadline;
 
-        // Pre-load ALL absent logs for the semester in one query
+        $attendances = Attendance::with('student')->get();
+
+        $schedules = SubjectSchedule::with('subject')->get();
+
         $allAbsentLogs = AttendanceDailyLog::where('status', 'absent')
-            ->whereBetween('log_date', [$semesterStart, $first->deadline])
+            ->whereBetween('log_date', [$semesterStart, $semesterEnd])
             ->get()
             ->groupBy('student_id');
 
-        $this->info("Processing {$attendances->count()} students for {$academicYear} {$semester}...");
-
-        // ── Build history records in bulk ──
         $historyRecords = [];
-        $passedCount    = 0;
         $failedCount    = 0;
+        $passedCount    = 0;
 
         foreach ($attendances as $att) {
             $studentAbsentLogs = $allAbsentLogs->get($att->student_id, collect());
-            $result = $this->determineResult($att, $schedules, $studentAbsentLogs);
+            
+            // Pre-calculate count of absences per day of week (e.g., ['Monday' => 4, 'Wednesday' => 1])
+            $absencesPerDay = $studentAbsentLogs->mapToGroups(function ($log) {
+                return [Carbon::parse($log->log_date)->format('l') => 1];
+            })->map->count();
 
-            $result === 'Failed' ? $failedCount++ : $passedCount++;
+            $analysis = $this->analyzeStudentResult($att, $schedules, $absencesPerDay, $studentAbsentLogs->count());
 
+            if ($analysis['result'] === 'Failed') $failedCount++;
+            else $passedCount++;
+
+            $attSemesterStart = $att->semester_start instanceof \Carbon\Carbon
+                ? $att->semester_start->format('Y-m-d')
+                : $att->semester_start;
+
+            $attDeadline = $att->deadline instanceof \Carbon\Carbon
+                ? $att->deadline->format('Y-m-d')
+                : $att->deadline;
+
+            // TIMESTAMP COLUMNS REMOVED FROM ARRAY BELOW
             $historyRecords[] = [
                 'student_id'        => $att->student_id,
-                'academic_year'     => $academicYear,
-                'semester'          => $semester,
-                'semester_start'    => $att->semester_start,
-                'semester_end'      => $att->deadline,
+                'semester_start'    => $attSemesterStart,
+                'semester_end'      => $attDeadline,
                 'total_days'        => $att->total_days,
                 'present_days'      => $att->present_days,
                 'absent_days'       => $att->absent_days,
                 'status'            => $att->status,
-                'attendance_result' => $result,
+                'attendance_result' => $analysis['result'],
+                'failed_subjects'   => $analysis['failed_list'],
             ];
         }
 
-        // Bulk insert all history records (chunked to avoid memory issues)
+        $this->info("Inserting " . count($historyRecords) . " history records...");
+
         foreach (array_chunk($historyRecords, 500) as $chunk) {
             AttendanceHistory::insert($chunk);
         }
-        $this->info("  ✓ Archived {$passedCount} passed, {$failedCount} failed.");
 
-        // ── Clean up old semester data ──
-        $deletedDaily = AttendanceDailyLog::whereBetween('log_date', [$semesterStart, $first->deadline])->delete();
-        $deletedLogs  = AttendanceLog::whereBetween('log_date', [$semesterStart, $first->deadline])->delete();
-        $this->info("  ✓ Cleaned up {$deletedDaily} daily logs, {$deletedLogs} attendance logs.");
+        $this->info("History inserted. Cleaning up logs...");
 
-        // ── Clear subject schedules for THIS semester only ──
-        $academicYear = $first->academic_year;
-        $semester     = $first->semester;
+        AttendanceDailyLog::whereBetween('log_date', [$semesterStart, $semesterEnd])->delete();
+        AttendanceLog::whereBetween('log_date',      [$semesterStart, $semesterEnd])->delete();
 
-        $deletedSchedules = SubjectSchedule::whereHas('subject', function ($q) use ($academicYear, $semester) {
-            $q->when($academicYear, fn($q) => $q->where('academic_year', $academicYear))
-              ->when($semester, fn($q) => $q->where('semester', $semester));
-        })->count();
+        SubjectSchedule::all()->each->delete();
 
-        SubjectSchedule::whereHas('subject', function ($q) use ($academicYear, $semester) {
-            $q->when($academicYear, fn($q) => $q->where('academic_year', $academicYear))
-              ->when($semester, fn($q) => $q->where('semester', $semester));
-        })->delete();
-
-        $this->info("  ✓ Cleared {$deletedSchedules} subject schedule entries for {$academicYear} {$semester}.");
-
-        // ── Calculate new semester dates ──
+        $duration    = (int) $first->semester_duration;
         $newStart    = $deadline->copy()->addDay()->startOfDay();
-        $newDeadline = $newStart->copy()->addWeeks($semesterDuration);
+        $newDeadline = $newStart->copy()->addWeeks($duration);
 
-        // ── Reset all attendance records for new semester ──
+        $this->info("Resetting attendance. New start: {$newStart->format('Y-m-d')}, New deadline: {$newDeadline->format('Y-m-d')}");
+
         Attendance::query()->update([
             'academic_year'     => null,
             'semester'          => null,
             'semester_start'    => $newStart->format('Y-m-d'),
-            'semester_duration' => $semesterDuration,
+            'semester_duration' => $duration,
             'deadline'          => $newDeadline->format('Y-m-d'),
             'total_days'        => 0,
             'present_days'      => 0,
             'absent_days'       => 0,
             'status'            => 'Critical',
         ]);
-        $this->info("  ✓ Reset all attendance records.");
-        $this->info("  ✓ New semester: {$newStart->format('Y-m-d')} → {$newDeadline->format('Y-m-d')}");
 
-        // ── Log to system history ──
         $userId = User::first()?->id;
         if ($userId) {
             SystemHistory::create([
                 'user_id'     => $userId,
-                'action'      => 'Archived Attendance & New Semester',
+                'action'      => 'Semester Archived',
                 'module'      => 'Attendance',
-                'description' => "Archived {$passedCount} passed, {$failedCount} failed. Cleared {$deletedSchedules} schedules. New semester: {$newStart->format('Y-m-d')} → {$newDeadline->format('Y-m-d')}",
+                'description' => "Archived {$passedCount} passed, {$failedCount} failed. New cycle starts {$newStart->format('Y-m-d')}.",
                 'icon'        => 'history',
             ]);
         }
 
-        // ── Persistent log for audit trail ──
-        Log::channel('single')->info("[Attendance Archive] Completed", [
-            'academic_year'  => $academicYear,
-            'semester'       => $semester,
-            'passed'         => $passedCount,
-            'failed'         => $failedCount,
-            'cleaned_daily'  => $deletedDaily,
-            'cleaned_logs'   => $deletedLogs,
-            'cleared_schedules' => $deletedSchedules,
-            'old_semester'   => "{$semesterStart} → {$first->deadline}",
-            'new_semester'   => "{$newStart->format('Y-m-d')} → {$newDeadline->format('Y-m-d')}",
-        ]);
-
-        $this->newLine();
-        $this->info("Archive complete.");
+        $this->info("Archive complete. {$passedCount} Passed, {$failedCount} Failed.");
     }
 
-    private function determineResult(Attendance $att, $schedules, $studentAbsentLogs): string
+    private function analyzeStudentResult(Attendance $att, $schedules, $absencesPerDay, int $totalAbsences): array
     {
         $student = $att->student;
-        if (!$student) return 'Passed';
+        $failedSubjects = [];
 
-        // Filter schedules to this student's major (academic_year/semester already filtered at load time)
-        $majorSchedules = $schedules->filter(
-            fn($s) => $s->subject && $s->subject->major === $student->major
-        );
-
-        // No subject schedules — fall back to simple absent_days >= 3
-        if ($majorSchedules->isEmpty()) {
-            return $att->absent_days >= 3 ? 'Failed' : 'Passed';
+        if (!$student) {
+            return ['result' => 'Passed', 'failed_list' => null];
         }
 
-        // Check each scheduled subject: 3+ absences on that day → fail
-        foreach ($majorSchedules as $schedule) {
-            $absentOnDay = $studentAbsentLogs->filter(
-                fn($log) => Carbon::parse($log->log_date)->format('l') === $schedule->day_of_week
-            )->count();
+        // 1. Check Subject-Specific Failures (3 or more absences on a subject's day)
+        $majorSchedules = $schedules->filter(fn($s) => $s->subject && $s->subject->major === $student->major);
 
-            if ($absentOnDay >= 3) {
-                return 'Failed';
+        foreach ($majorSchedules as $schedule) {
+            $scheduledDay = ucfirst(strtolower(trim($schedule->day_of_week)));
+            $absentCount  = $absencesPerDay->get($scheduledDay, 0);
+
+            if ($absentCount >= 3) {
+                $failedSubjects[] = $schedule->subject->name;
             }
         }
 
-        return 'Passed';
+        // 2. Check General Attendance Failure (15 or more total absences)
+        $hardLimitReached = ($totalAbsences >= 15);
+        
+        // Student fails if they hit a subject limit OR the global 15-day limit
+        $isFailed = !empty($failedSubjects) || $hardLimitReached;
+
+        // 3. Determine the display string for the 'failed_list' column
+        if (!empty($failedSubjects)) {
+            // Just show names: "Math, Science"
+            $failedList = implode(', ', array_unique($failedSubjects));
+            
+            // Optional: If they also hit the 15-day limit, you could append it, 
+            // but per your request for "no hassle," we'll stick to subject names.
+        } elseif ($hardLimitReached) {
+            $failedList = "General Absence Limit";
+        } else {
+            $failedList = null;
+        }
+
+        return [
+            'result'      => $isFailed ? 'Failed' : 'Passed',
+            'failed_list' => $failedList,
+        ];
     }
 }

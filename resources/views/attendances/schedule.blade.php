@@ -253,7 +253,7 @@
             </div>
             <div class="flex items-center gap-1.5">
                 <span class="size-2 rounded-full bg-red-500"></span>
-                <span>Fail — 3+ absences on that day</span>
+                <span>Fail — more than 3 absences on that day</span>
             </div>
             <div class="flex items-center gap-1.5">
                 <span class="size-2 rounded-full bg-slate-300"></span>

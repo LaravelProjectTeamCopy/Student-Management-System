@@ -18,6 +18,12 @@
             <p class="text-slate-500 dark:text-slate-400 mt-1">Monitor and manage student attendance records.</p>
         </div>
         <div class="flex items-center gap-3 ml-auto">
+            <a href="{{ route('attendancesexport.export') }}" class="group">
+                <button class="border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 px-5 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 hover:bg-white dark:hover:bg-slate-800 hover:border-primary/30 hover:shadow-md transition-all active:scale-95">
+                    <span class="material-symbols-outlined text-lg group-hover:text-primary transition-colors">download</span>
+                    <span>Export</span>
+                </button>
+            </a>
             <a href="{{ route('attendances.schedule') }}" class="group">
                 <button class="border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 px-5 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 hover:bg-white dark:hover:bg-slate-800 hover:border-primary/30 hover:shadow-md transition-all active:scale-95">
                     <span class="material-symbols-outlined text-lg group-hover:text-primary transition-colors">calendar_month</span>
@@ -30,6 +36,7 @@
                     <span>Set Semester Duration</span>
                 </button>
             </a>
+            
             <form action="{{ route('attendances.cleardeadline') }}" method="POST">
                 @csrf
                 <button class="border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 px-5 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 hover:bg-red-50 dark:hover:bg-red-900/10 hover:text-red-600 hover:border-red-200 transition-all active:scale-95">
@@ -53,17 +60,25 @@
         <div class="flex items-center gap-3">
             <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Year:</span>
             <div class="flex gap-1.5">
+                <a href="?year=&status={{ request('status') }}&major={{ request('major') }}"
+                class="px-3 py-1.5 rounded-lg border text-xs font-bold transition-all
+                {{ !request('year') || request('year') == ''
+                    ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-slate-900 dark:border-white shadow-sm'
+                    : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-500 hover:border-slate-300' }}">
+                    All
+                </a>
                 @foreach(['2023/2024', '2024/2025', '2025/2026'] as $year)
                     <a href="?year={{ $year }}&status={{ request('status') }}&major={{ request('major') }}"
-                       class="px-3 py-1.5 rounded-lg border text-xs font-bold transition-all
-                       {{ request('year', '2025/2026') == $year
-                           ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-slate-900 dark:border-white shadow-sm'
-                           : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-500 hover:border-slate-300' }}">
+                    class="px-3 py-1.5 rounded-lg border text-xs font-bold transition-all
+                    {{ request('year') == $year
+                        ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-slate-900 dark:border-white shadow-sm'
+                        : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-500 hover:border-slate-300' }}">
                         {{ $year }}
                     </a>
                 @endforeach
             </div>
         </div>
+
 
         <div class="h-8 w-px bg-slate-200 dark:bg-slate-800"></div>
 
@@ -71,12 +86,19 @@
         <div class="flex items-center gap-3">
             <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Status:</span>
             <div class="flex gap-1.5">
-                @foreach(['Active', 'Inactive', 'Graduated'] as $status)
-                    <a href="?status={{ $status }}&year={{ request('year', '2025/2026') }}&major={{ request('major') }}"
-                       class="px-3 py-1.5 rounded-full border text-xs font-bold transition-all
-                       {{ request('status') == $status
-                           ? 'bg-primary text-white border-primary'
-                           : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                <a href="?status=&year={{ request('year') }}&major={{ request('major') }}"
+                class="px-3 py-1.5 rounded-full border text-xs font-bold transition-all
+                {{ !request('status')
+                    ? 'bg-primary text-white border-primary'
+                    : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
+                    All
+                </a>
+                @foreach(['Good', 'At Risk', 'Critical'] as $status)
+                    <a href="?status={{ $status }}&year={{ request('year') }}&major={{ request('major') }}"
+                    class="px-3 py-1.5 rounded-full border text-xs font-bold transition-all
+                    {{ request('status') == $status
+                        ? 'bg-primary text-white border-primary'
+                        : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                         {{ $status }}
                     </a>
                 @endforeach
@@ -97,6 +119,39 @@
                 <p class="text-3xl font-bold text-slate-900 dark:text-white leading-none">{{ $totalAttendance }}</p>
             </div>
             <p class="text-xs font-medium text-blue-600 dark:text-blue-400">All semesters</p>
+        </div>
+
+        {{-- Semester Info Card --}}
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col gap-3">
+            <div class="w-9 h-9 rounded-lg bg-violet-50 dark:bg-violet-900/20 flex items-center justify-center">
+                <span class="material-symbols-outlined text-violet-600 dark:text-violet-400 text-lg">date_range</span>
+            </div>
+            <div>
+                <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">Semester Period</p>
+                @php
+                    $activeSemester = \App\Models\Attendance::whereNotNull('semester_start')->first();
+                @endphp
+                @if($activeSemester && $activeSemester->semester_start)
+                    <p class="text-sm font-bold text-slate-900 dark:text-white">
+                        {{ \Carbon\Carbon::parse($activeSemester->semester_start)->format('M d, Y') }}
+                    </p>
+                    <p class="text-[10px] text-slate-400 mt-0.5">to</p>
+                    <p class="text-sm font-bold text-red-500">
+                        {{ $activeSemester->deadline ? \Carbon\Carbon::parse($activeSemester->deadline)->format('M d, Y') : '—' }}
+                    </p>
+                @else
+                    <p class="text-sm font-bold text-slate-400">No semester set</p>
+                    <a href="{{ route('attendances.duration') }}" class="text-[10px] text-primary font-bold hover:underline mt-1 inline-block">Set now →</a>
+                @endif
+            </div>
+            @if($activeSemester && $activeSemester->deadline)
+                @php
+                    $daysLeft = \Carbon\Carbon::now()->diffInDays(\Carbon\Carbon::parse($activeSemester->deadline), false);
+                @endphp
+                <p class="text-xs font-medium {{ $daysLeft < 0 ? 'text-red-500' : ($daysLeft <= 14 ? 'text-amber-500' : 'text-violet-600 dark:text-violet-400') }}">
+                    {{ $daysLeft < 0 ? 'Semester ended' : ($daysLeft == 0 ? 'Ends today' : $daysLeft . ' days remaining') }}
+                </p>
+            @endif
         </div>
 
         <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col gap-3">

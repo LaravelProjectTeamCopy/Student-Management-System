@@ -19,17 +19,20 @@ class StudentController extends Controller
         $currentYear   = request('year',   '');
         $currentStatus = request('status', '');
         $currentMajor  = request('major',  '');
+        $search        = request('search', '');  // ← add this
 
         $years    = Student::select('academic_year')->distinct()->pluck('academic_year');
         $majors   = Student::select('major')->distinct()->pluck('major');
         $statuses = ['Active', 'Inactive', 'Graduated'];
 
-        // Base query scoped to year + major (shared by both stats and table)
         $base = Student::query()
             ->when($currentYear,  fn($q) => $q->where('academic_year', $currentYear))
-            ->when($currentMajor, fn($q) => $q->where('major', $currentMajor));
+            ->when($currentMajor, fn($q) => $q->where('major', $currentMajor))
+            ->when($search, fn($q) => $q->where(function($q) use ($search) {  // ← add this
+                $q->where('name',  'like', "%{$search}%")
+                ->orWhere('email', 'like', "%{$search}%");
+            }));
 
-        // Stat cards — not affected by status filter so counts always show full breakdown
         $totalStudents  = (clone $base)->count();
         $activeStudents = (clone $base)->where('status', 'Active')->count();
         $graduated      = (clone $base)->where('status', 'Graduated')->count();
@@ -38,7 +41,6 @@ class StudentController extends Controller
                             ->whereYear('created_at',  now()->year)
                             ->count();
 
-        // Table — applies status filter on top
         $students = (clone $base)
             ->when($currentStatus, fn($q) => $q->where('status', $currentStatus))
             ->paginate(15)
@@ -56,6 +58,7 @@ class StudentController extends Controller
             'activeStudents',
             'graduated',
             'newThisMonth',
+            'search',  // ← add this
         ));
     }
 
@@ -75,6 +78,9 @@ class StudentController extends Controller
         $validated = $request->validate([
             'name'          => 'required|string|max:255',
             'email'         => 'required|email|unique:students,email',
+            'date_of_birth' => 'nullable|date',
+            'gender'        => 'nullable|string|max:20',
+            'address'       => 'nullable|string|max:500',
             'major'         => 'required|string|max:255',
             'academic_year' => 'required|string|max:20',
         ]);
@@ -126,6 +132,9 @@ class StudentController extends Controller
         $validated = $request->validate([
             'name'          => 'required|string|max:255',
             'email'         => 'required|email|unique:students,email,' . $student->id,
+            'date_of_birth' => 'nullable|date',
+            'gender'        => 'nullable|string|max:20',
+            'address'       => 'nullable|string|max:500',
             'major'         => 'required|string|max:255',
             'academic_year' => 'required|string|max:20',
         ]);

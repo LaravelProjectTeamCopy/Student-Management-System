@@ -16,23 +16,11 @@ class ScoreImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFai
 {
     use SkipsFailures;
 
-    // 1. Pre-load lookups to avoid N+1
-    protected $students;
-    protected $subjects;
-
-    public function __construct()
-    {
-        $this->students = Student::pluck('id', 'student_code');
-        $this->subjects = Subject::pluck('id', 'subject_code');
-    }
-
-    // 2. Chunk size for large files
     public function chunkSize(): int
     {
         return 500;
     }
 
-    // 3. Validation — runs before model()
     public function rules(): array
     {
         return [
@@ -57,53 +45,58 @@ class ScoreImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFai
         ];
     }
 
-    // 4. Model — only runs if validation passes
     public function model(array $row)
     {
         $student = Student::where('student_code', trim($row['student_code']))->first();
-        
+
         if (!$student) {
-            Log::warning('Student not found', ['student_code' => $row['student_code']]);
+            Log::warning('ScoreImport: student not found', ['student_code' => $row['student_code']]);
             return null;
         }
-        
-        $studentId = $student->id;
 
-        // Find subject - try exact match first, then just by code
         $subject = Subject::where('subject_code', trim($row['subject_code']))
-            ->where('major', $student->major)
-            ->where('academic_year', $student->academic_year)
-            ->first();
+                        ->where('major', $student->major)
+                        ->where('academic_year', $student->academic_year)
+                        ->first();
 
-        // If no exact match, try finding subject by code only
         if (!$subject) {
             $subject = Subject::where('subject_code', trim($row['subject_code']))->first();
-            
-            if (!$subject) {
-                Log::warning('ScoreImport: subject not found', [
-                    'student_code' => $row['student_code'],
-                    'subject_code' => $row['subject_code'],
-                    'student_major' => $student->major,
-                    'student_year' => $student->academic_year,
-                ]);
-                return null;
-            }
         }
 
-        $subjectId = $subject->id;
-
-        if (!$studentId || !$subjectId) {
+        if (!$subject) {
+            Log::warning('ScoreImport: subject not found', [
+                'student_code'  => $row['student_code'],
+                'subject_code'  => $row['subject_code'],
+                'student_major' => $student->major,
+                'student_year'  => $student->academic_year,
+            ]);
             return null;
         }
 
         $attendance = (float)($row['attendance'] ?? 0);
-        $quiz       = (float)($row['quiz'] ?? 0);
-        $midterm    = (float)($row['midterm'] ?? 0);
+        $quiz       = (float)($row['quiz']       ?? 0);
+        $midterm    = (float)($row['midterm']    ?? 0);
         $finalExam  = (float)($row['final_exam'] ?? 0);
 
+        // PINPOINT FIX: Apply Weights (10% Attendance, 20% Quiz, 20% Midterm, 50% Final)
+        // This ensures a student getting 100 in everything gets exactly 100 total.
+        $calculatedScore = ($attendance * 0.10) + ($quiz * 0.20) + ($midterm * 0.20) + ($finalExam * 0.50);
+
+        // Apply the 100 limit cap for safety
+        $totalScore = min($calculatedScore, 100);
+
         return Score::updateOrCreate(
-            ['student_id' => $studentId, 'subject_id' => $subjectId],
-            ['attendance' => $attendance, 'quiz' => $quiz, 'midterm' => $midterm, 'final_exam' => $finalExam, 'total_score' => $attendance + $quiz + $midterm + $finalExam]
+            [
+                'student_id' => $student->id,
+                'subject_id' => $subject->id,
+            ],
+            [
+                'attendance'  => $attendance,
+                'quiz'        => $quiz,
+                'midterm'     => $midterm,
+                'final_exam'  => $finalExam,
+                'total_score' => $totalScore,
+            ]
         );
     }
 }

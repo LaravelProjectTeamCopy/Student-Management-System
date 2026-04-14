@@ -18,11 +18,11 @@ class AcademicRecordsController extends Controller
     {
         $majors       = Student::distinct()->pluck('major');
         $currentMajor = request('major', $majors->first() ?? 'Arts');
-        $currentYear  = request('year', '2025/2026');
+        $currentYear  = request('year', '');
         $currentSem   = request('semester', 'Semester 1');
 
         $subjects = Subject::where('major', $currentMajor)
-                        ->where('academic_year', $currentYear)
+                        ->when($currentYear, fn($q) => $q->where('academic_year', $currentYear))
                         ->where('semester', $currentSem)
                         ->get();
 
@@ -32,9 +32,12 @@ class AcademicRecordsController extends Controller
                                 }])
                                 ->get();
 
+        // 1. CLASS AVERAGE: Now accurate because total_score is capped at 100
+        // We round this to 1 decimal place for a cleaner dashboard look
         $classAvg = $allStudentsInMajor
                         ->flatMap(fn($s) => $s->scores ?? collect())
                         ->avg('total_score') ?? 0;
+        $classAvg = round($classAvg, 1); 
 
         $passedCount   = 0;
         $atRisk        = 0;
@@ -42,29 +45,38 @@ class AcademicRecordsController extends Controller
 
         foreach ($allStudentsInMajor as $student) {
             $studentScores = $student->scores ?? collect();
-            $studentAvg    = $studentScores->count() > 0 ? $studentScores->avg('total_score') : null;
+            
+            // Only calculate average if the student actually has scores for this selection
+            $studentAvg = $studentScores->count() > 0 ? $studentScores->avg('total_score') : null;
 
             if ($studentAvg !== null) {
-                if ($studentAvg >= 50) $passedCount++;
-                else $atRisk++;
+                // 2. PASSING LOGIC: 50 is the standard pass mark for a 100-cap system
+                if ($studentAvg >= 50) {
+                    $passedCount++;
+                } else {
+                    $atRisk++;
+                }
             }
         }
 
         $passingRate = $totalStudents > 0 ? round(($passedCount / $totalStudents) * 100) : 0;
 
+        // 3. TOP STUDENT LOGIC: 
+        // This will now correctly find the student closest to 100%
         $topStudent = $allStudentsInMajor->sortByDesc(
             fn($s) => ($s->scores ?? collect())->avg('total_score') ?? 0
         )->first();
 
         $topScore = 0;
         if ($topStudent && ($topStudent->scores ?? collect())->count() > 0) {
-            $topScore = round($topStudent->scores->avg('total_score'), 1);
+            // Capping the top score display at 100 just in case
+            $topScore = min(round($topStudent->scores->avg('total_score'), 1), 100);
         }
 
         $academicrecords = Student::where('major', $currentMajor)
                             ->when(request('search'), fn($q) =>
                                 $q->where('name', 'like', '%' . request('search') . '%')
-                                  ->orWhere('student_code', 'like', '%' . request('search') . '%')
+                                ->orWhere('student_code', 'like', '%' . request('search') . '%')
                             )
                             ->with(['scores' => function ($q) use ($subjects) {
                                 $q->whereIn('subject_id', $subjects->pluck('id'));
@@ -87,7 +99,6 @@ class AcademicRecordsController extends Controller
             'currentSem'
         ));
     }
-
     public function showacademicrecordsimport()
     {
         $subjects = Subject::orderBy('major')->orderBy('name')->get();
@@ -114,9 +125,7 @@ class AcademicRecordsController extends Controller
             'upload_file'
         );
 
-        // ── Apply retake surcharges for failed subjects ────────────────
         $this->applyRetakeSurcharges();
-        // ─────────────────────────────────────────────────────────────
 
         if ($failureCount > 0) {
             $errorMessages = collect($failures)->take(5)->map(function ($failure) {
@@ -131,13 +140,8 @@ class AcademicRecordsController extends Controller
                          ->with('success', 'Import completed successfully. All scores have been recorded.');
     }
 
-    /**
-     * After every score import, check all students' scores.
-     * If total_score < 60 for a subject, charge $20 retake fee once per subject per semester.
-     */
     private function applyRetakeSurcharges(): void
     {
-        // Load all students who have scores, with their scores and subjects
         $students = Student::with(['scores.subject'])->get();
 
         foreach ($students as $student) {
@@ -150,13 +154,10 @@ class AcademicRecordsController extends Controller
 
                 if (!$subject) continue;
 
-                // Failed threshold: total_score under 60
                 if ($score->total_score >= 60) continue;
 
-                // Build a unique fingerprint for this student + subject + semester
                 $fingerprint = "retake_subject_id:{$subject->id}|year:{$subject->academic_year}|sem:{$subject->semester}";
 
-                // Check if this retake fee was already charged
                 $alreadyCharged = PaymentLog::where('student_id', $student->id)
                     ->where('payment_method', 'Surcharge')
                     ->where('note', 'like', "%{$fingerprint}%")
@@ -166,7 +167,6 @@ class AcademicRecordsController extends Controller
 
                 $surcharge = 20;
 
-                // Add $20 to total_fees and recalculate balance + status
                 $financial->increment('total_fees', $surcharge);
                 $financial->refresh();
 
@@ -182,7 +182,6 @@ class AcademicRecordsController extends Controller
 
                 $financial->save();
 
-                // Log the surcharge in payment_logs
                 PaymentLog::create([
                     'student_id'     => $student->id,
                     'amount_paid'    => 0,

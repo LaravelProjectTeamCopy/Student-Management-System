@@ -46,18 +46,24 @@
         <div class="flex items-center gap-3">
             <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Year:</span>
             <div class="flex gap-1.5">
+                <a href="?year=&semester={{ $currentSem }}&major={{ $currentMajor }}"
+                class="px-3 py-1.5 rounded-lg border text-xs font-bold transition-all
+                {{ $currentYear == ''
+                    ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-slate-900 dark:border-white shadow-sm'
+                    : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-500 hover:border-slate-300' }}">
+                    All Years
+                </a>
                 @foreach(['2023/2024', '2024/2025', '2025/2026'] as $year)
                     <a href="?year={{ $year }}&semester={{ $currentSem }}&major={{ $currentMajor }}"
-                       class="px-3 py-1.5 rounded-lg border text-xs font-bold transition-all
-                       {{ $currentYear == $year
-                           ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-slate-900 dark:border-white shadow-sm'
-                           : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-500 hover:border-slate-300' }}">
+                    class="px-3 py-1.5 rounded-lg border text-xs font-bold transition-all
+                    {{ $currentYear == $year
+                        ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-slate-900 dark:border-white shadow-sm'
+                        : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-500 hover:border-slate-300' }}">
                         {{ $year }}
                     </a>
                 @endforeach
             </div>
         </div>
-
         <div class="h-8 w-px bg-slate-200 dark:bg-slate-800"></div>
 
         {{-- Semester --}}

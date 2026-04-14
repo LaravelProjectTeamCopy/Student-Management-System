@@ -6,19 +6,19 @@ use Illuminate\Database\Eloquent\Model;
 class AttendanceHistory extends Model
 {
     public $timestamps = false;
-    // Tell Laravel the EXACT table name in your database
-    protected $table = 'attendance_histories'; 
+
+    protected $table = 'attendance_histories';
+
     protected $fillable = [
         'student_id',
-        'academic_year',
-        'semester', 
-        'semester_start', 
-        'semester_end', 
+        'semester_start',
+        'semester_end',
         'total_days',
-        'present_days', 
-        'absent_days', 
-        'attendance_result',
+        'present_days',
+        'absent_days',
         'status',
+        'attendance_result',
+        'failed_subjects',
     ];
 
     public function student()

@@ -62,7 +62,7 @@ Route::middleware('auth')->group(function () {
     // Attendances
     Route::get('/attendances',                       [AttendanceController::class, 'attendanceindex'])->name('attendances.index');
     Route::get('/attendances/import',                [AttendanceController::class, 'showattendanceimport'])->name('attendances.import');
-    Route::get('/attendances/export',                [AttendanceController::class, 'showattendanceexport']);
+    Route::get('/attendances/export',                [AttendanceController::class, 'showattendanceexport'])->name('attendancesexport.export');
     Route::get('/attendances/exportcsv',             [AttendanceController::class, 'attendanceexport'])->name('attendances.export');
     Route::get('/attendances/duration',              [AttendanceController::class, 'attendanceduration'])->name('attendances.duration');
     Route::get('/attendances/studenthistory',        [AttendanceController::class, 'attendanceallhistory'])->name('attendances.studenthistory');

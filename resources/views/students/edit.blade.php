@@ -35,18 +35,39 @@
                         @error('email') <p class="text-red-500 text-xs">{{ $message }}</p> @enderror
                     </div>
 
+                    {{-- Date of Birth --}}
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold uppercase tracking-wider text-slate-500 block">Date of Birth</label>
+                        <input class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" type="date" name="date_of_birth" value="{{ old('date_of_birth', $student->date_of_birth) }}" />
+                        @error('date_of_birth') <p class="text-red-500 text-xs">{{ $message }}</p> @enderror
+                    </div>
+
+                    {{-- Gender --}}
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold uppercase tracking-wider text-slate-500 block">Gender</label>
+                        <input class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" type="text" name="gender" placeholder="e.g. Male" value="{{ old('gender', $student->gender) }}" />
+                        @error('gender') <p class="text-red-500 text-xs">{{ $message }}</p> @enderror
+                    </div>
+
+                    {{-- Address --}}
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold uppercase tracking-wider text-slate-500 block">Address</label>
+                        <input class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" type="text" name="address" placeholder="e.g. 123 Main St" value="{{ old('address', $student->address) }}" />
+                        @error('address') <p class="text-red-500 text-xs">{{ $message }}</p> @enderror
+                    </div>
+
                     {{-- Major --}}
                     <div class="space-y-2">
                         <label class="text-xs font-bold uppercase tracking-wider text-slate-500 block">Major</label>
                         <select name="major" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all cursor-pointer">
                             <option value="" disabled>Select Major</option>
-                            <option value="Computer Science" {{ old('major', $student->major) == 'Computer Science' ? 'selected' : '' }}>Computer Science</option>
+                            <option value="Computer Science"        {{ old('major', $student->major) == 'Computer Science'        ? 'selected' : '' }}>Computer Science</option>
                             <option value="Business Administration" {{ old('major', $student->major) == 'Business Administration' ? 'selected' : '' }}>Business Administration</option>
-                            <option value="Nursing" {{ old('major', $student->major) == 'Nursing' ? 'selected' : '' }}>Nursing</option>
-                            <option value="Engineering" {{ old('major', $student->major) == 'Engineering' ? 'selected' : '' }}>Engineering</option>
-                            <option value="Psychology" {{ old('major', $student->major) == 'Psychology' ? 'selected' : '' }}>Psychology</option>
-                            <option value="Medicine" {{ old('major', $student->major) == 'Medicine' ? 'selected' : '' }}>Medicine</option>
-                            <option value="Architecture" {{ old('major', $student->major) == 'Architecture' ? 'selected' : '' }}>Architecture</option>
+                            <option value="Nursing"                 {{ old('major', $student->major) == 'Nursing'                 ? 'selected' : '' }}>Nursing</option>
+                            <option value="Engineering"             {{ old('major', $student->major) == 'Engineering'             ? 'selected' : '' }}>Engineering</option>
+                            <option value="Psychology"              {{ old('major', $student->major) == 'Psychology'              ? 'selected' : '' }}>Psychology</option>
+                            <option value="Medicine"                {{ old('major', $student->major) == 'Medicine'                ? 'selected' : '' }}>Medicine</option>
+                            <option value="Architecture"            {{ old('major', $student->major) == 'Architecture'            ? 'selected' : '' }}>Architecture</option>
                         </select>
                         @error('major') <p class="text-red-500 text-xs">{{ $message }}</p> @enderror
                     </div>
@@ -57,6 +78,7 @@
                         <input class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" type="text" name="academic_year" placeholder="e.g. 2023-2024" value="{{ old('academic_year', $student->academic_year) }}" />
                         @error('academic_year') <p class="text-red-500 text-xs">{{ $message }}</p> @enderror
                     </div>
+
                 </div>
 
                 {{-- Actions --}}

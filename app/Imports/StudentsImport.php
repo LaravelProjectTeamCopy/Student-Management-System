@@ -15,8 +15,11 @@ class StudentsImport implements ToModel, WithHeadingRow, WithValidation
         return new Student([
             'name'  => $row['name'],
             'email' => $row['email'],
+            'date_of_birth' => $row['date_of_birth'],
+            'gender' => $row['gender'],
+            'address' => $row['address'],
             'major' => $row['major'],
-            'student_code' => $row['student_code'],
+            'academic_year' => $row['academic_year'],
         ]);
     }
 
@@ -25,7 +28,11 @@ class StudentsImport implements ToModel, WithHeadingRow, WithValidation
         return [
             'name'  => 'required|string',
             'email' => 'required|email|unique:students,email',
+            'date_of_birth' => 'nullable|date',
+            'gender' => 'nullable|string',
+            'address' => 'nullable|string',
             'major' => 'required|string',
+            'academic_year' => 'nullable|string',
         ];
     }
 }

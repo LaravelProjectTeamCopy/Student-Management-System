@@ -22,12 +22,30 @@
                         <input class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" type="text" name="name" placeholder="e.g. Alexander Pierce" value="{{ old('name') }}" />
                         @error('name') <p class="text-red-500 text-xs">{{ $message }}</p> @enderror
                     </div>
-
+                    
                     {{-- Email Address --}}
                     <div class="space-y-2">
                         <label class="text-xs font-bold uppercase tracking-wider text-slate-500 block">Email Address</label>
                         <input class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" type="email" name="email" placeholder="alex.p@university.edu" value="{{ old('email') }}" />
                         @error('email') <p class="text-red-500 text-xs">{{ $message }}</p> @enderror
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold uppercase tracking-wider text-slate-500 block">Date of Birth</label>
+                        <input class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" type="date" name="date_of_birth" placeholder="e.g. 1995-06-15" value="{{ old('date_of_birth') }}" />
+                        @error('date_of_birth') <p class="text-red-500 text-xs">{{ $message }}</p> @enderror
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold uppercase tracking-wider text-slate-500 block">Gender</label>
+                        <input class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" type="text" name="gender" placeholder="e.g. Male" value="{{ old('gender') }}" />
+                        @error('gender') <p class="text-red-500 text-xs">{{ $message }}</p> @enderror
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold uppercase tracking-wider text-slate-500 block">Address</label>
+                        <input class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" type="text" name="address" placeholder="e.g. 123 Main St" value="{{ old('address') }}" />
+                        @error('address') <p class="text-red-500 text-xs">{{ $message }}</p> @enderror
                     </div>
 
                     {{-- Major --}}

@@ -20,7 +20,8 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
 
-                    {{-- Academic Year --}}
+                    {{-- Academic Year — commented out, set via attendanceshow/fail logic --}}
+                    {{-- 
                     <div class="space-y-2">
                         <label class="text-xs font-bold uppercase tracking-wider text-slate-500 block">Academic Year</label>
                         <select name="academic_year" required
@@ -31,8 +32,10 @@
                         </select>
                         @error('academic_year') <p class="text-red-500 text-xs">{{ $message }}</p> @enderror
                     </div>
+                    --}}
 
-                    {{-- Semester --}}
+                    {{-- Semester — commented out, set via attendanceshow/fail logic --}}
+                    {{-- 
                     <div class="space-y-2">
                         <label class="text-xs font-bold uppercase tracking-wider text-slate-500 block">Semester</label>
                         <select name="semester" required
@@ -42,6 +45,7 @@
                         </select>
                         @error('semester') <p class="text-red-500 text-xs">{{ $message }}</p> @enderror
                     </div>
+                    --}}
 
                     <div class="space-y-2">
                         <label class="text-xs font-bold uppercase tracking-wider text-slate-500 block">Semester Start Date</label>
@@ -188,11 +192,9 @@
 
         form.addEventListener('submit', function (e) {
             e.preventDefault();
-
             document.getElementById('summary-start').textContent    = semesterStartInput.value || '—';
             document.getElementById('summary-duration').textContent = semesterDurationInput.value ? semesterDurationInput.value + ' Weeks' : '—';
             document.getElementById('summary-deadline').textContent = getDeadlineDate();
-
             document.getElementById('reset-modal').classList.remove('hidden');
         });
 

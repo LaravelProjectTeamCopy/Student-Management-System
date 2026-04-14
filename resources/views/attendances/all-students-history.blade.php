@@ -95,6 +95,7 @@
                         <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Semester End</th>
                         <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Present</th>
                         <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Absent</th>
+                        <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Subject Failed</th>
                         <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Result</th>
                     </tr>
                 </thead>
@@ -143,6 +144,28 @@
                             {{ $history->absent_days }}
                         </td>
 
+                        {{-- Subject Failed --}}
+                        <td class="px-6 py-4">
+                            @if($history->failed_subjects)
+                                @if($history->failed_subjects === 'General Absence Limit Reached')
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
+                                        <span class="material-symbols-outlined text-xs">warning</span>
+                                        General Absence Limit
+                                    </span>
+                                @else
+                                    <div class="flex flex-wrap gap-1">
+                                        @foreach(explode(', ', $history->failed_subjects) as $subject)
+                                            <span class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300">
+                                                {{ trim($subject) }}
+                                            </span>
+                                        @endforeach
+                                    </div>
+                                @endif
+                            @else
+                                <span class="text-slate-400 text-xs">—</span>
+                            @endif
+                        </td>
+
                         {{-- Result --}}
                         <td class="px-6 py-4">
                             @if($history->attendance_result === 'Passed')
@@ -159,7 +182,7 @@
                     </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-6 py-12 text-center text-sm text-slate-400">No attendance history yet.</td>
+                            <td colspan="8" class="px-6 py-12 text-center text-sm text-slate-400">No attendance history yet.</td>
                         </tr>
                     @endforelse
 

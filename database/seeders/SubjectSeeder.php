@@ -24,6 +24,7 @@ class SubjectSeeder extends Seeder
             ['name' => 'Marketing', 'subject_code' => 'MKT-101', 'major' => 'Business', 'academic_year' => '2025/2026', 'semester' => 'Semester 1'],
             ['name' => 'Finance', 'subject_code' => 'FIN-101', 'major' => 'Business', 'academic_year' => '2025/2026', 'semester' => 'Semester 1'],
             ['name' => 'Mechanical Engineering', 'subject_code' => 'ME-101', 'major' => 'Engineering', 'academic_year' => '2025/2026', 'semester' => 'Semester 1'],
+            ['name' => 'AI' , 'subject_code' => 'AI-101' , 'major' => 'Computer Science', 'academic_year' => '2025/2026', 'semester' => 'Semester 1'],
         ];
 
         foreach ($subjects as $subject) {

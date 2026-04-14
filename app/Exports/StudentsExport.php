@@ -16,18 +16,21 @@ class StudentsExport implements FromCollection, WithHeadings, WithMapping
 
     public function headings(): array
     {
-    return ['ID', 'Name', 'Email', 'Major', 'Student_Code' , 'Date Joined'];
+    return ['ID', 'Name', 'Email', 'Date of Birth', 'Gender', 'Address', 'Major', 'Academic Year' , 'Date Joined'];
     }
 
     public function map($student): array
     {
-    return [
-        $student->id,
-        $student->name,
-        $student->email,
-        $student->major,
-        $student->student_code,
-        $student->created_at ? $student->created_at->format('Y-m-d') : '—',
-    ];
+        return [
+            $student->id,
+            $student->name,
+            $student->email,
+            $student->date_of_birth ? $student->date_of_birth->format('Y-m-d') : '—',
+            $student->gender,
+            $student->address,
+            $student->major,
+            $student->academic_year,
+            $student->created_at->format('Y-m-d H:i:s'),
+        ];
     }
 }

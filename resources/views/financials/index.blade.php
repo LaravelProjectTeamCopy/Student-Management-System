@@ -93,6 +93,24 @@
             <p class="text-xs font-medium text-blue-600 dark:text-blue-400">All semesters</p>
         </div>
 
+        {{-- Semester Dates Card --}}
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col gap-3 hover:shadow-md transition-all">
+            <div class="w-9 h-9 rounded-lg bg-violet-50 dark:bg-violet-900/20 flex items-center justify-center">
+                <span class="material-symbols-outlined text-violet-600 dark:text-violet-400 text-lg">date_range</span>
+            </div>
+            <div>
+                <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">Semester Period</p>
+                <p class="text-sm font-bold text-slate-900 dark:text-white leading-snug">
+                    {{ $financials->first()?->semester_start ? \Carbon\Carbon::parse($financials->first()->semester_start)->format('M d, Y') : '—' }}
+                </p>
+                <p class="text-xs text-slate-400">to</p>
+                <p class="text-sm font-bold text-slate-900 dark:text-white leading-snug">
+                    {{ $financials->first()?->deadline ? \Carbon\Carbon::parse($financials->first()->deadline)->format('M d, Y') : '—' }}
+                </p>
+            </div>
+            <p class="text-xs font-medium text-violet-600 dark:text-violet-400">Current semester</p>
+        </div>
+
         <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col gap-3 hover:shadow-md transition-all">
             <div class="w-9 h-9 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center">
                 <span class="material-symbols-outlined text-emerald-600 dark:text-emerald-400 text-lg">check_circle</span>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 use App\Models\Financial;
 use App\Models\Student;
 use App\Models\PaymentLog;
@@ -62,6 +63,8 @@ class FinancialController extends Controller
 
     public function financialedit($id)
     {
+        //testing only
+        Carbon::setTestNow(Carbon::parse('next friday 14:00:00'));
         $financial = Financial::where('student_id', $id)->firstOrFail();
         $student   = $financial->student;
         $lastLog   = PaymentLog::where('student_id', $id)->orderBy('payment_date', 'desc')->first();
@@ -71,7 +74,10 @@ class FinancialController extends Controller
     }
 
     public function financialupdate(Request $request, $id)
-    {
+    {   
+        //testing only
+        Carbon::setTestNow(Carbon::parse('next friday 14:00:00'));
+
         $financial = Financial::where('student_id', $id)->firstOrFail();
 
         if ($financial->deadline && now()->gt($financial->deadline)) {

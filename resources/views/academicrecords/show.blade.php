@@ -1,4 +1,4 @@
-﻿<x-layouts.master title="{{ $student->name }} â€” Academic Record">
+﻿<x-layouts.master title="{{ $student->name }} Academic Record">
 
     <x-slot name="breadcrumb">
         <x-breadcrumb :links="['Dashboard' => '/dashboard', 'Academic Records' => route('academicrecords.index')]" current="{{ $student->name }}" />
@@ -91,7 +91,7 @@
     <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
         <div class="p-5 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2">
             <span class="material-symbols-outlined text-primary">school</span>
-            <h3 class="text-base font-bold text-slate-900 dark:text-white">Subject Scores â€” {{ $currentSem }}, {{ $currentYear }}</h3>
+            <h3 class="text-base font-bold text-slate-900 dark:text-white">Subject Scores {{ $currentSem }}, {{ $currentYear }}</h3>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
@@ -123,14 +123,14 @@
                         <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-all">
                             <td class="px-6 py-4">
                                 <div class="flex flex-col">
-                                    <span class="text-sm font-semibold text-slate-900 dark:text-white">{{ $score->subject->name ?? 'â€”' }}</span>
+                                    <span class="text-sm font-semibold text-slate-900 dark:text-white">{{ $score->subject->name ?? '—' }}</span>
                                     <span class="text-xs text-slate-400">{{ $score->subject->subject_code ?? '' }}</span>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 text-center text-sm font-bold {{ $scoreColor }}">{{ $score->attendance ?? 'â€”' }}</td>
-                            <td class="px-6 py-4 text-center text-sm font-bold {{ $scoreColor }}">{{ $score->quiz ?? 'â€”' }}</td>
-                            <td class="px-6 py-4 text-center text-sm font-bold {{ $scoreColor }}">{{ $score->midterm ?? 'â€”' }}</td>
-                            <td class="px-6 py-4 text-center text-sm font-bold {{ $scoreColor }}">{{ $score->final_exam ?? 'â€”' }}</td>
+                            <td class="px-6 py-4 text-center text-sm font-bold {{ $scoreColor }}">{{ $score->attendance ?? '—' }}</td>
+                            <td class="px-6 py-4 text-center text-sm font-bold {{ $scoreColor }}">{{ $score->quiz ?? '—' }}</td>
+                            <td class="px-6 py-4 text-center text-sm font-bold {{ $scoreColor }}">{{ $score->midterm ?? '—' }}</td>
+                            <td class="px-6 py-4 text-center text-sm font-bold {{ $scoreColor }}">{{ $score->final_exam ?? '—' }}</td>
                             <td class="px-6 py-4 text-center">
                                 <span class="text-sm font-bold {{ $scoreColor }}">{{ number_format($total, 1) }}</span>
                             </td>
